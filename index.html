@@ -510,6 +510,13 @@
                     </button>
                     <h2 class="text-4xl font-black tracking-tight">Z <span class="text-orange-500">COMMUNITY</span></h2>
                 </div>
+                <div id="joined-communities-section" class="hidden space-y-6 mb-12">
+                    <h3 class="text-[10px] font-bold uppercase tracking-[0.2em] ml-1" style="color: var(--text-muted)">Your Joined Groups</h3>
+                    <div id="my-communities-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Joined communities will be listed here -->
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div class="glass glass-hover p-10 cursor-pointer group" onclick="showView('create-community')">
                         <div class="space-y-8">
@@ -534,12 +541,6 @@
                         </div>
                     </div>
                 </div>
-                <div id="my-communities-section" class="mt-16 space-y-6">
-                    <h3 class="text-xl font-black uppercase tracking-widest opacity-40">My Communities</h3>
-                    <div id="my-communities-list" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <!-- Communities will be listed here -->
-                    </div>
-                </div>
             </div>
 
             <!-- Create Community View -->
@@ -551,7 +552,7 @@
                     </div>
                     <div class="glass p-8 space-y-6">
                         <div class="space-y-2">
-                            <label class="text-[10px] font-bold uppercase tracking-[0.2em] ml-1" style="color: var(--text-muted)">Community Username</label>
+                            <label class="text-[10px] font-bold uppercase tracking-[0.2em] ml-1" style="color: var(--text-muted)">Room Name (Username)</label>
                             <input id="comm-create-name" type="text" placeholder="unique_room_name" class="input-field">
                         </div>
                         <div class="space-y-2">
@@ -579,7 +580,7 @@
                     </div>
                     <div class="glass p-8 space-y-6">
                         <div class="space-y-2">
-                            <label class="text-[10px] font-bold uppercase tracking-[0.2em] ml-1" style="color: var(--text-muted)">Community Username</label>
+                            <label class="text-[10px] font-bold uppercase tracking-[0.2em] ml-1" style="color: var(--text-muted)">Room Name (Username)</label>
                             <input id="comm-join-name" type="text" placeholder="room_name" class="input-field">
                         </div>
                         <div class="space-y-2">
@@ -640,14 +641,16 @@
                                     </div>
                                     <p class="text-xs font-bold" style="color: var(--text-muted)">Drop File to Send to Room</p>
                                 </div>
-                                <div id="comm-dropzone-file" class="hidden text-center space-y-3">
-                                    <div class="w-12 h-12 bg-orange-600/20 rounded-xl flex items-center justify-center mx-auto">
-                                        <i data-lucide="file" class="w-6 h-6 text-orange-500"></i>
+                                <div id="comm-dropzone-file" class="hidden text-center space-y-6 w-full">
+                                    <div class="w-16 h-16 bg-orange-600/20 rounded-2xl flex items-center justify-center mx-auto">
+                                        <i data-lucide="file" class="w-8 h-8 text-orange-500"></i>
                                     </div>
-                                    <p id="comm-file-name-display" class="text-xs font-bold truncate max-w-[200px]"></p>
-                                    <div class="flex gap-4 justify-center">
-                                        <button onclick="removeCommFile(event)" class="text-[10px] font-black text-red-500 uppercase tracking-widest">Remove</button>
-                                        <button id="comm-send-btn" onclick="handleCommSend()" class="text-[10px] font-black text-orange-500 uppercase tracking-widest">Send Now</button>
+                                    <p id="comm-file-name-display" class="text-sm font-bold truncate max-w-[250px] mx-auto"></p>
+                                    <div class="flex flex-col gap-4 w-full max-w-xs mx-auto">
+                                        <button id="comm-send-btn" onclick="handleCommSend()" class="w-full py-5 bg-orange-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-orange-600/20 hover:scale-105 transition-transform flex items-center justify-center gap-3">
+                                            SEND TO ROOM <i data-lucide="zap" class="w-5 h-5"></i>
+                                        </button>
+                                        <button onclick="removeCommFile(event)" class="text-[10px] font-black text-red-500 uppercase tracking-widest hover:underline">Remove File</button>
                                     </div>
                                 </div>
                             </div>
@@ -764,12 +767,17 @@
                                         <p class="text-[10px] font-bold uppercase tracking-widest text-blue-500/50">Max 3MB Limit</p>
                                     </div>
                                 </div>
-                                <div id="dropzone-file" class="hidden text-center space-y-4">
+                                <div id="dropzone-file" class="hidden text-center space-y-6 w-full">
                                     <div class="w-16 h-16 bg-blue-600/20 rounded-2xl flex items-center justify-center mx-auto">
                                         <i data-lucide="file" class="w-8 h-8 text-blue-500"></i>
                                     </div>
-                                    <p id="file-name-display" class="text-sm font-bold truncate max-w-[150px]"></p>
-                                    <button onclick="removeFile(event)" class="text-[10px] font-black text-red-500 uppercase tracking-widest">Remove</button>
+                                    <p id="file-name-display" class="text-sm font-bold truncate max-w-[150px] mx-auto"></p>
+                                    <div class="flex flex-col gap-4 w-full max-w-xs mx-auto">
+                                        <button onclick="handleSend()" class="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-blue-600/20 hover:scale-105 transition-transform flex items-center justify-center gap-3">
+                                            SEND NOW <i data-lucide="zap" class="w-5 h-5"></i>
+                                        </button>
+                                        <button onclick="removeFile(event)" class="text-[10px] font-black text-red-500 uppercase tracking-widest hover:underline">Remove File</button>
+                                    </div>
                                 </div>
                             </div>
 
@@ -885,7 +893,7 @@
         const { createClient } = supabase;
         let sb;
         try {
-            sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            sb = createClient(https://ersmbkzwcukkqkyrveqt.supabase.co, sb_publishable_2w2WWtOBoKtNArFLZ51B-A_WYLCy0XD);
         } catch (e) {
             console.error("Supabase initialization failed. Check your URL and Key.", e);
         }
@@ -1097,6 +1105,28 @@
                         document.getElementById('bio-count').innerText = `${e.target.value.length}/101`;
                     });
                 }
+
+                // Enter Key Support
+                const setupEnterKey = (viewId, action) => {
+                    const view = document.getElementById(viewId);
+                    if (!view) return;
+                    view.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            // Don't trigger if we're in a textarea unless it's the specific one we want
+                            if (e.target.tagName === 'TEXTAREA' && e.target.id !== 'send-text') return;
+                            action();
+                        }
+                    });
+                };
+
+                setupEnterKey('view-login', handleLogin);
+                setupEnterKey('view-signup', handleSignup);
+                setupEnterKey('view-send', handleSend);
+                setupEnterKey('view-receive', handleReceive);
+                setupEnterKey('view-community-room', handleCommSend);
+                setupEnterKey('view-join-community', handleJoinCommunity);
+                setupEnterKey('view-create-community', handleCreateCommunity);
+
             } catch (err) {
                 console.error("Initialization error:", err);
             }
@@ -1347,9 +1377,12 @@
                 
                 if (error) throw error;
 
+                const section = document.getElementById('joined-communities-section');
                 const list = document.getElementById('my-communities-list');
-                if (list) {
+                
+                if (list && section) {
                     if (data && data.length > 0) {
+                        section.classList.remove('hidden');
                         list.innerHTML = data.map(item => `
                             <div onclick="enterCommunityRoom('${item.communities.id}')" class="glass p-6 cursor-pointer hover:bg-white/5 transition-all border border-white/5 hover:border-orange-500/50 group">
                                 <div class="flex items-center gap-4">
@@ -1358,13 +1391,15 @@
                                     </div>
                                     <div class="flex-1 min-w-0">
                                         <h4 class="font-black truncate text-sm">${item.communities.name}</h4>
-                                        <p class="text-[10px] uppercase tracking-widest opacity-40">Active Room</p>
+                                        <p class="text-[10px] uppercase tracking-widest opacity-40">Joined Room</p>
                                     </div>
+                                    <i data-lucide="chevron-right" class="w-4 h-4 opacity-20 group-hover:opacity-100 transition-opacity"></i>
                                 </div>
                             </div>
                         `).join('');
                     } else {
-                        list.innerHTML = `<p class="col-span-full text-center py-8 text-[10px] uppercase tracking-widest opacity-20">No communities joined yet</p>`;
+                        section.classList.add('hidden');
+                        list.innerHTML = '';
                     }
                     lucide.createIcons();
                 }
@@ -1424,6 +1459,8 @@
             const name = nameField.value.trim().toLowerCase();
             const sentence = sentField.value.trim();
 
+            if (!name || !sentence) return showToast("Room Name and Secret Sentence are required.", "error");
+
             try {
                 const { data: comm, error: commErr } = await sb.from('communities')
                     .select('*')
@@ -1431,7 +1468,10 @@
                     .eq('secret_sentence', sentence)
                     .single();
 
-                if (commErr || !comm) return showToast("Invalid name or secret sentence.", "error");
+                if (commErr || !comm) {
+                    console.error("Join Error:", commErr);
+                    return showToast("Invalid Room Name or Secret Sentence.", "error");
+                }
 
                 // Check if already a member
                 const { data: existing } = await sb.from('community_members')
@@ -1441,6 +1481,7 @@
                     .single();
 
                 if (existing) {
+                    showToast(`Welcome back to ${comm.name}!`, "success");
                     enterCommunityRoom(comm.id);
                     return;
                 }
@@ -1755,6 +1796,7 @@
 
                 if (dbErr) throw dbErr;
 
+                playSound('send');
                 showToast("File shared with room!", "success");
                 removeCommFile();
             } catch (err) {
