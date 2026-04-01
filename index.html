@@ -2397,15 +2397,14 @@
                                     result.classList.add('hidden');
                                     delBtn.innerHTML = '<i data-lucide="trash-2" class="w-6 h-6"></i>';
                                     lucide.createIcons();
-                                } catch (err) {
-                                    showToast("Error: " + err.message, "error");
-                                    delBtn.innerHTML = '<i data-lucide="trash-2" class="w-6 h-6"></i>';
-                                    lucide.createIcons();
                                 }
-                            
+                            }
                         );
-                    };
-                    lucide.createIcons();
+                    } catch (err) {
+                        showToast("Error: " + err.message, "error");
+                        delBtn.innerHTML = '<i data-lucide="trash-2" class="w-6 h-6"></i>';
+                        lucide.createIcons();
+                    }
 
                     playSound('receive');
                     showToast("File decrypted successfully!", "success");
