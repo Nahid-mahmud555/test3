@@ -2393,7 +2393,7 @@
                                     const { error } = await sb.from('transfers').delete().eq('id', transfer.id);
                                     if (error) throw error;
 
-                                    showToast("File deleted successfully.", "success");
+showToast("File deleted successfully.", "success");
                                     result.classList.add('hidden');
                                     delBtn.innerHTML = '<i data-lucide="trash-2" class="w-6 h-6"></i>';
                                     lucide.createIcons();
