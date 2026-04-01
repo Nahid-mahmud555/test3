@@ -886,14 +886,19 @@
         // ==========================================
         // ADD YOUR SUPABASE CREDENTIALS HERE
         // ==========================================
+        // ==========================================
+        // ADD YOUR SUPABASE CREDENTIALS HERE
+        // ==========================================
         const SUPABASE_URL = 'https://ersmbkzwcukkqkyrveqt.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_2w2WWtOBoKtNArFLZ51B-A_WYLCy0XD';
         // ==========================================
 
         const { createClient } = supabase;
         let sb;
+
         try {
-            sb = createClient(https://ersmbkzwcukkqkyrveqt.supabase.co, sb_publishable_2w2WWtOBoKtNArFLZ51B-A_WYLCy0XD);
+            // এখানে সরাসরি URL না লিখে উপরের ভেরিয়েবলগুলো ব্যবহার করা উচিত
+            sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         } catch (e) {
             console.error("Supabase initialization failed. Check your URL and Key.", e);
         }
