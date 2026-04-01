@@ -2384,28 +2384,30 @@
                             "Are you sure you want to delete this file permanently? This action cannot be undone.",
                             `<p class="text-xs text-red-500 font-bold uppercase tracking-widest text-center">Permanent Destruction</p>`,
                             async () => {
-                                try {
-                                    delBtn.innerHTML = '<div class="loader"></div>';
-                                    // 1. Delete from Storage
-                                    await sb.storage.from('transfers').remove([transfer.file_path]);
-                                    
-                                    // 2. Delete from Database
-                                    const { error } = await sb.from('transfers').delete().eq('id', transfer.id);
-                                    if (error) throw error;
+                                    try {
+                                        delBtn.innerHTML = '<div class="loader"></div>';
+                                        
+                                        // 1. Delete from Storage
+                                        await sb.storage.from('transfers').remove([transfer.file_path]);
+                                        
+                                        // 2. Delete from Database
+                                        const { error } = await sb.from('transfers').delete().eq('id', transfer.id);
+                                        if (error) throw error;
 
-showToast("File deleted successfully.", "success");
-                                    result.classList.add('hidden');
-                                    delBtn.innerHTML = '<i data-lucide="trash-2" class="w-6 h-6"></i>';
-                                    lucide.createIcons();
+                                        showToast("File deleted successfully.", "success");
+                                        result.classList.add('hidden');
+                                        delBtn.innerHTML = '<i data-lucide="trash-2" class="w-6 h-6"></i>';
+                                        lucide.createIcons();
+                                    } catch (err) {
+                                        showToast("Error: " + err.message, "error");
+                                        delBtn.innerHTML = '<i data-lucide="trash-2" class="w-6 h-6"></i>';
+                                        lucide.createIcons();
+                                    }
                                 }
-                            }
-                        );
-                    } catch (err) {
-                        showToast("Error: " + err.message, "error");
-                        delBtn.innerHTML = '<i data-lucide="trash-2" class="w-6 h-6"></i>';
-                        lucide.createIcons();
-                    }
-
+                            );
+                        } catch (err) {
+                            console.error(err);
+                        }
                     playSound('receive');
                     showToast("File decrypted successfully!", "success");
                 } else {
