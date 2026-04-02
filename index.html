@@ -186,6 +186,28 @@
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 10px; }
+
+        .btn-big {
+            padding: 1rem 2rem;
+            font-size: 1.125rem;
+            font-weight: 800;
+            border-radius: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-big:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .sound-animation {
+            animation: bounce 0.3s ease;
+        }
     </style>
 </head>
 <body>
@@ -576,7 +598,7 @@
                                 </div>
                             </div>
                             
-                            <div id="comm-dropzone" class="glass border-2 border-dashed border-white/10 flex flex-col items-center justify-center p-8 cursor-pointer hover:bg-white/5 transition-all group min-h-[150px]" style="border-color: var(--glass-border)">
+                            <div id="comm-dropzone" class="glass border-2 border-dashed border-white/10 flex flex-col items-center justify-center p-8 cursor-pointer hover:bg-white/5 transition-all group min-h-[200px]" style="border-color: var(--glass-border)">
                                 <input type="file" id="comm-file-input" class="hidden">
                                 <div id="comm-dropzone-empty" class="text-center space-y-3">
                                     <div class="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform" style="background: var(--input-bg)">
@@ -585,15 +607,18 @@
                                     <p class="text-xs font-bold" style="color: var(--text-muted)">Drop File to Send to Room</p>
                                 </div>
                                 <div id="comm-dropzone-file" class="hidden text-center space-y-6 w-full">
-                                    <div class="w-16 h-16 bg-orange-600/20 rounded-2xl flex items-center justify-center mx-auto">
-                                        <i data-lucide="file" class="w-8 h-8 text-orange-500"></i>
+                                    <div class="w-20 h-20 bg-orange-600/20 rounded-2xl flex items-center justify-center mx-auto">
+                                        <i data-lucide="file" class="w-10 h-10 text-orange-500"></i>
                                     </div>
-                                    <p id="comm-file-name-display" class="text-sm font-bold truncate max-w-[250px] mx-auto"></p>
-                                    <div class="flex flex-col gap-4 w-full max-w-xs mx-auto">
-                                        <button onclick="handleCommSend()" class="w-full py-5 bg-orange-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-orange-600/20 hover:scale-105 transition-transform flex items-center justify-center gap-3">
-                                            SEND TO ROOM <i data-lucide="zap" class="w-5 h-5"></i>
+                                    <p id="comm-file-name-display" class="text-sm font-bold truncate max-w-[300px] mx-auto"></p>
+                                    <div class="flex flex-col gap-4 w-full max-w-sm mx-auto">
+                                        <button id="comm-send-btn" class="btn-big w-full bg-orange-600 text-white rounded-2xl font-black text-xl shadow-xl shadow-orange-600/30 hover:scale-105 transition-transform flex items-center justify-center gap-3 py-4">
+                                            <i data-lucide="send" class="w-6 h-6"></i>
+                                            SEND TO ROOM
                                         </button>
-                                        <button onclick="removeCommFile(event)" class="text-[10px] font-black text-red-500 uppercase tracking-widest hover:underline">Remove File</button>
+                                        <button onclick="removeCommFile(event)" class="text-sm font-bold text-red-500 uppercase tracking-widest hover:underline py-2">
+                                            Remove File
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -705,12 +730,15 @@
                                     <div class="w-16 h-16 bg-blue-600/20 rounded-2xl flex items-center justify-center mx-auto">
                                         <i data-lucide="file" class="w-8 h-8 text-blue-500"></i>
                                     </div>
-                                    <p id="file-name-display" class="text-sm font-bold truncate max-w-[150px] mx-auto"></p>
+                                    <p id="file-name-display" class="text-sm font-bold truncate max-w-[250px] mx-auto"></p>
                                     <div class="flex flex-col gap-4 w-full max-w-xs mx-auto">
-                                        <button onclick="handleSend()" class="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-blue-600/20 hover:scale-105 transition-transform flex items-center justify-center gap-3">
-                                            SEND NOW <i data-lucide="zap" class="w-5 h-5"></i>
+                                        <button id="send-now-btn" onclick="handleSend()" class="btn-big w-full bg-blue-600 text-white rounded-2xl font-black text-xl shadow-xl shadow-blue-600/30 hover:scale-105 transition-transform flex items-center justify-center gap-3 py-4">
+                                            <i data-lucide="zap" class="w-6 h-6"></i>
+                                            SEND NOW
                                         </button>
-                                        <button onclick="removeFile(event)" class="text-[10px] font-black text-red-500 uppercase tracking-widest hover:underline">Remove File</button>
+                                        <button onclick="removeFile(event)" class="text-sm font-bold text-red-500 uppercase tracking-widest hover:underline py-2">
+                                            Remove File
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -719,12 +747,9 @@
                                     <label class="text-[10px] font-bold uppercase tracking-[0.2em]" style="color: var(--text-muted)">Text to File</label>
                                     <i data-lucide="type" class="w-4 h-4" style="color: var(--text-muted)"></i>
                                 </div>
-                                <textarea id="send-text" placeholder="Type your message here... it will be sent as a .txt file." class="flex-1 bg-transparent border-none focus:ring-0 resize-none text-sm mono" style="color: var(--text)"></textarea>
+                                <textarea id="send-text" placeholder="Type your message here... it will be sent as a .txt file. Press Enter to send!" class="flex-1 bg-transparent border-none focus:ring-0 resize-none text-sm mono" style="color: var(--text)"></textarea>
                             </div>
                         </div>
-                        <button id="send-btn" onclick="handleSend()" class="btn-action w-full bg-blue-600 py-6 rounded-2xl font-black text-lg shadow-2xl shadow-blue-600/30 flex items-center justify-center gap-3 text-white">
-                            INITIALIZE DROP <i data-lucide="zap" class="w-5 h-5"></i>
-                        </button>
                     </div>
                 </div>
             </div>
@@ -741,7 +766,7 @@
                     <div class="glass p-10 space-y-8">
                         <div class="text-center space-y-2">
                             <h3 class="text-2xl font-bold">Unlock Content</h3>
-                            <p class="text-sm" style="color: var(--text-muted)">Enter credentials or search by 2-digit code.</p>
+                            <p class="text-sm" style="color: var(--text-muted)">Enter credentials or search by 2-digit code. Press Enter to submit!</p>
                         </div>
                         
                         <div class="flex bg-white/5 rounded-2xl p-1 mb-6" style="background: var(--input-bg)">
@@ -823,7 +848,6 @@
         const { createClient } = supabase;
         let sb;
         
-        // Initialize Supabase client
         try {
             sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             console.log("Supabase initialized successfully");
@@ -842,19 +866,70 @@
         let currentUser = null;
         let inboxSubscription = null;
 
-        // --- Sounds ---
-        const sounds = {
-            send: new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3'),
-            receive: new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3'),
-            error: new Audio('https://assets.mixkit.co/active_storage/sfx/2572/2572-preview.mp3'),
-            notify: new Audio('https://assets.mixkit.co/active_storage/sfx/2569/2569-preview.mp3')
-        };
-
-        const playSound = (name) => {
-            try {
-                sounds[name].currentTime = 0;
-                sounds[name].play().catch(e => console.log("Audio play failed:", e));
-            } catch (e) {}
+        // --- Cute Sound Effects ---
+        const playCuteSound = (type) => {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            if (type === 'send') {
+                oscillator.frequency.value = 880;
+                gainNode.gain.value = 0.3;
+                oscillator.type = 'sine';
+                oscillator.start();
+                gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.3);
+                oscillator.stop(audioContext.currentTime + 0.3);
+            } else if (type === 'receive') {
+                oscillator.frequency.value = 660;
+                gainNode.gain.value = 0.3;
+                oscillator.type = 'sine';
+                oscillator.start();
+                gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.4);
+                oscillator.stop(audioContext.currentTime + 0.4);
+                
+                setTimeout(() => {
+                    const osc2 = audioContext.createOscillator();
+                    const gain2 = audioContext.createGain();
+                    osc2.connect(gain2);
+                    gain2.connect(audioContext.destination);
+                    osc2.frequency.value = 880;
+                    gain2.gain.value = 0.2;
+                    osc2.type = 'sine';
+                    osc2.start();
+                    gain2.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.2);
+                    osc2.stop(audioContext.currentTime + 0.2);
+                }, 200);
+            } else if (type === 'success') {
+                oscillator.frequency.value = 523.25;
+                gainNode.gain.value = 0.2;
+                oscillator.type = 'sine';
+                oscillator.start();
+                gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.2);
+                oscillator.stop(audioContext.currentTime + 0.2);
+                
+                setTimeout(() => {
+                    const osc2 = audioContext.createOscillator();
+                    const gain2 = audioContext.createGain();
+                    osc2.connect(gain2);
+                    gain2.connect(audioContext.destination);
+                    osc2.frequency.value = 659.25;
+                    gain2.gain.value = 0.2;
+                    osc2.type = 'sine';
+                    osc2.start();
+                    gain2.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.2);
+                    osc2.stop(audioContext.currentTime + 0.2);
+                }, 150);
+            }
+            
+            // Add visual animation
+            const btn = document.activeElement;
+            if (btn && btn.classList) {
+                btn.classList.add('sound-animation');
+                setTimeout(() => btn.classList.remove('sound-animation'), 300);
+            }
         };
 
         // --- UI Helpers ---
@@ -1126,6 +1201,7 @@
                     return;
                 }
 
+                playCuteSound('success');
                 showToast("Account created! Please login.", "success");
                 showView('login');
             } catch (err) {
@@ -1159,8 +1235,9 @@
                 localStorage.setItem('zdrop_user', JSON.stringify(data));
                 updateUIForUser();
                 fetchInbox();
-                showView('menu');
+                playCuteSound('success');
                 showToast(`Welcome back, ${currentUser.name}!`, "success");
+                showView('menu');
             } catch (err) {
                 showToast("Login Error: " + err.message, "error");
             }
@@ -1252,6 +1329,7 @@
                 }
                 currentUser.bio = bio;
                 localStorage.setItem('zdrop_user', JSON.stringify(currentUser));
+                playCuteSound('success');
                 showToast("Bio updated!", "success");
             } catch (err) {
                 showToast("Error: " + err.message, "error");
@@ -1277,8 +1355,8 @@
                 }, (payload) => {
                     console.log('Private drop received:', payload);
                     fetchInbox(); 
-                    playSound('notify');
-                    showToast(`New private drop from ${payload.new.sender_nickname}!`, "success");
+                    playCuteSound('receive');
+                    showToast(`✨ New private drop from ${payload.new.sender_nickname}! ✨`, "success");
                 });
             }
 
@@ -1290,8 +1368,8 @@
                 if (payload.new.is_public) {
                     console.log('Public drop received:', payload);
                     if (currentUser) fetchInbox();
-                    playSound('notify');
-                    showToast(`New Public Drop available! Code: ${payload.new.public_code}`, "info");
+                    playCuteSound('receive');
+                    showToast(`🌟 New Public Drop available! Code: ${payload.new.public_code} 🌟`, "info");
                 }
             });
 
@@ -1415,7 +1493,7 @@
                     document.body.removeChild(link);
                     URL.revokeObjectURL(url);
                     
-                    playSound('receive');
+                    playCuteSound('receive');
                     showToast("File decrypted and downloaded!", "success");
                 } catch (err) {
                     showToast("Download Error: " + err.message, "error");
@@ -1435,7 +1513,6 @@
                     if (!pass) return;
 
                     if (pass !== correctPassword) {
-                        playSound('error');
                         showToast("Incorrect password. Access denied.", "error");
                         return;
                     }
@@ -1458,6 +1535,7 @@
                         const { error } = await sb.from('transfers').delete().eq('id', id);
                         if (error) throw error;
 
+                        playCuteSound('success');
                         showToast("File deleted successfully.", "success");
                         fetchInbox();
                     } catch (err) {
@@ -1554,6 +1632,7 @@
 
                 if (memErr) throw memErr;
 
+                playCuteSound('success');
                 showToast("Community created successfully!", "success");
                 enterCommunityRoom(comm.id);
             } catch (err) {
@@ -1610,6 +1689,7 @@
 
                 if (memErr) throw memErr;
 
+                playCuteSound('success');
                 showToast(`Joined ${comm.name}!`, "success");
                 enterCommunityRoom(comm.id);
             } catch (err) {
@@ -1658,6 +1738,12 @@
                             handleCommFileSelection(e.dataTransfer.files[0]);
                         }
                     });
+                }
+
+                // Set up send button listener
+                const sendBtn = document.getElementById('comm-send-btn');
+                if (sendBtn) {
+                    sendBtn.onclick = handleCommSend;
                 }
             } catch (err) {
                 showToast("Room Error: " + err.message, "error");
@@ -1792,6 +1878,7 @@
                 
                 const { error } = await sb.from('community_members').update({ permissions: newPermissions }).eq('id', memberId);
                 if (error) throw error;
+                playCuteSound('success');
                 showToast("Permission updated.", "success");
             } catch (err) {
                 showToast("Permission Error: " + err.message, "error");
@@ -1874,6 +1961,8 @@
             if (emptyState) emptyState.classList.add('hidden');
             if (fileState) fileState.classList.remove('hidden');
             if (nameDisp) nameDisp.innerText = file.name;
+            
+            playCuteSound('send');
         };
 
         window.removeCommFile = (e) => {
@@ -1888,7 +1977,7 @@
             if (fileInput) fileInput.value = "";
         };
 
-        window.handleCommSend = async () => {
+        const handleCommSend = async () => {
             if (!selectedCommFile || !currentCommunity || !currentUser) return;
             
             if (!sb) {
@@ -1909,7 +1998,7 @@
             const btn = document.getElementById('comm-send-btn');
             if (btn) {
                 btn.disabled = true;
-                btn.innerText = "SENDING...";
+                btn.innerHTML = '<div class="loader"></div> SENDING...';
             }
 
             try {
@@ -1929,15 +2018,16 @@
 
                 if (dbErr) throw dbErr;
 
-                playSound('send');
-                showToast("File shared with room!", "success");
+                playCuteSound('send');
+                showToast("✨ File shared with room! ✨", "success");
                 removeCommFile();
             } catch (err) {
                 showToast("Send Error: " + err.message, "error");
             } finally {
                 if (btn) {
                     btn.disabled = false;
-                    btn.innerText = "SEND TO ROOM";
+                    btn.innerHTML = '<i data-lucide="send" class="w-6 h-6"></i> SEND TO ROOM';
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
                 }
             }
         };
@@ -1985,7 +2075,7 @@
                 document.body.removeChild(link);
                 URL.revokeObjectURL(url);
                 
-                playSound('receive');
+                playCuteSound('receive');
                 showToast("File downloaded!", "success");
             } catch (err) {
                 showToast("Download Error: " + err.message, "error");
@@ -2005,6 +2095,7 @@
                 try {
                     await sb.storage.from('transfers').remove([filePath]);
                     await sb.from('community_files').delete().eq('id', id);
+                    playCuteSound('success');
                     showToast("File removed from room.", "success");
                 } catch (err) {
                     showToast("Delete Error: " + err.message, "error");
@@ -2047,7 +2138,6 @@
             if (!file) return;
             
             if (file.size > 3 * 1024 * 1024) {
-                playSound('error');
                 showToast("File too large! Maximum limit is 3MB.", "error");
                 if (fileInput) fileInput.value = "";
                 return;
@@ -2061,6 +2151,8 @@
             if (emptyState) emptyState.classList.add('hidden');
             if (fileState) fileState.classList.remove('hidden');
             if (nameDisp) nameDisp.innerText = file.name;
+            
+            playCuteSound('send');
         };
 
         window.removeFile = (e) => {
@@ -2080,7 +2172,7 @@
             const nickField = document.getElementById('send-nickname');
             const descField = document.getElementById('send-desc');
             const textField = document.getElementById('send-text');
-            const btn = document.getElementById('send-btn');
+            const btn = document.getElementById('send-now-btn');
 
             if (!receiverField || !passField || !nickField || !descField || !textField || !btn) return;
 
@@ -2091,13 +2183,11 @@
             const textContent = textField.value;
 
             if (!receiver || !nickname) {
-                playSound('error');
                 showToast("Receiver Username and Your Nickname are required.", "error");
                 return;
             }
 
             if (currentTransferMode === 'private' && !password) {
-                playSound('error');
                 showToast("Password is required for private drops.", "error");
                 return;
             }
@@ -2109,7 +2199,6 @@
 
             const { data: userExists, error: userError } = await sb.from('users').select('id').eq('username', receiver).single();
             if (userError || !userExists) {
-                playSound('error');
                 showToast("Receiver username not found.", "error");
                 return;
             }
@@ -2121,19 +2210,17 @@
             }
 
             if (!fileToUpload) {
-                playSound('error');
                 showToast("Please select a file or type a message.", "error");
                 return;
             }
 
             if (fileToUpload.size > 3 * 1024 * 1024) {
-                playSound('error');
                 showToast("The content is too large! Maximum limit is 3MB.", "error");
                 return;
             }
 
             btn.disabled = true;
-            btn.innerHTML = '<div class="loader"></div> INITIALIZING...';
+            btn.innerHTML = '<div class="loader"></div> SENDING...';
 
             try {
                 let publicCode = null;
@@ -2165,11 +2252,11 @@
 
                 if (dbError) throw dbError;
 
-                playSound('send');
+                playCuteSound('send');
                 
                 if (currentTransferMode === 'public') {
                     showModal(
-                        "Public Drop Initialized",
+                        "Public Drop Initialized ✨",
                         `Your file is now public. Share this 2-digit code with the receiver:`,
                         `<div class="text-center space-y-4">
                             <div class="text-6xl font-black text-blue-500 tracking-tighter">${publicCode}</div>
@@ -2180,7 +2267,7 @@
                         () => { showView('menu'); }
                     );
                 } else {
-                    showToast("Drop Initialized Successfully!", "success");
+                    showToast("✨ Drop Initialized Successfully! ✨", "success");
                     showView('menu');
                 }
                 
@@ -2198,11 +2285,10 @@
                 removeFile({ stopPropagation: () => {} });
             } catch (err) {
                 console.error(err);
-                playSound('error');
                 showToast("Error: " + err.message, "error");
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = 'INITIALIZE DROP <i data-lucide="zap" class="w-5 h-5"></i>';
+                btn.innerHTML = '<i data-lucide="zap" class="w-6 h-6"></i> SEND NOW';
                 if (typeof lucide !== 'undefined') lucide.createIcons();
             }
         };
@@ -2222,17 +2308,14 @@
             const code = codeField.value.trim();
 
             if (currentReceiveMode === 'private' && !username) {
-                playSound('error');
                 showToast("Receiver Username is required.", "error");
                 return;
             }
             if (currentReceiveMode === 'private' && !password) {
-                playSound('error');
                 showToast("Password is required.", "error");
                 return;
             }
             if (currentReceiveMode === 'public' && !code) {
-                playSound('error');
                 showToast("2-Digit Public Code is required.", "error");
                 return;
             }
@@ -2290,12 +2373,11 @@
                                 link.click();
                                 document.body.removeChild(link);
                                 URL.revokeObjectURL(url);
-                                playSound('receive');
-                                showToast("File downloaded!", "success");
+                                playCuteSound('receive');
+                                showToast("✨ File downloaded! ✨", "success");
                                 
                                 startAutoDeleteTimer(transfer.id, transfer.file_path);
                             } catch (err) {
-                                playSound('error');
                                 showToast("Download Error: " + err.message, "error");
                             } finally {
                                 dlBtn.innerHTML = '<i data-lucide="download" class="w-6 h-6"></i>';
@@ -2320,6 +2402,7 @@
                                         const { error } = await sb.from('transfers').delete().eq('id', transfer.id);
                                         if (error) throw error;
 
+                                        playCuteSound('success');
                                         showToast("File deleted successfully.", "success");
                                         result.classList.add('hidden');
                                         if (delBtn) delBtn.innerHTML = '<i data-lucide="trash-2" class="w-6 h-6"></i>';
@@ -2333,15 +2416,13 @@
                             );
                         };
                     }
-                    playSound('receive');
-                    showToast("File decrypted successfully!", "success");
+                    playCuteSound('receive');
+                    showToast("✨ File decrypted successfully! ✨", "success");
                 } else {
-                    playSound('error');
                     showToast("Invalid credentials or file expired.", "error");
                 }
             } catch (err) {
                 console.error(err);
-                playSound('error');
                 showToast("Error: " + err.message, "error");
             } finally {
                 btn.disabled = false;
@@ -2354,6 +2435,76 @@
                 if (recCode) recCode.value = "";
                 if (typeof lucide !== 'undefined') lucide.createIcons();
             }
+        };
+
+        // --- Enter Key Support ---
+        const addEnterKeySupport = () => {
+            const sendTextarea = document.getElementById('send-text');
+            if (sendTextarea) {
+                sendTextarea.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSend();
+                    }
+                });
+            }
+
+            const receiveInputs = ['receive-username', 'receive-password', 'receive-code'];
+            receiveInputs.forEach(id => {
+                const input = document.getElementById(id);
+                if (input) {
+                    input.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleReceive();
+                        }
+                    });
+                }
+            });
+
+            const loginUsername = document.getElementById('login-username');
+            const loginPassword = document.getElementById('login-password');
+            if (loginUsername && loginPassword) {
+                loginUsername.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') handleLogin();
+                });
+                loginPassword.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') handleLogin();
+                });
+            }
+
+            const signupInputs = ['signup-name', 'signup-username', 'signup-password'];
+            signupInputs.forEach(id => {
+                const input = document.getElementById(id);
+                if (input) {
+                    input.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter') handleSignup();
+                    });
+                }
+            });
+
+            const commJoinInputs = ['comm-join-name', 'comm-join-sentence'];
+            commJoinInputs.forEach(id => {
+                const input = document.getElementById(id);
+                if (input) {
+                    input.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter') handleJoinCommunity();
+                    });
+                }
+            });
+
+            const commCreateInputs = ['comm-create-name', 'comm-create-sentence', 'comm-create-bio'];
+            commCreateInputs.forEach(id => {
+                const input = document.getElementById(id);
+                if (input) {
+                    input.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' && e.target.id !== 'comm-create-bio') {
+                            e.preventDefault();
+                            handleCreateCommunity();
+                        }
+                    });
+                }
+            });
         };
 
         // --- Initialization ---
@@ -2403,24 +2554,7 @@
                     });
                 }
 
-                const setupEnterKey = (viewId, action) => {
-                    const view = document.getElementById(viewId);
-                    if (!view) return;
-                    view.addEventListener('keydown', (e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                            if (e.target.tagName === 'TEXTAREA' && e.target.id !== 'send-text') return;
-                            action();
-                        }
-                    });
-                };
-
-                setupEnterKey('view-login', handleLogin);
-                setupEnterKey('view-signup', handleSignup);
-                setupEnterKey('view-send', handleSend);
-                setupEnterKey('view-receive', handleReceive);
-                setupEnterKey('view-community-room', handleCommSend);
-                setupEnterKey('view-join-community', handleJoinCommunity);
-                setupEnterKey('view-create-community', handleCreateCommunity);
+                addEnterKeySupport();
 
             } catch (err) {
                 console.error("Initialization error:", err);
