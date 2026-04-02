@@ -208,6 +208,11 @@
         .sound-animation {
             animation: bounce 0.3s ease;
         }
+
+        .dropzone-clean {
+            min-height: 200px;
+            transition: all 0.3s ease;
+        }
     </style>
 </head>
 <body>
@@ -598,32 +603,38 @@
                                 </div>
                             </div>
                             
-                            <div id="comm-dropzone" class="glass border-2 border-dashed border-white/10 flex flex-col items-center justify-center p-8 cursor-pointer hover:bg-white/5 transition-all group min-h-[200px]" style="border-color: var(--glass-border)">
+                            <!-- Clean Dropzone - No Buttons Inside -->
+                            <div id="comm-dropzone" class="glass border-2 border-dashed border-white/10 flex flex-col items-center justify-center p-8 cursor-pointer hover:bg-white/5 transition-all group min-h-[200px] dropzone-clean" style="border-color: var(--glass-border)">
                                 <input type="file" id="comm-file-input" class="hidden">
                                 <div id="comm-dropzone-empty" class="text-center space-y-3">
                                     <div class="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform" style="background: var(--input-bg)">
                                         <i data-lucide="upload-cloud" class="w-6 h-6" style="color: var(--text-muted)"></i>
                                     </div>
                                     <p class="text-xs font-bold" style="color: var(--text-muted)">Drop File to Send to Room</p>
+                                    <p class="text-[10px] opacity-40">Max 3MB</p>
                                 </div>
-                                <div id="comm-dropzone-file" class="hidden text-center space-y-6 w-full">
-                                    <div class="w-20 h-20 bg-orange-600/20 rounded-2xl flex items-center justify-center mx-auto">
-                                        <i data-lucide="file" class="w-10 h-10 text-orange-500"></i>
+                                <div id="comm-dropzone-file" class="hidden text-center space-y-4 w-full">
+                                    <div class="w-16 h-16 bg-orange-600/20 rounded-2xl flex items-center justify-center mx-auto">
+                                        <i data-lucide="file" class="w-8 h-8 text-orange-500"></i>
                                     </div>
                                     <p id="comm-file-name-display" class="text-sm font-bold truncate max-w-[300px] mx-auto"></p>
-                                    <div class="flex flex-col gap-4 w-full max-w-sm mx-auto">
-                                        <button id="comm-send-btn" class="btn-big w-full bg-orange-600 text-white rounded-2xl font-black text-xl shadow-xl shadow-orange-600/30 hover:scale-105 transition-transform flex items-center justify-center gap-3 py-4">
-                                            <i data-lucide="send" class="w-6 h-6"></i>
-                                            SEND TO ROOM
-                                        </button>
-                                        <button onclick="removeCommFile(event)" class="text-sm font-bold text-red-500 uppercase tracking-widest hover:underline py-2">
-                                            Remove File
-                                        </button>
-                                    </div>
+                                    <p class="text-[10px] text-green-500 font-bold">✓ File ready to send</p>
                                 </div>
                             </div>
 
-                            <div class="p-4 bg-white/5 rounded-2xl space-y-4" style="background: var(--input-bg)">
+                            <!-- Buttons Outside Dropzone -->
+                            <div class="flex gap-4 mt-4">
+                                <button id="comm-send-btn" class="flex-1 bg-orange-600 text-white rounded-2xl font-black text-lg py-4 shadow-xl shadow-orange-600/30 hover:scale-105 transition-transform flex items-center justify-center gap-3">
+                                    <i data-lucide="send" class="w-5 h-5"></i>
+                                    SEND TO ROOM
+                                </button>
+                                <button onclick="removeCommFile(event)" class="px-6 bg-red-600/20 hover:bg-red-600 text-red-500 hover:text-white rounded-2xl font-bold transition-all flex items-center justify-center gap-2">
+                                    <i data-lucide="trash-2" class="w-5 h-5"></i>
+                                    Remove
+                                </button>
+                            </div>
+
+                            <div class="p-4 bg-white/5 rounded-2xl space-y-4 mt-4" style="background: var(--input-bg)">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center gap-3">
                                         <i data-lucide="users" class="w-4 h-4 opacity-40"></i>
@@ -638,7 +649,7 @@
                                 </div>
                             </div>
 
-                            <div id="comm-file-list" class="space-y-4">
+                            <div id="comm-file-list" class="space-y-4 mt-4">
                                 <div class="text-center py-20 opacity-20">
                                     <i data-lucide="folder" class="w-16 h-16 mx-auto mb-4"></i>
                                     <p class="font-bold uppercase tracking-widest">No files in this room yet</p>
@@ -667,7 +678,7 @@
                 </div>
             </div>
 
-            <!-- Send View -->
+            <!-- Send View - FIXED VERSION with buttons outside -->
             <div id="view-send" class="view fade-in">
                 <div class="flex items-center gap-4 mb-12">
                     <button onclick="showView('menu')" class="p-3 bg-white/5 hover:bg-white/10 rounded-2xl transition-colors" style="background: var(--input-bg)">
@@ -714,8 +725,9 @@
                         </div>
                     </div>
                     <div class="lg:col-span-7 space-y-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
-                            <div id="dropzone" class="glass border-2 border-dashed border-white/10 flex flex-col items-center justify-center p-8 cursor-pointer hover:bg-white/5 transition-all group min-h-[250px]" style="border-color: var(--glass-border)">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Clean Dropzone - No Buttons Inside -->
+                            <div id="dropzone" class="glass border-2 border-dashed border-white/10 flex flex-col items-center justify-center p-8 cursor-pointer hover:bg-white/5 transition-all group min-h-[250px] dropzone-clean" style="border-color: var(--glass-border)">
                                 <input type="file" id="file-input" class="hidden">
                                 <div id="dropzone-empty" class="text-center space-y-4">
                                     <div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform" style="background: var(--input-bg)">
@@ -726,22 +738,16 @@
                                         <p class="text-[10px] font-bold uppercase tracking-widest text-blue-500/50">Max 3MB Limit</p>
                                     </div>
                                 </div>
-                                <div id="dropzone-file" class="hidden text-center space-y-6 w-full">
+                                <div id="dropzone-file" class="hidden text-center space-y-4 w-full">
                                     <div class="w-16 h-16 bg-blue-600/20 rounded-2xl flex items-center justify-center mx-auto">
                                         <i data-lucide="file" class="w-8 h-8 text-blue-500"></i>
                                     </div>
                                     <p id="file-name-display" class="text-sm font-bold truncate max-w-[250px] mx-auto"></p>
-                                    <div class="flex flex-col gap-4 w-full max-w-xs mx-auto">
-                                        <button id="send-now-btn" onclick="handleSend()" class="btn-big w-full bg-blue-600 text-white rounded-2xl font-black text-xl shadow-xl shadow-blue-600/30 hover:scale-105 transition-transform flex items-center justify-center gap-3 py-4">
-                                            <i data-lucide="zap" class="w-6 h-6"></i>
-                                            SEND NOW
-                                        </button>
-                                        <button onclick="removeFile(event)" class="text-sm font-bold text-red-500 uppercase tracking-widest hover:underline py-2">
-                                            Remove File
-                                        </button>
-                                    </div>
+                                    <p class="text-[10px] text-green-500 font-bold">✓ File ready to send</p>
                                 </div>
                             </div>
+
+                            <!-- Text Box -->
                             <div class="glass p-6 flex flex-col gap-4 min-h-[250px]">
                                 <div class="flex justify-between items-center">
                                     <label class="text-[10px] font-bold uppercase tracking-[0.2em]" style="color: var(--text-muted)">Text to File</label>
@@ -749,6 +755,18 @@
                                 </div>
                                 <textarea id="send-text" placeholder="Type your message here... it will be sent as a .txt file. Press Enter to send!" class="flex-1 bg-transparent border-none focus:ring-0 resize-none text-sm mono" style="color: var(--text)"></textarea>
                             </div>
+                        </div>
+                        
+                        <!-- Buttons Outside Dropzone -->
+                        <div class="flex gap-4 mt-6">
+                            <button id="send-now-btn" onclick="handleSend()" class="flex-1 bg-blue-600 text-white rounded-2xl font-black text-xl py-5 shadow-xl shadow-blue-600/30 hover:scale-105 transition-transform flex items-center justify-center gap-3">
+                                <i data-lucide="zap" class="w-6 h-6"></i>
+                                SEND NOW
+                            </button>
+                            <button onclick="removeFile(event)" class="px-8 bg-red-600/20 hover:bg-red-600 text-red-500 hover:text-white rounded-2xl font-bold transition-all flex items-center justify-center gap-2">
+                                <i data-lucide="trash-2" class="w-5 h-5"></i>
+                                Remove File
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -924,7 +942,6 @@
                 }, 150);
             }
             
-            // Add visual animation
             const btn = document.activeElement;
             if (btn && btn.classList) {
                 btn.classList.add('sound-animation');
@@ -1078,6 +1095,14 @@
 
             if (viewName === 'community-hub') {
                 fetchMyCommunities();
+            }
+            
+            if (viewName === 'community-room') {
+                // Re-setup send button listener
+                const sendBtn = document.getElementById('comm-send-btn');
+                if (sendBtn) {
+                    sendBtn.onclick = handleCommSend;
+                }
             }
         };
 
@@ -1745,6 +1770,20 @@
                 if (sendBtn) {
                     sendBtn.onclick = handleCommSend;
                 }
+                
+                // Enter key support for community room
+                const setupCommunityEnterKey = () => {
+                    const handleKeyPress = (e) => {
+                        if (e.key === 'Enter' && selectedCommFile && !e.shiftKey) {
+                            e.preventDefault();
+                            handleCommSend();
+                        }
+                    };
+                    document.removeEventListener('keydown', handleKeyPress);
+                    document.addEventListener('keydown', handleKeyPress);
+                };
+                setupCommunityEnterKey();
+                
             } catch (err) {
                 showToast("Room Error: " + err.message, "error");
             }
@@ -1978,7 +2017,10 @@
         };
 
         const handleCommSend = async () => {
-            if (!selectedCommFile || !currentCommunity || !currentUser) return;
+            if (!selectedCommFile || !currentCommunity || !currentUser) {
+                showToast("Please select a file first!", "error");
+                return;
+            }
             
             if (!sb) {
                 showToast("Database connection error.", "error");
@@ -2026,7 +2068,7 @@
             } finally {
                 if (btn) {
                     btn.disabled = false;
-                    btn.innerHTML = '<i data-lucide="send" class="w-6 h-6"></i> SEND TO ROOM';
+                    btn.innerHTML = '<i data-lucide="send" class="w-5 h-5"></i> SEND TO ROOM';
                     if (typeof lucide !== 'undefined') lucide.createIcons();
                 }
             }
