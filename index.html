@@ -45,7 +45,7 @@
             color: var(--text);
             overflow-x: hidden;
             margin: 0;
-            transition: background-color 0.5s ease, color 0.5s ease;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         .mono { font-family: 'JetBrains Mono', monospace; }
@@ -78,19 +78,19 @@
             border: 1px solid var(--glass-border);
             border-radius: 32px;
             box-shadow: var(--card-shadow);
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
 
         .glass-hover:hover {
             background: var(--glass-bg);
             border-color: var(--accent);
-            transform: translateY(-8px);
+            transform: translateY(-4px);
             box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.2);
         }
 
-        .fade-in { animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(30px); }
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
@@ -107,18 +107,18 @@
         }
 
         .animate-intro {
-            animation: introAnim 2.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation: introAnim 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         @keyframes introAnim {
             0% { opacity: 0; transform: scale(1.2) translateY(50px); filter: blur(20px); }
             40% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
-            80% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+            70% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
             100% { opacity: 0; transform: scale(0.95) translateY(-30px); filter: blur(10px); visibility: hidden; }
         }
 
         .btn-action {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
         }
@@ -129,7 +129,7 @@
             inset: 0;
             background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
             transform: translateX(-100%);
-            transition: transform 0.6s;
+            transition: transform 0.4s;
         }
 
         .btn-action:hover::after { transform: translateX(100%); }
@@ -141,7 +141,7 @@
             padding: 1rem 1.25rem;
             color: var(--text);
             width: 100%;
-            transition: all 0.2s;
+            transition: all 0.15s;
         }
 
         .input-field:focus {
@@ -160,7 +160,7 @@
             border: 2px solid rgba(255,255,255,0.1);
             border-top-color: var(--text);
             border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+            animation: spin 0.6s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -174,7 +174,7 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
         }
 
         .theme-toggle:hover {
@@ -192,26 +192,31 @@
             font-size: 1.125rem;
             font-weight: 800;
             border-radius: 2rem;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
 
         .btn-big:hover {
-            transform: scale(1.05);
+            transform: scale(1.03);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
         @keyframes bounce {
             0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+            50% { transform: scale(1.05); }
         }
 
         .sound-animation {
-            animation: bounce 0.3s ease;
+            animation: bounce 0.2s ease;
         }
 
         .dropzone-clean {
             min-height: 200px;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
     </style>
 </head>
@@ -219,13 +224,14 @@
     <div class="atmosphere">
         <div class="glow bg-blue-600/20 top-[-10%] left-[-10%]"></div>
         <div class="glow bg-purple-600/20 bottom-[-10%] right-[-10%]"></div>
+        <div class="noise"></div>
     </div>
 
     <div id="toast-container" class="fixed top-4 right-4 left-4 md:left-auto md:top-8 md:right-8 z-[110] flex flex-col gap-4 pointer-events-none"></div>
 
     <div id="custom-modal" class="fixed inset-0 z-[120] hidden flex items-center justify-center p-6">
-        <div class="absolute inset-0 backdrop-blur-sm" style="background: var(--modal-overlay)"></div>
-        <div class="glass max-w-md w-full p-8 space-y-6 relative">
+        <div class="absolute inset-0 backdrop-blur-sm" onclick="closeModal()" style="background: var(--modal-overlay)"></div>
+        <div class="glass max-w-md w-full p-8 space-y-6 relative animate-in fade-in zoom-in duration-200">
             <div class="text-center space-y-2">
                 <h3 id="modal-title" class="text-2xl font-black tracking-tight">TITLE</h3>
                 <p id="modal-desc" class="text-sm opacity-40">Description goes here.</p>
@@ -242,7 +248,7 @@
         <h1 class="intro-text animate-intro">Z DROP</h1>
     </div>
 
-    <div id="main-content" class="opacity-0 transition-opacity duration-1000">
+    <div id="main-content" class="opacity-0 transition-opacity duration-700">
         <nav class="px-8 py-8 flex justify-between items-center max-w-7xl mx-auto relative z-50">
             <div class="flex items-center gap-3 cursor-pointer" onclick="showView('landing')">
                 <div class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center shadow-xl shadow-blue-600/20">
@@ -268,6 +274,7 @@
         </nav>
 
         <main class="max-w-5xl mx-auto px-6 pt-12 pb-32">
+            
             <!-- Landing View -->
             <div id="view-landing" class="view active fade-in">
                 <div class="text-center mb-16 space-y-4">
@@ -275,7 +282,7 @@
                     <p class="max-w-lg mx-auto text-lg" style="color: var(--text-muted)">Secure, ephemeral file sharing. Choose your portal entry.</p>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
-                    <div class="glass glass-hover p-10 cursor-pointer group flex flex-col justify-between" onclick="showView('signup')">
+                    <div id="landing-signup-card" class="glass glass-hover p-10 cursor-pointer group flex flex-col justify-between" onclick="showView('signup')">
                         <div class="space-y-8">
                             <div class="w-20 h-20 bg-blue-600 rounded-3xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-2xl shadow-blue-600/40">
                                 <i data-lucide="user-plus" class="w-10 h-10 text-white"></i>
@@ -603,8 +610,7 @@
                                 </div>
                             </div>
                             
-                            <!-- Clean Dropzone - No Buttons Inside -->
-                            <div id="comm-dropzone" class="glass border-2 border-dashed border-white/10 flex flex-col items-center justify-center p-8 cursor-pointer hover:bg-white/5 transition-all group min-h-[200px] dropzone-clean" style="border-color: var(--glass-border)">
+                            <div id="comm-dropzone" class="glass border-2 border-dashed border-white/10 flex flex-col items-center justify-center p-8 cursor-pointer hover:bg-white/5 transition-all group min-h-[200px]" style="border-color: var(--glass-border)">
                                 <input type="file" id="comm-file-input" class="hidden">
                                 <div id="comm-dropzone-empty" class="text-center space-y-3">
                                     <div class="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform" style="background: var(--input-bg)">
@@ -622,7 +628,6 @@
                                 </div>
                             </div>
 
-                            <!-- Buttons Outside Dropzone -->
                             <div class="flex gap-4 mt-4">
                                 <button id="comm-send-btn" class="flex-1 bg-orange-600 text-white rounded-2xl font-black text-lg py-4 shadow-xl shadow-orange-600/30 hover:scale-105 transition-transform flex items-center justify-center gap-3">
                                     <i data-lucide="send" class="w-5 h-5"></i>
@@ -678,7 +683,7 @@
                 </div>
             </div>
 
-            <!-- Send View - FIXED VERSION with buttons outside -->
+            <!-- Send View -->
             <div id="view-send" class="view fade-in">
                 <div class="flex items-center gap-4 mb-12">
                     <button onclick="showView('menu')" class="p-3 bg-white/5 hover:bg-white/10 rounded-2xl transition-colors" style="background: var(--input-bg)">
@@ -726,8 +731,7 @@
                     </div>
                     <div class="lg:col-span-7 space-y-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Clean Dropzone - No Buttons Inside -->
-                            <div id="dropzone" class="glass border-2 border-dashed border-white/10 flex flex-col items-center justify-center p-8 cursor-pointer hover:bg-white/5 transition-all group min-h-[250px] dropzone-clean" style="border-color: var(--glass-border)">
+                            <div id="dropzone" class="glass border-2 border-dashed border-white/10 flex flex-col items-center justify-center p-8 cursor-pointer hover:bg-white/5 transition-all group min-h-[250px]" style="border-color: var(--glass-border)">
                                 <input type="file" id="file-input" class="hidden">
                                 <div id="dropzone-empty" class="text-center space-y-4">
                                     <div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto group-hover:scale-110 transition-transform" style="background: var(--input-bg)">
@@ -746,8 +750,6 @@
                                     <p class="text-[10px] text-green-500 font-bold">✓ File ready to send</p>
                                 </div>
                             </div>
-
-                            <!-- Text Box -->
                             <div class="glass p-6 flex flex-col gap-4 min-h-[250px]">
                                 <div class="flex justify-between items-center">
                                     <label class="text-[10px] font-bold uppercase tracking-[0.2em]" style="color: var(--text-muted)">Text to File</label>
@@ -757,7 +759,6 @@
                             </div>
                         </div>
                         
-                        <!-- Buttons Outside Dropzone -->
                         <div class="flex gap-4 mt-6">
                             <button id="send-now-btn" onclick="handleSend()" class="flex-1 bg-blue-600 text-white rounded-2xl font-black text-xl py-5 shadow-xl shadow-blue-600/30 hover:scale-105 transition-transform flex items-center justify-center gap-3">
                                 <i data-lucide="zap" class="w-6 h-6"></i>
@@ -856,1752 +857,630 @@
     </footer>
 
     <script>
-        // ==========================================
+        // ========== OPTIMIZED SUPERFAST VERSION ==========
         // SUPABASE CREDENTIALS
-        // ==========================================
         const SUPABASE_URL = 'https://ersmbkzwcukkqkyrveqt.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_2w2WWtOBoKtNArFLZ51B-A_WYLCy0XD';
-        // ==========================================
-
-        const { createClient } = supabase;
-        let sb;
         
-        try {
-            sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            console.log("Supabase initialized successfully");
-        } catch (e) {
-            console.error("Supabase initialization failed:", e);
-        }
-
-        // --- State ---
+        const { createClient } = supabase;
+        const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // ========== STATE (optimized) ==========
+        let currentUser = null;
         let selectedFile = null;
         let selectedCommFile = null;
         let currentTransferMode = 'private';
         let currentReceiveMode = 'private';
         let currentCommunity = null;
-        let communitySubscription = null;
-        let commFilesSubscription = null;
-        let currentUser = null;
         let inboxSubscription = null;
-
-        // --- Cute Sound Effects ---
-        const playCuteSound = (type) => {
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            
-            if (type === 'send') {
-                oscillator.frequency.value = 880;
-                gainNode.gain.value = 0.3;
-                oscillator.type = 'sine';
-                oscillator.start();
-                gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.3);
-                oscillator.stop(audioContext.currentTime + 0.3);
-            } else if (type === 'receive') {
-                oscillator.frequency.value = 660;
-                gainNode.gain.value = 0.3;
-                oscillator.type = 'sine';
-                oscillator.start();
-                gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.4);
-                oscillator.stop(audioContext.currentTime + 0.4);
-                
-                setTimeout(() => {
-                    const osc2 = audioContext.createOscillator();
-                    const gain2 = audioContext.createGain();
-                    osc2.connect(gain2);
-                    gain2.connect(audioContext.destination);
-                    osc2.frequency.value = 880;
-                    gain2.gain.value = 0.2;
-                    osc2.type = 'sine';
-                    osc2.start();
-                    gain2.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.2);
-                    osc2.stop(audioContext.currentTime + 0.2);
-                }, 200);
-            } else if (type === 'success') {
-                oscillator.frequency.value = 523.25;
-                gainNode.gain.value = 0.2;
-                oscillator.type = 'sine';
-                oscillator.start();
-                gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.2);
-                oscillator.stop(audioContext.currentTime + 0.2);
-                
-                setTimeout(() => {
-                    const osc2 = audioContext.createOscillator();
-                    const gain2 = audioContext.createGain();
-                    osc2.connect(gain2);
-                    gain2.connect(audioContext.destination);
-                    osc2.frequency.value = 659.25;
-                    gain2.gain.value = 0.2;
-                    osc2.type = 'sine';
-                    osc2.start();
-                    gain2.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.2);
-                    osc2.stop(audioContext.currentTime + 0.2);
-                }, 150);
-            }
-            
-            const btn = document.activeElement;
-            if (btn && btn.classList) {
-                btn.classList.add('sound-animation');
-                setTimeout(() => btn.classList.remove('sound-animation'), 300);
-            }
+        let communitySubscription = null;
+        
+        // DOM cache for faster access
+        const dom = {
+            toast: document.getElementById('toast-container'),
+            modal: document.getElementById('custom-modal'),
+            modalTitle: document.getElementById('modal-title'),
+            modalDesc: document.getElementById('modal-desc'),
+            modalContent: document.getElementById('modal-content'),
+            modalCancel: document.getElementById('modal-cancel'),
+            modalConfirm: document.getElementById('modal-confirm'),
+            intro: document.getElementById('intro-screen'),
+            main: document.getElementById('main-content'),
+            themeIcon: document.getElementById('theme-icon')
         };
-
-        // --- UI Helpers ---
-        window.showToast = (message, type = 'info') => {
-            const container = document.getElementById('toast-container');
-            if (!container) return;
+        
+        // ========== FAST UTILITIES ==========
+        const showToast = (msg, type = 'info') => {
             const toast = document.createElement('div');
-            const colors = {
-                success: 'bg-green-600',
-                error: 'bg-red-600',
-                info: 'bg-blue-600'
-            };
-            
-            toast.className = `${colors[type]} p-4 px-6 rounded-2xl text-white font-bold text-base shadow-2xl animate-in slide-in-from-right-full duration-300 flex items-center gap-3 pointer-events-auto`;
-            toast.innerHTML = `
-                <i data-lucide="${type === 'success' ? 'check-circle' : type === 'error' ? 'alert-circle' : 'info'}" class="w-5 h-5"></i>
-                <span>${message}</span>
-            `;
-            
-            container.appendChild(toast);
-            if (typeof lucide !== 'undefined') lucide.createIcons();
-            
-            setTimeout(() => {
-                toast.classList.add('animate-out', 'fade-out', 'slide-out-to-right-full');
-                setTimeout(() => toast.remove(), 300);
-            }, 4000);
+            const colors = { success: 'bg-green-600', error: 'bg-red-600', info: 'bg-blue-600' };
+            toast.className = `${colors[type]} p-4 px-6 rounded-2xl text-white font-bold text-base shadow-2xl flex items-center gap-3 mb-3`;
+            toast.innerHTML = `<i data-lucide="${type === 'success' ? 'check-circle' : type === 'error' ? 'alert-circle' : 'info'}" class="w-5 h-5"></i><span>${msg}</span>`;
+            dom.toast.appendChild(toast);
+            lucide.createIcons();
+            setTimeout(() => toast.remove(), 3000);
         };
-
-        window.showModal = (title, desc, contentHtml, onConfirm) => {
-            const modal = document.getElementById('custom-modal');
-            if (!modal) return;
-            document.getElementById('modal-title').innerText = title;
-            document.getElementById('modal-desc').innerText = desc;
-            const content = document.getElementById('modal-content');
-            content.innerHTML = contentHtml;
-            
-            const confirmBtn = document.getElementById('modal-confirm');
-            confirmBtn.onclick = () => {
-                onConfirm();
-                closeModal();
-            };
-            
-            modal.classList.remove('hidden');
+        
+        const showModal = (title, desc, content, onConfirm) => {
+            dom.modalTitle.innerText = title;
+            dom.modalDesc.innerText = desc;
+            dom.modalContent.innerHTML = content;
+            dom.modal.classList.remove('hidden');
+            dom.modalConfirm.onclick = () => { onConfirm(); closeModal(); };
         };
-
-        window.closeModal = () => {
-            const modal = document.getElementById('custom-modal');
-            if (modal) modal.classList.add('hidden');
+        
+        const closeModal = () => dom.modal.classList.add('hidden');
+        
+        const playSound = () => {
+            try {
+                const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3');
+                audio.volume = 0.2;
+                audio.play().catch(() => {});
+            } catch(e) {}
         };
-
-        // --- Transfer Mode ---
-        window.setTransferMode = (mode) => {
+        
+        // ========== NAVIGATION (fast) ==========
+        const showView = (viewName) => {
+            const view = document.getElementById(`view-${viewName}`);
+            if (!view) return;
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            view.classList.add('active');
+            window.scrollTo(0, 0);
+            if (viewName === 'community-hub' && currentUser) fetchMyCommunities();
+            if (viewName === 'inbox' && currentUser) fetchInbox();
+        };
+        
+        // ========== THEME ==========
+        const toggleTheme = () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const target = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', target);
+            localStorage.setItem('zdrop_theme', target);
+            dom.themeIcon.setAttribute('data-lucide', target === 'dark' ? 'sun' : 'moon');
+            lucide.createIcons();
+        };
+        
+        const updateThemeIcon = (theme) => {
+            dom.themeIcon.setAttribute('data-lucide', theme === 'dark' ? 'sun' : 'moon');
+            lucide.createIcons();
+        };
+        
+        // ========== TRANSFER MODES ==========
+        const setTransferMode = (mode) => {
             currentTransferMode = mode;
             const privBtn = document.getElementById('mode-private');
             const pubBtn = document.getElementById('mode-public');
             const privFields = document.getElementById('private-fields');
             const pubFields = document.getElementById('public-fields');
-
             if (mode === 'private') {
-                if (privBtn) {
-                    privBtn.classList.add('bg-blue-600', 'text-white');
-                    privBtn.style.color = 'white';
-                }
-                if (pubBtn) {
-                    pubBtn.classList.remove('bg-blue-600', 'text-white');
-                    pubBtn.style.color = 'var(--text-muted)';
-                }
-                if (privFields) privFields.classList.remove('hidden');
-                if (pubFields) pubFields.classList.add('hidden');
+                privBtn.classList.add('bg-blue-600', 'text-white');
+                pubBtn.classList.remove('bg-blue-600', 'text-white');
+                privFields.classList.remove('hidden');
+                pubFields.classList.add('hidden');
             } else {
-                if (pubBtn) {
-                    pubBtn.classList.add('bg-blue-600', 'text-white');
-                    pubBtn.style.color = 'white';
-                }
-                if (privBtn) {
-                    privBtn.classList.remove('bg-blue-600', 'text-white');
-                    privBtn.style.color = 'var(--text-muted)';
-                }
-                if (pubFields) pubFields.classList.remove('hidden');
-                if (privFields) privFields.classList.add('hidden');
+                pubBtn.classList.add('bg-blue-600', 'text-white');
+                privBtn.classList.remove('bg-blue-600', 'text-white');
+                pubFields.classList.remove('hidden');
+                privFields.classList.add('hidden');
             }
         };
-
-        window.setReceiveMode = (mode) => {
+        
+        const setReceiveMode = (mode) => {
             currentReceiveMode = mode;
             const privBtn = document.getElementById('recv-mode-private');
             const pubBtn = document.getElementById('recv-mode-public');
             const privFields = document.getElementById('receive-private-fields');
             const pubFields = document.getElementById('receive-public-fields');
-
             if (mode === 'private') {
-                if (privBtn) {
-                    privBtn.classList.add('bg-purple-600', 'text-white');
-                    privBtn.style.color = 'white';
-                }
-                if (pubBtn) {
-                    pubBtn.classList.remove('bg-purple-600', 'text-white');
-                    pubBtn.style.color = 'var(--text-muted)';
-                }
-                if (privFields) privFields.classList.remove('hidden');
-                if (pubFields) pubFields.classList.add('hidden');
+                privBtn.classList.add('bg-purple-600', 'text-white');
+                pubBtn.classList.remove('bg-purple-600', 'text-white');
+                privFields.classList.remove('hidden');
+                pubFields.classList.add('hidden');
             } else {
-                if (pubBtn) {
-                    pubBtn.classList.add('bg-purple-600', 'text-white');
-                    pubBtn.style.color = 'white';
-                }
-                if (privBtn) {
-                    privBtn.classList.remove('bg-purple-600', 'text-white');
-                    privBtn.style.color = 'var(--text-muted)';
-                }
-                if (pubFields) pubFields.classList.remove('hidden');
-                if (privFields) privFields.classList.add('hidden');
+                pubBtn.classList.add('bg-purple-600', 'text-white');
+                privBtn.classList.remove('bg-purple-600', 'text-white');
+                pubFields.classList.remove('hidden');
+                privFields.classList.add('hidden');
             }
         };
-
-        // --- Navigation ---
-        window.showView = (viewName) => {
-            const view = document.getElementById(`view-${viewName}`);
-            if (!view) return;
-
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            view.classList.add('active');
-            window.scrollTo(0, 0);
-
-            if (viewName === 'send' || viewName === 'receive') {
-                const inputs = document.querySelectorAll(`#view-${viewName} input, #view-${viewName} textarea`);
-                inputs.forEach(input => {
-                    if (input.type !== 'file') input.value = '';
-                });
-                if (viewName === 'send') {
-                    selectedFile = null;
-                    const emptyState = document.getElementById('dropzone-empty');
-                    const fileState = document.getElementById('dropzone-file');
-                    if (emptyState) emptyState.classList.remove('hidden');
-                    if (fileState) fileState.classList.add('hidden');
-                }
-            }
-
-            if (viewName === 'inbox') {
-                const badge = document.getElementById('inbox-badge');
-                if (badge) {
-                    badge.classList.add('hidden');
-                    badge.innerText = '0';
-                }
-            }
-
-            if (viewName === 'community-hub') {
-                fetchMyCommunities();
-            }
-            
-            if (viewName === 'community-room') {
-                // Re-setup send button listener
-                const sendBtn = document.getElementById('comm-send-btn');
-                if (sendBtn) {
-                    sendBtn.onclick = handleCommSend;
-                }
-            }
+        
+        // ========== AUTH ==========
+        const handleSignup = async () => {
+            const name = document.getElementById('signup-name').value.trim();
+            const username = document.getElementById('signup-username').value.trim().toLowerCase();
+            const password = document.getElementById('signup-password').value;
+            if (!name || !username || !password) return showToast('All fields required', 'error');
+            if (!/^[a-z0-9]+$/.test(username)) return showToast('Username must be letters/numbers only', 'error');
+            if (password.length < 8) return showToast('Password min 8 chars', 'error');
+            const { error } = await sb.from('users').insert([{ name, username, password, bio: '' }]);
+            if (error) return showToast(error.message === '23505' ? 'Username taken' : error.message, 'error');
+            showToast('Account created! Please login', 'success');
+            showView('login');
         };
-
-        // --- Generate Unique Code ---
+        
+        const handleLogin = async () => {
+            const username = document.getElementById('login-username').value.trim().toLowerCase();
+            const password = document.getElementById('login-password').value;
+            const { data, error } = await sb.from('users').select('*').eq('username', username).eq('password', password).single();
+            if (error || !data) return showToast('Invalid credentials', 'error');
+            currentUser = data;
+            localStorage.setItem('zdrop_user', JSON.stringify(data));
+            document.getElementById('user-display').classList.remove('hidden');
+            document.getElementById('nav-username').innerText = `@${currentUser.username}`;
+            document.getElementById('user-info-bar').classList.remove('hidden');
+            document.getElementById('user-display-name').innerText = currentUser.name;
+            document.getElementById('profile-name').innerText = currentUser.name;
+            document.getElementById('profile-username').innerText = `@${currentUser.username}`;
+            document.getElementById('profile-bio').value = currentUser.bio || '';
+            document.getElementById('send-nickname').value = currentUser.name;
+            showToast(`Welcome ${currentUser.name}!`, 'success');
+            showView('menu');
+            fetchInbox();
+            subscribeInbox();
+            fetchMyCommunities();
+        };
+        
+        const handleLogout = () => {
+            if (inboxSubscription) sb.removeChannel(inboxSubscription);
+            currentUser = null;
+            localStorage.removeItem('zdrop_user');
+            document.getElementById('user-display').classList.add('hidden');
+            document.getElementById('user-info-bar').classList.add('hidden');
+            showView('landing');
+            showToast('Logged out', 'info');
+        };
+        
+        const updateBio = async () => {
+            const bio = document.getElementById('profile-bio').value.slice(0, 101);
+            await sb.from('users').update({ bio }).eq('id', currentUser.id);
+            currentUser.bio = bio;
+            showToast('Bio updated', 'success');
+        };
+        
+        // ========== INBOX ==========
+        const subscribeInbox = () => {
+            if (!currentUser) return;
+            if (inboxSubscription) sb.removeChannel(inboxSubscription);
+            inboxSubscription = sb.channel('inbox').on('postgres_changes', {
+                event: 'INSERT', schema: 'public', table: 'transfers',
+                filter: `receiver_username=eq.${currentUser.username}`
+            }, () => { fetchInbox(); playSound(); showToast('New file received!', 'success'); }).subscribe();
+        };
+        
+        const fetchInbox = async () => {
+            if (!currentUser) return;
+            const twentyFourHoursAgo = new Date(Date.now() - 86400000).toISOString();
+            const { data } = await sb.from('transfers').select('*').eq('receiver_username', currentUser.username).gte('created_at', twentyFourHoursAgo).order('created_at', { ascending: false });
+            const container = document.getElementById('inbox-list');
+            const badge = document.getElementById('inbox-badge');
+            if (!data?.length) {
+                container.innerHTML = '<div class="text-center py-20 opacity-20"><i data-lucide="inbox" class="w-16 h-16 mx-auto mb-4"></i><p class="font-bold uppercase tracking-widest">Your inbox is empty</p></div>';
+                if (badge) badge.classList.add('hidden');
+                return;
+            }
+            if (badge) { badge.innerText = data.length; badge.classList.remove('hidden'); }
+            container.innerHTML = data.map(item => `
+                <div class="glass p-6 flex items-center gap-6 group">
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: var(--input-bg)">
+                        <i data-lucide="${item.is_public ? 'globe' : 'lock'}" class="w-6 h-6 ${item.is_public ? 'text-green-500' : 'text-blue-500'}"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-1"><h4 class="font-bold truncate">${escapeHtml(item.file_name)}</h4><span class="text-[10px] px-2 py-0.5 bg-blue-500/10 text-blue-500 rounded-full">${escapeHtml(item.sender_nickname || 'Anonymous')}</span></div>
+                        <p class="text-[10px] opacity-40">${new Date(item.created_at).toLocaleString()}</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="openInboxItem('${item.id}', '${item.password || ''}', ${item.is_public})" class="p-3 bg-blue-600/10 hover:bg-blue-600 text-blue-500 hover:text-white rounded-xl transition-all"><i data-lucide="unlock" class="w-5 h-5"></i></button>
+                        <button onclick="deleteInboxItem('${item.id}', '${item.file_path}')" class="p-3 bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white rounded-xl transition-all"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                    </div>
+                </div>`).join('');
+            lucide.createIcons();
+        };
+        
+        const openInboxItem = async (id, password, isPublic) => {
+            const { data } = await sb.from('transfers').select('*').eq('id', id).single();
+            if (!data) return;
+            const download = async () => {
+                const { data: blob } = await sb.storage.from('transfers').download(data.file_path);
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = data.file_name;
+                a.click();
+                URL.revokeObjectURL(url);
+                playSound();
+                showToast('Downloaded!', 'success');
+            };
+            if (isPublic || !data.password) return download();
+            showModal('Unlock File', 'Enter password', '<input id="modal-pass" type="password" class="input-field">', async () => {
+                if (document.getElementById('modal-pass').value !== password) return showToast('Wrong password', 'error');
+                download();
+            });
+        };
+        
+        const deleteInboxItem = async (id, path) => {
+            await sb.storage.from('transfers').remove([path]);
+            await sb.from('transfers').delete().eq('id', id);
+            fetchInbox();
+            showToast('Deleted', 'success');
+        };
+        
+        // ========== COMMUNITY ==========
+        const fetchMyCommunities = async () => {
+            if (!currentUser) return;
+            const { data } = await sb.from('community_members').select('community_id, communities(*)').eq('user_id', currentUser.id);
+            const section = document.getElementById('joined-communities-section');
+            const list = document.getElementById('my-communities-list');
+            if (data?.length) {
+                section.classList.remove('hidden');
+                list.innerHTML = data.map(item => `
+                    <div onclick="enterCommunityRoom('${item.communities.id}')" class="glass p-6 cursor-pointer hover:bg-white/5 transition-all border border-white/5 hover:border-orange-500/50 group">
+                        <div class="flex items-center gap-4"><div class="w-10 h-10 bg-orange-600/20 rounded-xl flex items-center justify-center"><i data-lucide="users" class="w-5 h-5 text-orange-500"></i></div>
+                        <div><h4 class="font-black text-sm">${escapeHtml(item.communities.name)}</h4><p class="text-[10px] opacity-40">Joined Room</p></div></div>
+                    </div>`).join('');
+            } else section.classList.add('hidden');
+            lucide.createIcons();
+        };
+        
+        const handleCreateCommunity = async () => {
+            const name = document.getElementById('comm-create-name').value.trim().toLowerCase();
+            const sentence = document.getElementById('comm-create-sentence').value.trim();
+            const bio = document.getElementById('comm-create-bio').value.trim();
+            if (!name || !sentence) return showToast('Name and secret required', 'error');
+            if (name.includes(' ')) return showToast('No spaces in name', 'error');
+            const { data: comm, error } = await sb.from('communities').insert([{ name, secret_sentence: sentence, bio, creator_id: currentUser.id }]).select().single();
+            if (error) return showToast(error.code === '23505' ? 'Name taken' : error.message, 'error');
+            await sb.from('community_members').insert([{ community_id: comm.id, user_id: currentUser.id, role: 'admin', permissions: { can_send: true, can_delete: true, can_control: true } }]);
+            showToast('Room created!', 'success');
+            enterCommunityRoom(comm.id);
+        };
+        
+        const handleJoinCommunity = async () => {
+            const name = document.getElementById('comm-join-name').value.trim().toLowerCase();
+            const sentence = document.getElementById('comm-join-sentence').value.trim();
+            const { data: comm } = await sb.from('communities').select('*').eq('name', name).eq('secret_sentence', sentence).single();
+            if (!comm) return showToast('Invalid room or secret', 'error');
+            const { data: existing } = await sb.from('community_members').select('*').eq('community_id', comm.id).eq('user_id', currentUser.id).single();
+            if (!existing) await sb.from('community_members').insert([{ community_id: comm.id, user_id: currentUser.id, role: 'member', permissions: { can_send: false, can_delete: false, can_control: false } }]);
+            showToast(`Joined ${comm.name}!`, 'success');
+            enterCommunityRoom(comm.id);
+        };
+        
+        const enterCommunityRoom = async (commId) => {
+            const { data: comm } = await sb.from('communities').select('*').eq('id', commId).single();
+            currentCommunity = comm;
+            document.getElementById('room-name').innerText = comm.name;
+            document.getElementById('room-bio').innerText = comm.bio || 'No details';
+            showView('community-room');
+            fetchCommunityMembers();
+            fetchCommunityFiles();
+            subscribeCommunity();
+            const dropzone = document.getElementById('comm-dropzone');
+            const fileInput = document.getElementById('comm-file-input');
+            dropzone.onclick = () => fileInput.click();
+            fileInput.onchange = (e) => handleCommFileSelect(e.target.files[0]);
+            dropzone.ondragover = (e) => { e.preventDefault(); dropzone.style.borderColor = '#f97316'; };
+            dropzone.ondragleave = () => { dropzone.style.borderColor = ''; };
+            dropzone.ondrop = (e) => { e.preventDefault(); dropzone.style.borderColor = ''; handleCommFileSelect(e.dataTransfer.files[0]); };
+            document.getElementById('comm-send-btn').onclick = handleCommSend;
+        };
+        
+        const subscribeCommunity = () => {
+            if (communitySubscription) sb.removeChannel(communitySubscription);
+            communitySubscription = sb.channel(`comm-${currentCommunity.id}`)
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'community_members', filter: `community_id=eq.${currentCommunity.id}` }, () => fetchCommunityMembers())
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'community_files', filter: `community_id=eq.${currentCommunity.id}` }, () => fetchCommunityFiles())
+                .subscribe();
+        };
+        
+        const fetchCommunityMembers = async () => {
+            if (!currentCommunity) return;
+            const { data } = await sb.from('community_members').select('*, users(*)').eq('community_id', currentCommunity.id);
+            const myMember = data?.find(m => m.user_id === currentUser.id);
+            const canControl = myMember?.role === 'admin' || myMember?.permissions?.can_control;
+            document.getElementById('member-count').innerText = data?.length || 0;
+            document.getElementById('member-list').innerHTML = data?.map(m => `
+                <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
+                    <div class="flex items-center gap-3"><div class="w-8 h-8 bg-blue-600/20 rounded-lg flex items-center justify-center"><i data-lucide="user" class="w-4 h-4 text-blue-500"></i></div>
+                    <div><p class="font-bold text-xs">${escapeHtml(m.users.name)} ${m.user_id === currentUser.id ? '(You)' : ''}</p><p class="text-[10px] opacity-40">${m.role}</p></div></div>
+                    ${canControl && m.user_id !== currentUser.id && m.role !== 'admin' ? `
+                        <div class="flex gap-1">
+                            <button onclick="togglePermission('${m.id}', 'can_send', ${m.permissions.can_send})" class="p-1.5 rounded-lg ${m.permissions.can_send ? 'text-green-500 bg-green-500/10' : 'text-red-500 bg-red-500/10'}"><i data-lucide="send" class="w-3 h-3"></i></button>
+                            <button onclick="togglePermission('${m.id}', 'can_delete', ${m.permissions.can_delete})" class="p-1.5 rounded-lg ${m.permissions.can_delete ? 'text-green-500 bg-green-500/10' : 'text-red-500 bg-red-500/10'}"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+                            <button onclick="togglePermission('${m.id}', 'can_control', ${m.permissions.can_control})" class="p-1.5 rounded-lg ${m.permissions.can_control ? 'text-green-500 bg-green-500/10' : 'text-red-500 bg-red-500/10'}"><i data-lucide="shield" class="w-3 h-3"></i></button>
+                        </div>
+                    ` : ''}
+                </div>`).join('');
+            const targetList = document.getElementById('comm-target-list');
+            const others = data?.filter(m => m.user_id !== currentUser.id) || [];
+            targetList.innerHTML = others.length ? others.map(m => `<label class="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-lg cursor-pointer"><input type="checkbox" name="comm-target" value="${m.user_id}" class="accent-orange-500"><span class="text-[10px]">${escapeHtml(m.users.name)}</span></label>`).join('') : '<p class="text-[10px] opacity-40">No other members</p>';
+            document.getElementById('btn-toggle-all-targets').onclick = () => { document.querySelectorAll('input[name="comm-target"]').forEach(cb => cb.checked = !cb.checked); };
+            lucide.createIcons();
+        };
+        
+        const togglePermission = async (memberId, perm, current) => {
+            const { data: member } = await sb.from('community_members').select('permissions').eq('id', memberId).single();
+            const newPerm = { ...member.permissions, [perm]: !current };
+            await sb.from('community_members').update({ permissions: newPerm }).eq('id', memberId);
+            fetchCommunityMembers();
+            showToast('Permission updated', 'success');
+        };
+        
+        const fetchCommunityFiles = async () => {
+            if (!currentCommunity) return;
+            const { data } = await sb.from('community_files').select('*, users(*)').eq('community_id', currentCommunity.id).order('created_at', { ascending: false });
+            const { data: myMem } = await sb.from('community_members').select('permissions').eq('community_id', currentCommunity.id).eq('user_id', currentUser.id).single();
+            const canDelete = myMem?.permissions?.can_delete || currentCommunity.creator_id === currentUser.id;
+            const container = document.getElementById('comm-file-list');
+            const visible = data?.filter(f => f.sender_id === currentUser.id || !f.receiver_ids || f.receiver_ids.includes(currentUser.id)) || [];
+            if (!visible.length) {
+                container.innerHTML = '<div class="text-center py-20 opacity-20"><i data-lucide="folder" class="w-16 h-16 mx-auto mb-4"></i><p class="font-bold uppercase tracking-widest">No files in this room yet</p></div>';
+                return;
+            }
+            container.innerHTML = visible.map(file => `
+                <div class="glass p-5 flex items-center gap-5 group border border-white/5 hover:border-orange-500/30">
+                    <div class="w-10 h-10 bg-orange-600/10 rounded-xl flex items-center justify-center"><i data-lucide="file" class="w-5 h-5 text-orange-500"></i></div>
+                    <div class="flex-1"><div class="flex items-center gap-2"><h4 class="font-bold text-sm truncate">${escapeHtml(file.file_name)}</h4><span class="text-[9px] px-1.5 py-0.5 bg-white/5 rounded-full">${escapeHtml(file.users.name)}</span>${file.receiver_ids ? '<span class="text-[9px] px-1.5 py-0.5 bg-blue-500/10 text-blue-500 rounded-full">Targeted</span>' : ''}</div>
+                    <p class="text-[9px] opacity-40">${new Date(file.created_at).toLocaleString()}</p></div>
+                    <div class="flex gap-2"><button onclick="downloadCommFile('${file.id}')" class="p-2.5 bg-orange-600/10 hover:bg-orange-600 text-orange-500 hover:text-white rounded-xl"><i data-lucide="download" class="w-4 h-4"></i></button>${canDelete ? `<button onclick="deleteCommFile('${file.id}', '${file.file_path}')" class="p-2.5 bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white rounded-xl"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}</div>
+                </div>`).join('');
+            lucide.createIcons();
+        };
+        
+        const handleCommFileSelect = (file) => {
+            if (!file) return;
+            if (file.size > 3 * 1024 * 1024) return showToast('Max 3MB', 'error');
+            selectedCommFile = file;
+            document.getElementById('comm-dropzone-empty').classList.add('hidden');
+            document.getElementById('comm-dropzone-file').classList.remove('hidden');
+            document.getElementById('comm-file-name-display').innerText = file.name;
+            playSound();
+        };
+        
+        const removeCommFile = () => {
+            selectedCommFile = null;
+            document.getElementById('comm-dropzone-empty').classList.remove('hidden');
+            document.getElementById('comm-dropzone-file').classList.add('hidden');
+            document.getElementById('comm-file-input').value = '';
+        };
+        
+        const handleCommSend = async () => {
+            if (!selectedCommFile) return showToast('Select a file first', 'error');
+            const { data: myMem } = await sb.from('community_members').select('permissions').eq('community_id', currentCommunity.id).eq('user_id', currentUser.id).single();
+            if (!myMem?.permissions?.can_send) return showToast('No permission to send', 'error');
+            const targets = Array.from(document.querySelectorAll('input[name="comm-target"]:checked')).map(cb => cb.value);
+            const btn = document.getElementById('comm-send-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<div class="loader"></div> SENDING';
+            try {
+                const fileName = `${Date.now()}_${selectedCommFile.name}`;
+                const path = `community/${currentCommunity.id}/${fileName}`;
+                await sb.storage.from('transfers').upload(path, selectedCommFile);
+                await sb.from('community_files').insert([{ community_id: currentCommunity.id, sender_id: currentUser.id, receiver_ids: targets.length ? targets : null, file_name: selectedCommFile.name, file_path: path }]);
+                showToast('File sent!', 'success');
+                playSound();
+                removeCommFile();
+            } catch(e) { showToast(e.message, 'error'); }
+            finally { btn.disabled = false; btn.innerHTML = '<i data-lucide="send" class="w-5 h-5"></i> SEND TO ROOM'; lucide.createIcons(); }
+        };
+        
+        const downloadCommFile = async (id) => {
+            const { data: file } = await sb.from('community_files').select('*').eq('id', id).single();
+            const { data: blob } = await sb.storage.from('transfers').download(file.file_path);
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = file.file_name;
+            a.click();
+            URL.revokeObjectURL(url);
+            playSound();
+            showToast('Downloaded!', 'success');
+        };
+        
+        const deleteCommFile = async (id, path) => {
+            await sb.storage.from('transfers').remove([path]);
+            await sb.from('community_files').delete().eq('id', id);
+            showToast('Deleted', 'success');
+        };
+        
+        const refreshCommunityFiles = () => { fetchCommunityFiles(); showToast('Refreshed', 'info'); };
+        
+        // ========== SEND LOGIC ==========
+        const handleFileSelection = (file) => {
+            if (!file) return;
+            if (file.size > 3 * 1024 * 1024) return showToast('Max 3MB', 'error');
+            selectedFile = file;
+            document.getElementById('dropzone-empty').classList.add('hidden');
+            document.getElementById('dropzone-file').classList.remove('hidden');
+            document.getElementById('file-name-display').innerText = file.name;
+            playSound();
+        };
+        
+        const removeFile = () => {
+            selectedFile = null;
+            document.getElementById('dropzone-empty').classList.remove('hidden');
+            document.getElementById('dropzone-file').classList.add('hidden');
+            document.getElementById('file-input').value = '';
+        };
+        
         const generateUniqueCode = async () => {
-            let code;
-            let exists = true;
+            let code, exists = true;
             while (exists) {
                 code = Math.floor(Math.random() * 90 + 10).toString();
-                if (sb) {
-                    const { data } = await sb.from('transfers').select('id').eq('public_code', code).eq('is_public', true).limit(1);
-                    if (!data || data.length === 0) exists = false;
-                } else {
-                    exists = false;
-                }
+                const { data } = await sb.from('transfers').select('id').eq('public_code', code).eq('is_public', true).limit(1);
+                if (!data?.length) exists = false;
             }
             return code;
         };
-
-        // --- Auto Delete Timer ---
-        const startAutoDeleteTimer = (transferId, filePath) => {
-            const timerDiv = document.getElementById('auto-delete-timer');
-            const timerSeconds = document.getElementById('timer-seconds');
-            const doneBadge = document.getElementById('done-badge');
-            
-            if (timerDiv) timerDiv.classList.remove('hidden');
-            if (doneBadge) doneBadge.classList.remove('hidden');
-            
-            let seconds = 120;
-            const interval = setInterval(async () => {
-                seconds--;
-                if (timerSeconds) timerSeconds.innerText = seconds;
-                if (seconds <= 0) {
-                    clearInterval(interval);
-                    if (sb) {
-                        try {
-                            await sb.storage.from('transfers').remove([filePath]);
-                            await sb.from('transfers').delete().eq('id', transferId);
-                            showToast("File auto-deleted after download.", "info");
-                            const result = document.getElementById('receive-result');
-                            if (result) result.classList.add('hidden');
-                        } catch (err) {
-                            console.error("Auto-delete failed:", err);
-                        }
-                    }
-                }
-            }, 1000);
-        };
-
-        // --- Theme Toggle ---
-        window.toggleTheme = () => {
-            const current = document.documentElement.getAttribute('data-theme');
-            const target = current === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', target);
-            localStorage.setItem('zdrop_theme', target);
-            updateThemeIcon(target);
-        };
-
-        const updateThemeIcon = (theme) => {
-            const icon = document.getElementById('theme-icon');
-            if (icon) {
-                icon.setAttribute('data-lucide', theme === 'dark' ? 'sun' : 'moon');
-                if (typeof lucide !== 'undefined') lucide.createIcons();
-            }
-        };
-
-        // --- Auth Logic ---
-        window.handleSignup = async () => {
-            const nameField = document.getElementById('signup-name');
-            const userField = document.getElementById('signup-username');
-            const passField = document.getElementById('signup-password');
-
-            if (!nameField || !userField || !passField) return;
-
-            const name = nameField.value.trim();
-            const username = userField.value.trim().toLowerCase();
-            const password = passField.value;
-
-            if (!name || !username || !password) {
-                showToast("All fields are required.", "error");
-                return;
-            }
-            
-            if (!/^[a-zA-Z\s]+$/.test(name)) {
-                showToast("Please enter a valid real name (letters only).", "error");
-                return;
-            }
-            
-            if (username.includes(" ") || !/^[a-z0-9]+$/.test(username)) {
-                showToast("Username must be a single word with no special characters.", "error");
-                return;
-            }
-
-            if (password.length < 8) {
-                showToast("Password must be at least 8 characters long.", "error");
-                return;
-            }
-            
-            const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])/;
-            if (!strongRegex.test(password)) {
-                showToast("Password must be strong (include uppercase, lowercase, number, and special character).", "error");
-                return;
-            }
-
-            if (!sb) {
-                showToast("Database connection error.", "error");
-                return;
-            }
-
-            try {
-                const { data, error } = await sb.from('users').insert([{
-                    name, username, password, bio: ""
-                }]).select();
-
-                if (error) {
-                    if (error.code === '23505') {
-                        showToast("Username already taken.", "error");
-                    } else {
-                        throw error;
-                    }
-                    return;
-                }
-
-                playCuteSound('success');
-                showToast("Account created! Please login.", "success");
-                showView('login');
-            } catch (err) {
-                showToast("Error: " + err.message, "error");
-            }
-        };
-
-        window.handleLogin = async () => {
-            const userField = document.getElementById('login-username');
-            const passField = document.getElementById('login-password');
-
-            if (!userField || !passField) return;
-
-            const username = userField.value.trim().toLowerCase();
-            const password = passField.value;
-
-            if (!sb) {
-                showToast("Database connection error.", "error");
-                return;
-            }
-
-            try {
-                const { data, error } = await sb.from('users').select('*').eq('username', username).eq('password', password).single();
-                
-                if (error || !data) {
-                    showToast("Invalid username or password.", "error");
-                    return;
-                }
-
-                currentUser = data;
-                localStorage.setItem('zdrop_user', JSON.stringify(data));
-                updateUIForUser();
-                fetchInbox();
-                playCuteSound('success');
-                showToast(`Welcome back, ${currentUser.name}!`, "success");
-                showView('menu');
-            } catch (err) {
-                showToast("Login Error: " + err.message, "error");
-            }
-        };
-
-        window.handleLogout = () => {
-            if (inboxSubscription && sb) {
-                sb.removeChannel(inboxSubscription);
-                inboxSubscription = null;
-            }
-            currentUser = null;
-            localStorage.removeItem('zdrop_user');
-            
-            const userDisp = document.getElementById('user-display');
-            const signupCard = document.getElementById('landing-signup-card');
-            const loginFooter = document.getElementById('landing-login-footer');
-            const infoBar = document.getElementById('user-info-bar');
-
-            if (userDisp) userDisp.classList.add('hidden');
-            if (signupCard) signupCard.classList.remove('hidden');
-            if (loginFooter) loginFooter.classList.remove('hidden');
-            if (infoBar) infoBar.classList.add('hidden');
-            
-            showView('landing');
-            showToast("Logged out successfully.", "info");
-            subscribeToInbox();
-        };
-
-        const updateUIForUser = () => {
-            if (!currentUser) return;
-            
-            const userDisplay = document.getElementById('user-display');
-            const signupCard = document.getElementById('landing-signup-card');
-            const loginFooter = document.getElementById('landing-login-footer');
-            const navUsername = document.getElementById('nav-username');
-            const profileName = document.getElementById('profile-name');
-            const profileUsername = document.getElementById('profile-username');
-            const profileBio = document.getElementById('profile-bio');
-            const bioCount = document.getElementById('bio-count');
-            const logoutBtn = document.getElementById('logout-btn');
-            const bioSection = document.getElementById('bio-section');
-            const infoBar = document.getElementById('user-info-bar');
-            const userDisplayName = document.getElementById('user-display-name');
-            const nickField = document.getElementById('send-nickname');
-
-            if (userDisplay) userDisplay.classList.remove('hidden');
-            if (signupCard) signupCard.classList.add('hidden');
-            if (loginFooter) loginFooter.classList.add('hidden');
-            if (navUsername) navUsername.innerText = `@${currentUser.username}`;
-            if (profileName) profileName.innerText = currentUser.name;
-            if (profileUsername) profileUsername.innerText = `@${currentUser.username}`;
-            if (profileBio) profileBio.value = currentUser.bio || "";
-            if (bioCount) bioCount.innerText = `${(currentUser.bio || "").length}/101`;
-            
-            if (logoutBtn) logoutBtn.style.display = 'block';
-            if (bioSection) bioSection.style.display = 'block';
-            
-            if (infoBar) {
-                infoBar.classList.remove('hidden');
-                if (userDisplayName) userDisplayName.innerText = currentUser.name;
-            }
-
-            if (nickField) nickField.value = currentUser.name;
-            
-            fetchInbox();
-            subscribeToInbox();
-            fetchMyCommunities();
-        };
-
-        // --- Bio Update ---
-        window.updateBio = async () => {
-            const bio = document.getElementById('profile-bio').value;
-            if (bio.length > 101) {
-                showToast("Bio too long!", "error");
-                return;
-            }
-
-            if (!sb || !currentUser) return;
-
-            try {
-                const { error } = await sb.from('users').update({ bio }).eq('id', currentUser.id);
-                if (error) {
-                    if (error.code === 'PGRST116') {
-                        handleLogout();
-                    } else {
-                        throw error;
-                    }
-                    return;
-                }
-                currentUser.bio = bio;
-                localStorage.setItem('zdrop_user', JSON.stringify(currentUser));
-                playCuteSound('success');
-                showToast("Bio updated!", "success");
-            } catch (err) {
-                showToast("Error: " + err.message, "error");
-            }
-        };
-
-        // --- Inbox Logic ---
-        const subscribeToInbox = () => {
-            if (!sb) return;
-            
-            if (inboxSubscription) {
-                sb.removeChannel(inboxSubscription);
-            }
-
-            const channel = sb.channel('portal-realtime');
-            
-            if (currentUser) {
-                channel.on('postgres_changes', { 
-                    event: 'INSERT', 
-                    schema: 'public', 
-                    table: 'transfers',
-                    filter: `receiver_username=eq.${currentUser.username}`
-                }, (payload) => {
-                    console.log('Private drop received:', payload);
-                    fetchInbox(); 
-                    playCuteSound('receive');
-                    showToast(`✨ New private drop from ${payload.new.sender_nickname}! ✨`, "success");
-                });
-            }
-
-            channel.on('postgres_changes', { 
-                event: 'INSERT', 
-                schema: 'public', 
-                table: 'transfers'
-            }, (payload) => {
-                if (payload.new.is_public) {
-                    console.log('Public drop received:', payload);
-                    if (currentUser) fetchInbox();
-                    playCuteSound('receive');
-                    showToast(`🌟 New Public Drop available! Code: ${payload.new.public_code} 🌟`, "info");
-                }
-            });
-
-            inboxSubscription = channel.subscribe((status) => {
-                console.log('Real-time subscription status:', status);
-            });
-        };
-
-        window.fetchInbox = async () => {
-            if (!currentUser || !sb) return;
-            
-            const { data: userCheck, error: userError } = await sb.from('users').select('id').eq('id', currentUser.id).single();
-            if (userError || !userCheck) {
-                handleLogout();
-                return;
-            }
-
-            try {
-                const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-                
-                const { data: expiredItems } = await sb
-                    .from('transfers')
-                    .select('id, file_path')
-                    .eq('receiver_username', currentUser.username)
-                    .lt('created_at', twentyFourHoursAgo);
-
-                if (expiredItems && expiredItems.length > 0) {
-                    for (const item of expiredItems) {
-                        await sb.storage.from('transfers').remove([item.file_path]);
-                        await sb.from('transfers').delete().eq('id', item.id);
-                    }
-                    console.log(`${expiredItems.length} expired drops purged.`);
-                }
-
-                const { data, error } = await sb
-                    .from('transfers')
-                    .select('*')
-                    .eq('receiver_username', currentUser.username)
-                    .gte('created_at', twentyFourHoursAgo)
-                    .order('created_at', { ascending: false });
-
-                if (error) throw error;
-
-                const list = document.getElementById('inbox-list');
-                const badge = document.getElementById('inbox-badge');
-                
-                if (data.length > 0) {
-                    if (badge) {
-                        badge.innerText = data.length;
-                        badge.classList.remove('hidden');
-                    }
-                    
-                    if (list) {
-                        list.innerHTML = data.map(item => `
-                            <div class="glass p-6 flex items-center gap-6 group">
-                                <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: var(--input-bg)">
-                                    <i data-lucide="${item.is_public ? 'globe' : 'lock'}" class="w-6 h-6 ${item.is_public ? 'text-green-500' : 'text-blue-500'}"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <div class="flex items-center gap-2 mb-1">
-                                        <h4 class="font-bold truncate max-w-[200px]">${item.file_name}</h4>
-                                        <span class="text-[10px] px-2 py-0.5 bg-blue-500/10 text-blue-500 rounded-full font-black uppercase tracking-widest">${item.sender_nickname || 'Anonymous'}</span>
-                                        ${item.is_public ? `<span class="text-[10px] px-2 py-0.5 bg-green-500/10 text-green-500 rounded-full font-black uppercase tracking-widest">Public</span>` : ''}
-                                    </div>
-                                    <p class="text-[10px] uppercase tracking-widest" style="color: var(--text-muted)">${new Date(item.created_at).toLocaleString()}</p>
-                                    ${item.is_public ? `<p class="text-[10px] font-black text-green-500 uppercase tracking-widest mt-1">Code: ${item.public_code}</p>` : ''}
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    ${item.is_public ? `
-                                        <div class="p-3 rounded-xl cursor-not-allowed" style="background: var(--input-bg); color: var(--text-muted); opacity: 0.3">
-                                            <i data-lucide="eye" class="w-5 h-5"></i>
-                                        </div>
-                                    ` : `
-                                        <button onclick="openInboxItem('${item.id}', '${item.password || ''}', false)" class="p-3 bg-blue-600/10 hover:bg-blue-600 text-blue-500 hover:text-white rounded-xl transition-all">
-                                            <i data-lucide="unlock" class="w-5 h-5"></i>
-                                        </button>
-                                    `}
-                                    <button onclick="deleteInboxItem('${item.id}', '${item.file_path}')" class="p-3 bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white rounded-xl transition-all">
-                                        <i data-lucide="trash-2" class="w-5 h-5"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        `).join('');
-                    }
-                } else {
-                    if (badge) badge.classList.add('hidden');
-                    if (list) {
-                        list.innerHTML = `
-                            <div class="text-center py-20 opacity-20">
-                                <i data-lucide="inbox" class="w-16 h-16 mx-auto mb-4"></i>
-                                <p class="font-bold uppercase tracking-widest">Your inbox is empty</p>
-                            </div>
-                        `;
-                    }
-                }
-                if (typeof lucide !== 'undefined') lucide.createIcons();
-            } catch (err) {
-                console.error("Inbox Error:", err);
-            }
-        };
-
-        window.openInboxItem = async (id, correctPassword, isPublic = false) => {
-            const downloadFile = async () => {
-                if (!sb) return;
-                try {
-                    const { data, error } = await sb.from('transfers').select('*').eq('id', id).single();
-                    if (error) throw error;
-
-                    const { data: fileBlob, error: dlError } = await sb.storage
-                        .from('transfers')
-                        .download(data.file_path);
-
-                    if (dlError) throw dlError;
-
-                    const url = URL.createObjectURL(fileBlob);
-                    const link = document.createElement("a");
-                    link.href = url;
-                    link.download = data.file_name;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(url);
-                    
-                    playCuteSound('receive');
-                    showToast("File decrypted and downloaded!", "success");
-                } catch (err) {
-                    showToast("Download Error: " + err.message, "error");
-                }
-            };
-
-            if (isPublic) {
-                return downloadFile();
-            }
-
-            showModal(
-                "Unlock File",
-                "Enter the secret password to decrypt and download this file.",
-                `<input id="modal-pass-input" type="password" placeholder="••••••••" class="input-field">`,
-                async () => {
-                    const pass = document.getElementById('modal-pass-input').value;
-                    if (!pass) return;
-
-                    if (pass !== correctPassword) {
-                        showToast("Incorrect password. Access denied.", "error");
-                        return;
-                    }
-
-                    await downloadFile();
-                }
-            );
-        };
-
-        window.deleteInboxItem = async (id, filePath) => {
-            showModal(
-                "Delete File",
-                "Are you sure you want to delete this file permanently? This action cannot be undone.",
-                `<p class="text-xs text-red-500 font-bold uppercase tracking-widest text-center">Permanent Destruction</p>`,
-                async () => {
-                    if (!sb) return;
-                    try {
-                        await sb.storage.from('transfers').remove([filePath]);
-                        
-                        const { error } = await sb.from('transfers').delete().eq('id', id);
-                        if (error) throw error;
-
-                        playCuteSound('success');
-                        showToast("File deleted successfully.", "success");
-                        fetchInbox();
-                    } catch (err) {
-                        showToast("Delete Error: " + err.message, "error");
-                    }
-                }
-            );
-        };
-
-        // --- Community Hub Logic ---
-        const fetchMyCommunities = async () => {
-            if (!currentUser || !sb) return;
-            try {
-                const { data, error } = await sb
-                    .from('community_members')
-                    .select('community_id, communities(*)')
-                    .eq('user_id', currentUser.id);
-                
-                if (error) throw error;
-
-                const section = document.getElementById('joined-communities-section');
-                const list = document.getElementById('my-communities-list');
-                
-                if (list && section) {
-                    if (data && data.length > 0) {
-                        section.classList.remove('hidden');
-                        list.innerHTML = data.map(item => `
-                            <div onclick="enterCommunityRoom('${item.communities.id}')" class="glass p-6 cursor-pointer hover:bg-white/5 transition-all border border-white/5 hover:border-orange-500/50 group">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-10 h-10 bg-orange-600/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                                        <i data-lucide="users" class="w-5 h-5 text-orange-500"></i>
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <h4 class="font-black truncate text-sm">${item.communities.name}</h4>
-                                        <p class="text-[10px] uppercase tracking-widest opacity-40">Joined Room</p>
-                                    </div>
-                                    <i data-lucide="chevron-right" class="w-4 h-4 opacity-20 group-hover:opacity-100 transition-opacity"></i>
-                                </div>
-                            </div>
-                        `).join('');
-                    } else {
-                        section.classList.add('hidden');
-                        list.innerHTML = '';
-                    }
-                    if (typeof lucide !== 'undefined') lucide.createIcons();
-                }
-            } catch (err) {
-                console.error("Fetch Communities Error:", err);
-            }
-        };
-
-        window.handleCreateCommunity = async () => {
-            const nameField = document.getElementById('comm-create-name');
-            const sentField = document.getElementById('comm-create-sentence');
-            const bioField = document.getElementById('comm-create-bio');
-
-            if (!nameField || !sentField || !bioField || !currentUser) return;
-
-            const name = nameField.value.trim().toLowerCase();
-            const sentence = sentField.value.trim();
-            const bio = bioField.value.trim();
-
-            if (!name || !sentence) {
-                showToast("Name and Secret Sentence are required.", "error");
-                return;
-            }
-            if (name.includes(" ")) {
-                showToast("Community name must be a single word.", "error");
-                return;
-            }
-
-            if (!sb) return;
-
-            try {
-                const { data: comm, error: commErr } = await sb.from('communities').insert([{
-                    name, secret_sentence: sentence, bio, creator_id: currentUser.id
-                }]).select().single();
-
-                if (commErr) {
-                    if (commErr.code === '23505') {
-                        showToast("Community name already taken.", "error");
-                    } else {
-                        throw commErr;
-                    }
-                    return;
-                }
-
-                const { error: memErr } = await sb.from('community_members').insert([{
-                    community_id: comm.id,
-                    user_id: currentUser.id,
-                    role: 'admin',
-                    permissions: { can_send: true, can_delete: true, can_control: true }
-                }]);
-
-                if (memErr) throw memErr;
-
-                playCuteSound('success');
-                showToast("Community created successfully!", "success");
-                enterCommunityRoom(comm.id);
-            } catch (err) {
-                showToast("Create Error: " + err.message, "error");
-            }
-        };
-
-        window.handleJoinCommunity = async () => {
-            const nameField = document.getElementById('comm-join-name');
-            const sentField = document.getElementById('comm-join-sentence');
-
-            if (!nameField || !sentField || !currentUser) return;
-
-            const name = nameField.value.trim().toLowerCase();
-            const sentence = sentField.value.trim();
-
-            if (!name || !sentence) {
-                showToast("Room Name and Secret Sentence are required.", "error");
-                return;
-            }
-
-            if (!sb) return;
-
-            try {
-                const { data: comm, error: commErr } = await sb.from('communities')
-                    .select('*')
-                    .eq('name', name)
-                    .eq('secret_sentence', sentence)
-                    .single();
-
-                if (commErr || !comm) {
-                    showToast("Invalid Room Name or Secret Sentence.", "error");
-                    return;
-                }
-
-                const { data: existing } = await sb.from('community_members')
-                    .select('*')
-                    .eq('community_id', comm.id)
-                    .eq('user_id', currentUser.id)
-                    .single();
-
-                if (existing) {
-                    showToast(`Welcome back to ${comm.name}!`, "success");
-                    enterCommunityRoom(comm.id);
-                    return;
-                }
-
-                const { error: memErr } = await sb.from('community_members').insert([{
-                    community_id: comm.id,
-                    user_id: currentUser.id,
-                    role: 'member',
-                    permissions: { can_send: true, can_delete: false, can_control: false }
-                }]);
-
-                if (memErr) throw memErr;
-
-                playCuteSound('success');
-                showToast(`Joined ${comm.name}!`, "success");
-                enterCommunityRoom(comm.id);
-            } catch (err) {
-                showToast("Join Error: " + err.message, "error");
-            }
-        };
-
-        // --- Community Room Logic ---
-        window.enterCommunityRoom = async (commId) => {
-            if (!sb) return;
-            try {
-                const { data: comm, error: commErr } = await sb.from('communities').select('*').eq('id', commId).single();
-                if (commErr) throw commErr;
-
-                currentCommunity = comm;
-                const roomName = document.getElementById('room-name');
-                const roomBio = document.getElementById('room-bio');
-                if (roomName) roomName.innerText = comm.name;
-                if (roomBio) roomBio.innerText = comm.bio || "No details provided.";
-                
-                showView('community-room');
-                fetchCommunityMembers();
-                fetchCommunityFiles();
-                subscribeToCommunity();
-                purgeOldCommunityFiles(commId);
-                
-                const commDrop = document.getElementById('comm-dropzone');
-                const commInput = document.getElementById('comm-file-input');
-                if (commDrop && commInput) {
-                    commDrop.onclick = () => commInput.click();
-                    commInput.onchange = (e) => handleCommFileSelection(e.target.files[0]);
-
-                    commDrop.addEventListener('dragover', (e) => {
-                        e.preventDefault();
-                        commDrop.classList.add('bg-white/5', 'border-orange-500');
-                    });
-
-                    commDrop.addEventListener('dragleave', () => {
-                        commDrop.classList.remove('bg-white/5', 'border-orange-500');
-                    });
-
-                    commDrop.addEventListener('drop', (e) => {
-                        e.preventDefault();
-                        commDrop.classList.remove('bg-white/5', 'border-orange-500');
-                        if (e.dataTransfer.files.length > 0) {
-                            handleCommFileSelection(e.dataTransfer.files[0]);
-                        }
-                    });
-                }
-
-                // Set up send button listener
-                const sendBtn = document.getElementById('comm-send-btn');
-                if (sendBtn) {
-                    sendBtn.onclick = handleCommSend;
-                }
-                
-                // Enter key support for community room
-                const setupCommunityEnterKey = () => {
-                    const handleKeyPress = (e) => {
-                        if (e.key === 'Enter' && selectedCommFile && !e.shiftKey) {
-                            e.preventDefault();
-                            handleCommSend();
-                        }
-                    };
-                    document.removeEventListener('keydown', handleKeyPress);
-                    document.addEventListener('keydown', handleKeyPress);
-                };
-                setupCommunityEnterKey();
-                
-            } catch (err) {
-                showToast("Room Error: " + err.message, "error");
-            }
-        };
-
-        const subscribeToCommunity = () => {
-            if (!sb || !currentCommunity) return;
-            if (communitySubscription) sb.removeChannel(communitySubscription);
-            if (commFilesSubscription) sb.removeChannel(commFilesSubscription);
-
-            communitySubscription = sb.channel(`comm-members-${currentCommunity.id}`)
-                .on('postgres_changes', { 
-                    event: '*', 
-                    schema: 'public', 
-                    table: 'community_members',
-                    filter: `community_id=eq.${currentCommunity.id}`
-                }, () => {
-                    fetchCommunityMembers();
-                })
-                .subscribe();
-
-            commFilesSubscription = sb.channel(`comm-files-${currentCommunity.id}`)
-                .on('postgres_changes', { 
-                    event: '*', 
-                    schema: 'public', 
-                    table: 'community_files',
-                    filter: `community_id=eq.${currentCommunity.id}`
-                }, () => {
-                    fetchCommunityFiles();
-                })
-                .subscribe();
-        };
-
-        const fetchCommunityMembers = async () => {
-            if (!currentCommunity || !sb) return;
-            try {
-                const { data, error } = await sb
-                    .from('community_members')
-                    .select('*, users(*)')
-                    .eq('community_id', currentCommunity.id);
-                
-                if (error) throw error;
-
-                const list = document.getElementById('member-list');
-                const count = document.getElementById('member-count');
-                
-                if (count) count.innerText = data.length;
-                
-                if (list) {
-                    list.innerHTML = data.map(mem => {
-                        const isMe = mem.user_id === currentUser.id;
-                        const myMem = data.find(m => m.user_id === currentUser.id);
-                        const canControl = myMem?.role === 'admin' || myMem?.permissions?.can_control;
-                        
-                        return `
-                            <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5">
-                                <div class="flex items-center gap-3 min-w-0">
-                                    <div class="w-8 h-8 bg-blue-600/20 rounded-lg flex items-center justify-center">
-                                        <i data-lucide="user" class="w-4 h-4 text-blue-500"></i>
-                                    </div>
-                                    <div class="min-w-0">
-                                        <p class="font-bold text-xs truncate">${mem.users.name} ${isMe ? '(You)' : ''}</p>
-                                        <p class="text-[10px] uppercase tracking-widest opacity-40">${mem.role}</p>
-                                    </div>
-                                </div>
-                                ${canControl && !isMe && mem.role !== 'admin' ? `
-                                    <div class="flex gap-1">
-                                        <button onclick="togglePermission('${mem.id}', 'can_send', ${mem.permissions.can_send})" class="p-1.5 rounded-lg ${mem.permissions.can_send ? 'text-green-500 bg-green-500/10' : 'text-red-500 bg-red-500/10'}" title="Can Send">
-                                            <i data-lucide="send" class="w-3 h-3"></i>
-                                        </button>
-                                        <button onclick="togglePermission('${mem.id}', 'can_delete', ${mem.permissions.can_delete})" class="p-1.5 rounded-lg ${mem.permissions.can_delete ? 'text-green-500 bg-green-500/10' : 'text-red-500 bg-red-500/10'}" title="Can Delete">
-                                            <i data-lucide="trash-2" class="w-3 h-3"></i>
-                                        </button>
-                                        <button onclick="togglePermission('${mem.id}', 'can_control', ${mem.permissions.can_control})" class="p-1.5 rounded-lg ${mem.permissions.can_control ? 'text-green-500 bg-green-500/10' : 'text-red-500 bg-red-500/10'}" title="Can Control">
-                                            <i data-lucide="shield" class="w-3 h-3"></i>
-                                        </button>
-                                    </div>
-                                ` : ''}
-                            </div>
-                        `;
-                    }).join('');
-                    if (typeof lucide !== 'undefined') lucide.createIcons();
-                }
-
-                const targetList = document.getElementById('comm-target-list');
-                if (targetList) {
-                    const others = data.filter(m => m.user_id !== currentUser.id);
-                    if (others.length === 0) {
-                        targetList.innerHTML = '<p class="text-[10px] opacity-40 uppercase font-bold">No other members yet</p>';
-                    } else {
-                        targetList.innerHTML = others.map(m => `
-                            <label class="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-lg cursor-pointer hover:bg-white/10 transition-colors border border-white/5">
-                                <input type="checkbox" name="comm-target" value="${m.user_id}" class="w-3 h-3 accent-orange-500">
-                                <span class="text-[10px] font-bold uppercase tracking-widest">${m.users.name}</span>
-                            </label>
-                        `).join('');
-                    }
-
-                    const btnToggle = document.getElementById('btn-toggle-all-targets');
-                    if (btnToggle) {
-                        btnToggle.onclick = () => {
-                            const checkboxes = document.querySelectorAll('input[name="comm-target"]');
-                            if (checkboxes.length === 0) return;
-                            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-                            checkboxes.forEach(cb => cb.checked = !allChecked);
-                            btnToggle.textContent = allChecked ? "Select All" : "Deselect All";
-                        };
-                    }
-                }
-            } catch (err) {
-                console.error("Fetch Members Error:", err);
-            }
-        };
-
-        window.togglePermission = async (memberId, permission, currentVal) => {
-            if (!sb || !currentCommunity || !currentUser) return;
-            try {
-                const { data: myMem } = await sb.from('community_members').select('role, permissions').eq('community_id', currentCommunity.id).eq('user_id', currentUser.id).single();
-                if (myMem.role !== 'admin' && !myMem.permissions.can_control) {
-                    showToast("You don't have permission to manage members.", "error");
-                    return;
-                }
-
-                const { data: targetMember } = await sb.from('community_members').select('role, permissions').eq('id', memberId).single();
-                if (targetMember.role === 'admin') {
-                    showToast("Cannot modify admin permissions.", "error");
-                    return;
-                }
-
-                const newPermissions = { ...targetMember.permissions, [permission]: !currentVal };
-                
-                const { error } = await sb.from('community_members').update({ permissions: newPermissions }).eq('id', memberId);
-                if (error) throw error;
-                playCuteSound('success');
-                showToast("Permission updated.", "success");
-            } catch (err) {
-                showToast("Permission Error: " + err.message, "error");
-            }
-        };
-
-        const fetchCommunityFiles = async () => {
-            if (!currentCommunity || !sb) return;
-            try {
-                const { data, error } = await sb
-                    .from('community_files')
-                    .select('*, users(*)')
-                    .eq('community_id', currentCommunity.id)
-                    .order('created_at', { ascending: false });
-                
-                if (error) throw error;
-
-                const list = document.getElementById('comm-file-list');
-                if (list) {
-                    const { data: myMem } = await sb.from('community_members').select('permissions').eq('community_id', currentCommunity.id).eq('user_id', currentUser.id).single();
-                    
-                    if (data && data.length > 0) {
-                        const visibleFiles = data.filter(f => 
-                            f.sender_id === currentUser.id || 
-                            !f.receiver_ids || 
-                            f.receiver_ids.includes(currentUser.id)
-                        );
-
-                        if (visibleFiles.length > 0) {
-                            list.innerHTML = visibleFiles.map(file => `
-                                <div class="glass p-5 flex items-center gap-5 group border border-white/5 hover:border-orange-500/30">
-                                    <div class="w-10 h-10 bg-orange-600/10 rounded-xl flex items-center justify-center">
-                                        <i data-lucide="file" class="w-5 h-5 text-orange-500"></i>
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <div class="flex items-center gap-2 mb-0.5">
-                                            <h4 class="font-bold text-sm truncate">${file.file_name}</h4>
-                                            <span class="text-[9px] px-1.5 py-0.5 bg-white/5 rounded-full opacity-60">${file.users.name}</span>
-                                            ${file.receiver_ids ? `<span class="text-[9px] px-1.5 py-0.5 bg-blue-500/10 text-blue-500 rounded-full font-black uppercase tracking-widest">Targeted</span>` : ''}
-                                        </div>
-                                        <p class="text-[9px] uppercase tracking-widest opacity-40">${new Date(file.created_at).toLocaleString()}</p>
-                                    </div>
-                                    <div class="flex gap-2">
-                                        <button onclick="downloadCommFile('${file.id}')" class="p-2.5 bg-orange-600/10 hover:bg-orange-600 text-orange-500 hover:text-white rounded-xl transition-all">
-                                            <i data-lucide="download" class="w-4 h-4"></i>
-                                        </button>
-                                        ${(file.sender_id === currentUser.id || currentCommunity.creator_id === currentUser.id || myMem?.permissions?.can_delete) ? `
-                                            <button onclick="deleteCommFile('${file.id}', '${file.file_path}')" class="p-2.5 bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white rounded-xl transition-all">
-                                                <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                            </button>
-                                        ` : ''}
-                                    </div>
-                                </div>
-                            `).join('');
-                        } else {
-                            list.innerHTML = `<div class="text-center py-20 opacity-20"><i data-lucide="folder" class="w-16 h-16 mx-auto mb-4"></i><p class="font-bold uppercase tracking-widest">No files for you here</p></div>`;
-                        }
-                    } else {
-                        list.innerHTML = `<div class="text-center py-20 opacity-20"><i data-lucide="folder" class="w-16 h-16 mx-auto mb-4"></i><p class="font-bold uppercase tracking-widest">No files in this room yet</p></div>`;
-                    }
-                    if (typeof lucide !== 'undefined') lucide.createIcons();
-                }
-            } catch (err) {
-                console.error("Fetch Files Error:", err);
-            }
-        };
-
-        const handleCommFileSelection = (file) => {
-            if (!file) return;
-            if (file.size > 3 * 1024 * 1024) {
-                showToast("File too large! Max 3MB.", "error");
-                return;
-            }
-            
-            selectedCommFile = file;
-            const emptyState = document.getElementById('comm-dropzone-empty');
-            const fileState = document.getElementById('comm-dropzone-file');
-            const nameDisp = document.getElementById('comm-file-name-display');
-            
-            if (emptyState) emptyState.classList.add('hidden');
-            if (fileState) fileState.classList.remove('hidden');
-            if (nameDisp) nameDisp.innerText = file.name;
-            
-            playCuteSound('send');
-        };
-
-        window.removeCommFile = (e) => {
-            if (e) e.stopPropagation();
-            selectedCommFile = null;
-            const emptyState = document.getElementById('comm-dropzone-empty');
-            const fileState = document.getElementById('comm-dropzone-file');
-            const fileInput = document.getElementById('comm-file-input');
-            
-            if (emptyState) emptyState.classList.remove('hidden');
-            if (fileState) fileState.classList.add('hidden');
-            if (fileInput) fileInput.value = "";
-        };
-
-        const handleCommSend = async () => {
-            if (!selectedCommFile || !currentCommunity || !currentUser) {
-                showToast("Please select a file first!", "error");
-                return;
-            }
-            
-            if (!sb) {
-                showToast("Database connection error.", "error");
-                return;
-            }
-            
-            const { data: myMem } = await sb.from('community_members').select('permissions').eq('community_id', currentCommunity.id).eq('user_id', currentUser.id).single();
-            if (!myMem?.permissions?.can_send) {
-                showToast("You don't have permission to send files.", "error");
-                return;
-            }
-
-            const selectedCheckboxes = document.querySelectorAll('input[name="comm-target"]:checked');
-            const receiverIds = selectedCheckboxes.length > 0 
-                ? Array.from(selectedCheckboxes).map(cb => cb.value) 
-                : null;
-            const btn = document.getElementById('comm-send-btn');
-            if (btn) {
-                btn.disabled = true;
-                btn.innerHTML = '<div class="loader"></div> SENDING...';
-            }
-
-            try {
-                const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}_${selectedCommFile.name}`;
-                const filePath = `community/${currentCommunity.id}/${fileName}`;
-
-                const { error: storageErr } = await sb.storage.from('transfers').upload(filePath, selectedCommFile);
-                if (storageErr) throw storageErr;
-
-                const { error: dbErr } = await sb.from('community_files').insert([{
-                    community_id: currentCommunity.id,
-                    sender_id: currentUser.id,
-                    receiver_ids: receiverIds,
-                    file_name: selectedCommFile.name,
-                    file_path: filePath
-                }]);
-
-                if (dbErr) throw dbErr;
-
-                playCuteSound('send');
-                showToast("✨ File shared with room! ✨", "success");
-                removeCommFile();
-            } catch (err) {
-                showToast("Send Error: " + err.message, "error");
-            } finally {
-                if (btn) {
-                    btn.disabled = false;
-                    btn.innerHTML = '<i data-lucide="send" class="w-5 h-5"></i> SEND TO ROOM';
-                    if (typeof lucide !== 'undefined') lucide.createIcons();
-                }
-            }
-        };
-
-        const purgeOldCommunityFiles = async (commId) => {
-            if (!sb) return;
-            try {
-                const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-                
-                const { data: oldFiles } = await sb
-                    .from('community_files')
-                    .select('id, file_path')
-                    .eq('community_id', commId)
-                    .lt('created_at', oneDayAgo);
-                
-                if (oldFiles && oldFiles.length > 0) {
-                    const paths = oldFiles.map(f => f.file_path);
-                    const ids = oldFiles.map(f => f.id);
-                    
-                    await sb.storage.from('transfers').remove(paths);
-                    await sb.from('community_files').delete().in('id', ids);
-                    
-                    console.log(`Purged ${oldFiles.length} old community files.`);
-                }
-            } catch (err) {
-                console.error("Purge Error:", err);
-            }
-        };
-
-        window.downloadCommFile = async (id) => {
-            if (!sb) return;
-            try {
-                const { data: file, error } = await sb.from('community_files').select('*').eq('id', id).single();
-                if (error) throw error;
-
-                const { data: blob, error: dlErr } = await sb.storage.from('transfers').download(file.file_path);
-                if (dlErr) throw dlErr;
-
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement("a");
-                link.href = url;
-                link.download = file.file_name;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(url);
-                
-                playCuteSound('receive');
-                showToast("File downloaded!", "success");
-            } catch (err) {
-                showToast("Download Error: " + err.message, "error");
-            }
-        };
-
-        window.deleteCommFile = async (id, filePath) => {
-            if (!sb || !currentCommunity || !currentUser) return;
-            
-            const { data: myMem } = await sb.from('community_members').select('permissions').eq('community_id', currentCommunity.id).eq('user_id', currentUser.id).single();
-            if (!myMem?.permissions?.can_delete && currentCommunity.creator_id !== currentUser.id) {
-                showToast("You don't have permission to delete files.", "error");
-                return;
-            }
-
-            showModal("Delete Room File", "Delete this file for everyone?", "Destruction is permanent.", async () => {
-                try {
-                    await sb.storage.from('transfers').remove([filePath]);
-                    await sb.from('community_files').delete().eq('id', id);
-                    playCuteSound('success');
-                    showToast("File removed from room.", "success");
-                } catch (err) {
-                    showToast("Delete Error: " + err.message, "error");
-                }
-            });
-        };
-
-        window.refreshCommunityFiles = () => {
-            fetchCommunityFiles();
-            showToast("Refreshing files...", "info");
-        };
-
-        // --- Send Logic ---
-        const dropzone = document.getElementById('dropzone');
-        const fileInput = document.getElementById('file-input');
-
-        if (dropzone && fileInput) {
-            dropzone.onclick = () => fileInput.click();
-            fileInput.onchange = (e) => handleFileSelection(e.target.files[0]);
-
-            dropzone.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                dropzone.classList.add('bg-white/5', 'border-blue-500');
-            });
-
-            dropzone.addEventListener('dragleave', () => {
-                dropzone.classList.remove('bg-white/5', 'border-blue-500');
-            });
-
-            dropzone.addEventListener('drop', (e) => {
-                e.preventDefault();
-                dropzone.classList.remove('bg-white/5', 'border-blue-500');
-                if (e.dataTransfer.files.length > 0) {
-                    handleFileSelection(e.dataTransfer.files[0]);
-                }
-            });
-        }
-
-        const handleFileSelection = (file) => {
-            if (!file) return;
-            
-            if (file.size > 3 * 1024 * 1024) {
-                showToast("File too large! Maximum limit is 3MB.", "error");
-                if (fileInput) fileInput.value = "";
-                return;
-            }
-
-            selectedFile = file;
-            const emptyState = document.getElementById('dropzone-empty');
-            const fileState = document.getElementById('dropzone-file');
-            const nameDisp = document.getElementById('file-name-display');
-
-            if (emptyState) emptyState.classList.add('hidden');
-            if (fileState) fileState.classList.remove('hidden');
-            if (nameDisp) nameDisp.innerText = file.name;
-            
-            playCuteSound('send');
-        };
-
-        window.removeFile = (e) => {
-            if (e) e.stopPropagation();
-            selectedFile = null;
-            const emptyState = document.getElementById('dropzone-empty');
-            const fileState = document.getElementById('dropzone-file');
-            if (fileInput) fileInput.value = "";
-
-            if (emptyState) emptyState.classList.remove('hidden');
-            if (fileState) fileState.classList.add('hidden');
-        };
-
-        window.handleSend = async () => {
-            const receiverField = document.getElementById('send-receiver');
-            const passField = document.getElementById('send-password');
-            const nickField = document.getElementById('send-nickname');
-            const descField = document.getElementById('send-desc');
-            const textField = document.getElementById('send-text');
+        
+        const handleSend = async () => {
+            const receiver = document.getElementById('send-receiver').value.trim().toLowerCase();
+            const password = document.getElementById('send-password').value;
+            const nickname = document.getElementById('send-nickname').value.trim();
+            const desc = document.getElementById('send-desc').value;
+            const text = document.getElementById('send-text').value;
+            if (!receiver || !nickname) return showToast('Receiver and nickname required', 'error');
+            if (currentTransferMode === 'private' && !password) return showToast('Password required', 'error');
+            const { data: userExists } = await sb.from('users').select('id').eq('username', receiver).single();
+            if (!userExists) return showToast('User not found', 'error');
+            let file = selectedFile;
+            if (text && !file) file = new File([text], 'message.txt', { type: 'text/plain' });
+            if (!file) return showToast('Select file or type message', 'error');
             const btn = document.getElementById('send-now-btn');
-
-            if (!receiverField || !passField || !nickField || !descField || !textField || !btn) return;
-
-            const receiver = receiverField.value.trim().toLowerCase();
-            const password = passField.value;
-            const nickname = nickField.value.trim();
-            const desc = descField.value;
-            const textContent = textField.value;
-
-            if (!receiver || !nickname) {
-                showToast("Receiver Username and Your Nickname are required.", "error");
-                return;
-            }
-
-            if (currentTransferMode === 'private' && !password) {
-                showToast("Password is required for private drops.", "error");
-                return;
-            }
-
-            if (!sb) {
-                showToast("Database connection error.", "error");
-                return;
-            }
-
-            const { data: userExists, error: userError } = await sb.from('users').select('id').eq('username', receiver).single();
-            if (userError || !userExists) {
-                showToast("Receiver username not found.", "error");
-                return;
-            }
-
-            let fileToUpload = selectedFile;
-            
-            if (textContent && !fileToUpload) {
-                fileToUpload = new File([textContent], "message.txt", { type: "text/plain" });
-            }
-
-            if (!fileToUpload) {
-                showToast("Please select a file or type a message.", "error");
-                return;
-            }
-
-            if (fileToUpload.size > 3 * 1024 * 1024) {
-                showToast("The content is too large! Maximum limit is 3MB.", "error");
-                return;
-            }
-
             btn.disabled = true;
-            btn.innerHTML = '<div class="loader"></div> SENDING...';
-
+            btn.innerHTML = '<div class="loader"></div> SENDING';
             try {
                 let publicCode = null;
-                if (currentTransferMode === 'public') {
-                    publicCode = await generateUniqueCode();
-                }
-
-                const fileExt = fileToUpload.name.split('.').pop();
-                const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
-                const filePath = `${currentTransferMode === 'public' ? 'public' : receiver}/${fileName}`;
-
-                const { error: storageError } = await sb.storage
-                    .from('transfers')
-                    .upload(filePath, fileToUpload);
-
-                if (storageError) throw storageError;
-
-                const { error: dbError } = await sb.from('transfers').insert([{
-                    receiver_username: receiver,
-                    password: currentTransferMode === 'private' ? password : null,
-                    is_public: currentTransferMode === 'public',
-                    public_code: publicCode,
-                    sender_nickname: nickname,
-                    description: desc,
-                    file_name: fileToUpload.name,
-                    file_path: filePath,
-                    created_at: new Date().toISOString()
-                }]);
-
-                if (dbError) throw dbError;
-
-                playCuteSound('send');
-                
-                if (currentTransferMode === 'public') {
-                    showModal(
-                        "Public Drop Initialized ✨",
-                        `Your file is now public. Share this 2-digit code with the receiver:`,
-                        `<div class="text-center space-y-4">
-                            <div class="text-6xl font-black text-blue-500 tracking-tighter">${publicCode}</div>
-                            <button onclick="window.print()" class="btn-action bg-white/5 py-3 px-6 rounded-xl text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2 mx-auto">
-                                <i data-lucide="printer" class="w-4 h-4"></i> Print Details
-                            </button>
-                        </div>`,
-                        () => { showView('menu'); }
-                    );
-                } else {
-                    showToast("✨ Drop Initialized Successfully! ✨", "success");
-                    showView('menu');
-                }
-                
-                const sendRec = document.getElementById('send-receiver');
-                const sendPass = document.getElementById('send-password');
-                const sendNick = document.getElementById('send-nickname');
-                const sendDesc = document.getElementById('send-desc');
-                const sendText = document.getElementById('send-text');
-
-                if (sendRec) sendRec.value = "";
-                if (sendPass) sendPass.value = "";
-                if (sendNick) sendNick.value = "";
-                if (sendDesc) sendDesc.value = "";
-                if (sendText) sendText.value = "";
-                removeFile({ stopPropagation: () => {} });
-            } catch (err) {
-                console.error(err);
-                showToast("Error: " + err.message, "error");
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = '<i data-lucide="zap" class="w-6 h-6"></i> SEND NOW';
-                if (typeof lucide !== 'undefined') lucide.createIcons();
-            }
+                if (currentTransferMode === 'public') publicCode = await generateUniqueCode();
+                const fileName = `${Date.now()}_${file.name}`;
+                const path = `${currentTransferMode === 'public' ? 'public' : receiver}/${fileName}`;
+                await sb.storage.from('transfers').upload(path, file);
+                await sb.from('transfers').insert([{ receiver_username: receiver, password: currentTransferMode === 'private' ? password : null, is_public: currentTransferMode === 'public', public_code: publicCode, sender_nickname: nickname, description: desc, file_name: file.name, file_path: path }]);
+                playSound();
+                if (currentTransferMode === 'public') showModal('Public Drop', `Share code: ${publicCode}`, `<div class="text-center text-5xl font-black text-blue-500">${publicCode}</div><button onclick="window.print()" class="btn-primary mt-3">Print</button>`, () => showView('menu'));
+                else showToast('Drop sent!', 'success');
+                showView('menu');
+                document.getElementById('send-receiver').value = '';
+                document.getElementById('send-password').value = '';
+                document.getElementById('send-nickname').value = '';
+                document.getElementById('send-desc').value = '';
+                document.getElementById('send-text').value = '';
+                removeFile();
+            } catch(e) { showToast(e.message, 'error'); }
+            finally { btn.disabled = false; btn.innerHTML = '<i data-lucide="zap" class="w-6 h-6"></i> SEND NOW'; lucide.createIcons(); }
         };
-
-        // --- Receive Logic ---
-        window.handleReceive = async () => {
-            const userField = document.getElementById('receive-username');
-            const passField = document.getElementById('receive-password');
-            const codeField = document.getElementById('receive-code');
+        
+        // ========== RECEIVE LOGIC ==========
+        const handleReceive = async () => {
             const btn = document.getElementById('receive-btn');
-            const result = document.getElementById('receive-result');
-
-            if (!userField || !passField || !codeField || !btn || !result) return;
-
-            const username = userField.value.trim().toLowerCase();
-            const password = passField.value;
-            const code = codeField.value.trim();
-
-            if (currentReceiveMode === 'private' && !username) {
-                showToast("Receiver Username is required.", "error");
-                return;
-            }
-            if (currentReceiveMode === 'private' && !password) {
-                showToast("Password is required.", "error");
-                return;
-            }
-            if (currentReceiveMode === 'public' && !code) {
-                showToast("2-Digit Public Code is required.", "error");
-                return;
-            }
-
-            if (!sb) {
-                showToast("Database connection error.", "error");
-                return;
-            }
-
             btn.disabled = true;
-            btn.innerHTML = '<div class="loader"></div> DECRYPTING...';
-            result.classList.add('hidden');
-
+            btn.innerHTML = '<div class="loader"></div> DECRYPTING';
             try {
                 let query = sb.from('transfers').select('*');
-                
                 if (currentReceiveMode === 'private') {
+                    const username = document.getElementById('receive-username').value.trim().toLowerCase();
+                    const password = document.getElementById('receive-password').value;
+                    if (!username || !password) return showToast('Username and password required', 'error');
                     query = query.eq('receiver_username', username).eq('password', password);
                 } else {
+                    const code = document.getElementById('receive-code').value.trim();
+                    if (!code || code.length !== 2) return showToast('Valid 2-digit code required', 'error');
                     query = query.eq('public_code', code).eq('is_public', true);
                 }
-
-                const { data, error } = await query.order('created_at', { ascending: false }).limit(1);
-
-                if (error) throw error;
-
-                if (data && data.length > 0) {
-                    const transfer = data[0];
-                    result.classList.remove('hidden');
-                    
-                    const resFile = document.getElementById('res-filename');
-                    const resDesc = document.getElementById('res-desc');
-                    const resSender = document.getElementById('res-sender');
-
-                    if (resFile) resFile.innerText = transfer.file_name;
-                    if (resDesc) resDesc.innerText = transfer.description || "No description provided.";
-                    if (resSender) resSender.innerText = `Sent by: ${transfer.sender_nickname || 'Anonymous'}`;
-                    
-                    const dlBtn = document.getElementById('download-btn');
-                    if (dlBtn) {
-                        dlBtn.onclick = async () => {
-                            dlBtn.innerHTML = '<div class="loader"></div>';
-                            try {
-                                const { data: fileBlob, error: dlError } = await sb.storage
-                                    .from('transfers')
-                                    .download(transfer.file_path);
-
-                                if (dlError) throw dlError;
-
-                                const url = URL.createObjectURL(fileBlob);
-                                const link = document.createElement("a");
-                                link.href = url;
-                                link.download = transfer.file_name;
-                                document.body.appendChild(link);
-                                link.click();
-                                document.body.removeChild(link);
-                                URL.revokeObjectURL(url);
-                                playCuteSound('receive');
-                                showToast("✨ File downloaded! ✨", "success");
-                                
-                                startAutoDeleteTimer(transfer.id, transfer.file_path);
-                            } catch (err) {
-                                showToast("Download Error: " + err.message, "error");
-                            } finally {
-                                dlBtn.innerHTML = '<i data-lucide="download" class="w-6 h-6"></i>';
-                                if (typeof lucide !== 'undefined') lucide.createIcons();
-                            }
-                        };
-                    }
-
-                    const delBtn = document.getElementById('receive-delete-btn');
-                    if (delBtn) {
-                        delBtn.onclick = async () => {
-                            showModal(
-                                "Delete File",
-                                "Are you sure you want to delete this file permanently? This action cannot be undone.",
-                                `<p class="text-xs text-red-500 font-bold uppercase tracking-widest text-center">Permanent Destruction</p>`,
-                                async () => {
-                                    try {
-                                        if (delBtn) delBtn.innerHTML = '<div class="loader"></div>';
-                                        
-                                        await sb.storage.from('transfers').remove([transfer.file_path]);
-                                        
-                                        const { error } = await sb.from('transfers').delete().eq('id', transfer.id);
-                                        if (error) throw error;
-
-                                        playCuteSound('success');
-                                        showToast("File deleted successfully.", "success");
-                                        result.classList.add('hidden');
-                                        if (delBtn) delBtn.innerHTML = '<i data-lucide="trash-2" class="w-6 h-6"></i>';
-                                        if (typeof lucide !== 'undefined') lucide.createIcons();
-                                    } catch (err) {
-                                        showToast("Error: " + err.message, "error");
-                                        if (delBtn) delBtn.innerHTML = '<i data-lucide="trash-2" class="w-6 h-6"></i>';
-                                        if (typeof lucide !== 'undefined') lucide.createIcons();
-                                    }
-                                }
-                            );
-                        };
-                    }
-                    playCuteSound('receive');
-                    showToast("✨ File decrypted successfully! ✨", "success");
-                } else {
-                    showToast("Invalid credentials or file expired.", "error");
-                }
-            } catch (err) {
-                console.error(err);
-                showToast("Error: " + err.message, "error");
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = 'DECRYPT & OPEN <i data-lucide="unlock" class="w-5 h-5"></i>';
-                const recUsername = document.getElementById('receive-username');
-                const recPassword = document.getElementById('receive-password');
-                const recCode = document.getElementById('receive-code');
-                if (recUsername) recUsername.value = "";
-                if (recPassword) recPassword.value = "";
-                if (recCode) recCode.value = "";
-                if (typeof lucide !== 'undefined') lucide.createIcons();
-            }
+                const { data } = await query.order('created_at', { ascending: false }).limit(1);
+                if (!data?.length) return showToast('No file found', 'error');
+                const transfer = data[0];
+                const result = document.getElementById('receive-result');
+                result.classList.remove('hidden');
+                document.getElementById('res-filename').innerText = transfer.file_name;
+                document.getElementById('res-desc').innerText = transfer.description || 'No description';
+                document.getElementById('res-sender').innerText = `From: ${transfer.sender_nickname || 'Anonymous'}`;
+                document.getElementById('download-btn').onclick = async () => {
+                    const { data: blob } = await sb.storage.from('transfers').download(transfer.file_path);
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = transfer.file_name;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    playSound();
+                    showToast('Downloaded!', 'success');
+                    setTimeout(async () => {
+                        await sb.storage.from('transfers').remove([transfer.file_path]);
+                        await sb.from('transfers').delete().eq('id', transfer.id);
+                        result.classList.add('hidden');
+                        showToast('Auto-deleted', 'info');
+                    }, 5000);
+                };
+                document.getElementById('receive-delete-btn').onclick = async () => {
+                    await sb.storage.from('transfers').remove([transfer.file_path]);
+                    await sb.from('transfers').delete().eq('id', transfer.id);
+                    result.classList.add('hidden');
+                    showToast('Deleted', 'success');
+                };
+                playSound();
+            } catch(e) { showToast(e.message, 'error'); }
+            finally { btn.disabled = false; btn.innerHTML = 'DECRYPT & OPEN <i data-lucide="unlock" class="w-5 h-5"></i>'; lucide.createIcons(); }
         };
-
-        // --- Enter Key Support ---
-        const addEnterKeySupport = () => {
-            const sendTextarea = document.getElementById('send-text');
-            if (sendTextarea) {
-                sendTextarea.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleSend();
-                    }
-                });
-            }
-
-            const receiveInputs = ['receive-username', 'receive-password', 'receive-code'];
-            receiveInputs.forEach(id => {
-                const input = document.getElementById(id);
-                if (input) {
-                    input.addEventListener('keydown', (e) => {
-                        if (e.key === 'Enter') {
-                            e.preventDefault();
-                            handleReceive();
-                        }
-                    });
-                }
-            });
-
-            const loginUsername = document.getElementById('login-username');
-            const loginPassword = document.getElementById('login-password');
-            if (loginUsername && loginPassword) {
-                loginUsername.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') handleLogin();
-                });
-                loginPassword.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') handleLogin();
-                });
-            }
-
-            const signupInputs = ['signup-name', 'signup-username', 'signup-password'];
-            signupInputs.forEach(id => {
-                const input = document.getElementById(id);
-                if (input) {
-                    input.addEventListener('keydown', (e) => {
-                        if (e.key === 'Enter') handleSignup();
-                    });
-                }
-            });
-
-            const commJoinInputs = ['comm-join-name', 'comm-join-sentence'];
-            commJoinInputs.forEach(id => {
-                const input = document.getElementById(id);
-                if (input) {
-                    input.addEventListener('keydown', (e) => {
-                        if (e.key === 'Enter') handleJoinCommunity();
-                    });
-                }
-            });
-
-            const commCreateInputs = ['comm-create-name', 'comm-create-sentence', 'comm-create-bio'];
-            commCreateInputs.forEach(id => {
-                const input = document.getElementById(id);
-                if (input) {
-                    input.addEventListener('keydown', (e) => {
-                        if (e.key === 'Enter' && e.target.id !== 'comm-create-bio') {
-                            e.preventDefault();
-                            handleCreateCommunity();
-                        }
-                    });
-                }
-            });
+        
+        // ========== HELPERS ==========
+        const escapeHtml = (str) => {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
         };
-
-        // --- Initialization ---
+        
+        // ========== INIT ==========
         window.onload = () => {
             setTimeout(() => {
-                const intro = document.getElementById('intro-screen');
-                const main = document.getElementById('main-content');
-                if (intro) intro.style.display = 'none';
-                if (main) {
-                    main.classList.remove('opacity-0');
-                    main.classList.add('opacity-100');
-                }
-            }, 2500);
-
-            try {
-                if (typeof lucide !== 'undefined') lucide.createIcons();
-                
-                const savedTheme = localStorage.getItem('zdrop_theme') || 'dark';
-                document.documentElement.setAttribute('data-theme', savedTheme);
-                updateThemeIcon(savedTheme);
-
-                const savedUser = localStorage.getItem('zdrop_user');
-                if (savedUser && sb) {
-                    const parsedUser = JSON.parse(savedUser);
-                    sb.from('users').select('*').eq('id', parsedUser.id).single().then(({ data, error }) => {
-                        if (data && !error) {
-                            currentUser = data;
-                            localStorage.setItem('zdrop_user', JSON.stringify(data));
-                            updateUIForUser();
-                            fetchInbox();
-                        } else {
-                            localStorage.removeItem('zdrop_user');
-                            currentUser = null;
-                            showView('landing');
-                        }
-                        subscribeToInbox();
-                    });
-                } else {
-                    subscribeToInbox();
-                }
-
-                const bioInput = document.getElementById('profile-bio');
-                if (bioInput) {
-                    bioInput.addEventListener('input', (e) => {
-                        const count = document.getElementById('bio-count');
-                        if (count) count.innerText = `${e.target.value.length}/101`;
-                    });
-                }
-
-                addEnterKeySupport();
-
-            } catch (err) {
-                console.error("Initialization error:", err);
+                dom.intro.style.display = 'none';
+                dom.main.classList.remove('opacity-0');
+                dom.main.classList.add('opacity-100');
+            }, 2000);
+            lucide.createIcons();
+            const savedTheme = localStorage.getItem('zdrop_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+            const savedUser = localStorage.getItem('zdrop_user');
+            if (savedUser) {
+                const user = JSON.parse(savedUser);
+                sb.from('users').select('*').eq('id', user.id).single().then(({ data }) => {
+                    if (data) {
+                        currentUser = data;
+                        document.getElementById('user-display').classList.remove('hidden');
+                        document.getElementById('nav-username').innerText = `@${currentUser.username}`;
+                        document.getElementById('user-info-bar').classList.remove('hidden');
+                        document.getElementById('user-display-name').innerText = currentUser.name;
+                        document.getElementById('profile-name').innerText = currentUser.name;
+                        document.getElementById('profile-username').innerText = `@${currentUser.username}`;
+                        document.getElementById('profile-bio').value = currentUser.bio || '';
+                        document.getElementById('send-nickname').value = currentUser.name;
+                        fetchInbox();
+                        subscribeInbox();
+                        fetchMyCommunities();
+                        showView('menu');
+                    }
+                });
             }
+            // Setup dropzone
+            const dropzone = document.getElementById('dropzone');
+            const fileInput = document.getElementById('file-input');
+            dropzone.onclick = () => fileInput.click();
+            fileInput.onchange = (e) => handleFileSelection(e.target.files[0]);
+            dropzone.ondragover = (e) => { e.preventDefault(); dropzone.style.borderColor = '#3b82f6'; };
+            dropzone.ondragleave = () => { dropzone.style.borderColor = ''; };
+            dropzone.ondrop = (e) => { e.preventDefault(); dropzone.style.borderColor = ''; handleFileSelection(e.dataTransfer.files[0]); };
+            // Enter key support
+            document.getElementById('send-text').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } });
+            document.getElementById('receive-username')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleReceive(); });
+            document.getElementById('receive-password')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleReceive(); });
+            document.getElementById('receive-code')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleReceive(); });
+            // Bio counter
+            document.getElementById('profile-bio').addEventListener('input', (e) => {
+                document.getElementById('bio-count').innerText = `${e.target.value.length}/101`;
+            });
         };
+        
+        // Expose globals
+        window.showView = showView;
+        window.toggleTheme = toggleTheme;
+        window.handleSignup = handleSignup;
+        window.handleLogin = handleLogin;
+        window.handleLogout = handleLogout;
+        window.updateBio = updateBio;
+        window.setTransferMode = setTransferMode;
+        window.setReceiveMode = setReceiveMode;
+        window.handleSend = handleSend;
+        window.handleReceive = handleReceive;
+        window.removeFile = removeFile;
+        window.removeCommFile = removeCommFile;
+        window.handleCreateCommunity = handleCreateCommunity;
+        window.handleJoinCommunity = handleJoinCommunity;
+        window.enterCommunityRoom = enterCommunityRoom;
+        window.togglePermission = togglePermission;
+        window.downloadCommFile = downloadCommFile;
+        window.deleteCommFile = deleteCommFile;
+        window.refreshCommunityFiles = refreshCommunityFiles;
+        window.openInboxItem = openInboxItem;
+        window.deleteInboxItem = deleteInboxItem;
+        window.closeModal = closeModal;
     </script>
 </body>
 </html>
