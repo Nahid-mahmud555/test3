@@ -6,12 +6,18 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>Z DROP | SECURE PORTAL</title>
+    <title>Z DROP | FAST SECURE PORTAL</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         
         :root {
             --bg: #050505;
@@ -24,6 +30,7 @@
             --card-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
             --input-bg: rgba(255, 255, 255, 0.04);
             --modal-overlay: rgba(0, 0, 0, 0.8);
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         [data-theme="light"] {
@@ -78,7 +85,7 @@
             border: 1px solid var(--glass-border);
             border-radius: 32px;
             box-shadow: var(--card-shadow);
-            transition: all 0.2s ease;
+            transition: var(--transition);
         }
 
         .glass-hover:hover {
@@ -88,9 +95,9 @@
             box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.2);
         }
 
-        .fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .fade-in { animation: fadeIn 0.3s ease forwards; }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
@@ -107,7 +114,7 @@
         }
 
         .animate-intro {
-            animation: introAnim 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation: introAnim 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         @keyframes introAnim {
@@ -118,7 +125,7 @@
         }
 
         .btn-action {
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: var(--transition);
             position: relative;
             overflow: hidden;
         }
@@ -141,7 +148,7 @@
             padding: 1rem 1.25rem;
             color: var(--text);
             width: 100%;
-            transition: all 0.15s;
+            transition: var(--transition);
         }
 
         .input-field:focus {
@@ -155,12 +162,13 @@
         .view.active { display: block; }
 
         .loader {
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(255,255,255,0.1);
-            border-top-color: var(--text);
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-top-color: white;
             border-radius: 50%;
-            animation: spin 0.6s linear infinite;
+            animation: spin 0.5s linear infinite;
+            display: inline-block;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -174,7 +182,7 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: var(--transition);
         }
 
         .theme-toggle:hover {
@@ -183,7 +191,7 @@
             transform: rotate(15deg);
         }
 
-        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 10px; }
 
@@ -192,11 +200,11 @@
             font-size: 1.125rem;
             font-weight: 800;
             border-radius: 2rem;
-            transition: all 0.2s ease;
+            transition: var(--transition);
         }
 
         .btn-big:hover {
-            transform: scale(1.03);
+            transform: scale(1.02);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
@@ -211,12 +219,21 @@
 
         .dropzone-clean {
             min-height: 200px;
-            transition: all 0.2s ease;
+            transition: var(--transition);
         }
         
         button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+        }
+        
+        .toast {
+            animation: slideIn 0.2s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
     </style>
 </head>
@@ -224,14 +241,13 @@
     <div class="atmosphere">
         <div class="glow bg-blue-600/20 top-[-10%] left-[-10%]"></div>
         <div class="glow bg-purple-600/20 bottom-[-10%] right-[-10%]"></div>
-        <div class="noise"></div>
     </div>
 
-    <div id="toast-container" class="fixed top-4 right-4 left-4 md:left-auto md:top-8 md:right-8 z-[110] flex flex-col gap-4 pointer-events-none"></div>
+    <div id="toast-container" class="fixed top-4 right-4 left-4 md:left-auto md:top-8 md:right-8 z-[110] flex flex-col gap-3 pointer-events-none"></div>
 
     <div id="custom-modal" class="fixed inset-0 z-[120] hidden flex items-center justify-center p-6">
         <div class="absolute inset-0 backdrop-blur-sm" onclick="closeModal()" style="background: var(--modal-overlay)"></div>
-        <div class="glass max-w-md w-full p-8 space-y-6 relative animate-in fade-in zoom-in duration-200">
+        <div class="glass max-w-md w-full p-8 space-y-6 relative">
             <div class="text-center space-y-2">
                 <h3 id="modal-title" class="text-2xl font-black tracking-tight">TITLE</h3>
                 <p id="modal-desc" class="text-sm opacity-40">Description goes here.</p>
@@ -248,7 +264,7 @@
         <h1 class="intro-text animate-intro">Z DROP</h1>
     </div>
 
-    <div id="main-content" class="opacity-0 transition-opacity duration-700">
+    <div id="main-content" class="opacity-0 transition-opacity duration-500">
         <nav class="px-8 py-8 flex justify-between items-center max-w-7xl mx-auto relative z-50">
             <div class="flex items-center gap-3 cursor-pointer" onclick="showView('landing')">
                 <div class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center shadow-xl shadow-blue-600/20">
@@ -857,7 +873,7 @@
     </footer>
 
     <script>
-        // ========== OPTIMIZED SUPERFAST VERSION ==========
+        // ========== SUPERFAST OPTIMIZED VERSION ==========
         // SUPABASE CREDENTIALS
         const SUPABASE_URL = 'https://ersmbkzwcukkqkyrveqt.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_2w2WWtOBoKtNArFLZ51B-A_WYLCy0XD';
@@ -865,7 +881,7 @@
         const { createClient } = supabase;
         const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
-        // ========== STATE (optimized) ==========
+        // ========== STATE ==========
         let currentUser = null;
         let selectedFile = null;
         let selectedCommFile = null;
@@ -874,59 +890,56 @@
         let currentCommunity = null;
         let inboxSubscription = null;
         let communitySubscription = null;
-        
-        // DOM cache for faster access
-        const dom = {
-            toast: document.getElementById('toast-container'),
-            modal: document.getElementById('custom-modal'),
-            modalTitle: document.getElementById('modal-title'),
-            modalDesc: document.getElementById('modal-desc'),
-            modalContent: document.getElementById('modal-content'),
-            modalCancel: document.getElementById('modal-cancel'),
-            modalConfirm: document.getElementById('modal-confirm'),
-            intro: document.getElementById('intro-screen'),
-            main: document.getElementById('main-content'),
-            themeIcon: document.getElementById('theme-icon')
-        };
+        let unreadCount = 0;
         
         // ========== FAST UTILITIES ==========
         const showToast = (msg, type = 'info') => {
+            const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             const colors = { success: 'bg-green-600', error: 'bg-red-600', info: 'bg-blue-600' };
-            toast.className = `${colors[type]} p-4 px-6 rounded-2xl text-white font-bold text-base shadow-2xl flex items-center gap-3 mb-3`;
+            toast.className = `${colors[type]} p-4 px-6 rounded-2xl text-white font-bold text-base shadow-2xl flex items-center gap-3 toast`;
             toast.innerHTML = `<i data-lucide="${type === 'success' ? 'check-circle' : type === 'error' ? 'alert-circle' : 'info'}" class="w-5 h-5"></i><span>${msg}</span>`;
-            dom.toast.appendChild(toast);
+            container.appendChild(toast);
             lucide.createIcons();
             setTimeout(() => toast.remove(), 3000);
         };
         
         const showModal = (title, desc, content, onConfirm) => {
-            dom.modalTitle.innerText = title;
-            dom.modalDesc.innerText = desc;
-            dom.modalContent.innerHTML = content;
-            dom.modal.classList.remove('hidden');
-            dom.modalConfirm.onclick = () => { onConfirm(); closeModal(); };
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-desc').innerText = desc;
+            document.getElementById('modal-content').innerHTML = content;
+            document.getElementById('custom-modal').classList.remove('hidden');
+            document.getElementById('modal-confirm').onclick = () => { onConfirm(); closeModal(); };
         };
         
-        const closeModal = () => dom.modal.classList.add('hidden');
+        const closeModal = () => document.getElementById('custom-modal').classList.add('hidden');
         
         const playSound = () => {
             try {
                 const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3');
-                audio.volume = 0.2;
+                audio.volume = 0.15;
                 audio.play().catch(() => {});
             } catch(e) {}
         };
         
-        // ========== NAVIGATION (fast) ==========
+        // ========== NAVIGATION ==========
         const showView = (viewName) => {
             const view = document.getElementById(`view-${viewName}`);
             if (!view) return;
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             view.classList.add('active');
             window.scrollTo(0, 0);
+            
+            if (viewName === 'inbox' && currentUser) {
+                // Hide badge when inbox is opened
+                const badge = document.getElementById('inbox-badge');
+                if (badge) {
+                    badge.classList.add('hidden');
+                    unreadCount = 0;
+                }
+                fetchInbox();
+            }
             if (viewName === 'community-hub' && currentUser) fetchMyCommunities();
-            if (viewName === 'inbox' && currentUser) fetchInbox();
         };
         
         // ========== THEME ==========
@@ -935,12 +948,7 @@
             const target = current === 'dark' ? 'light' : 'dark';
             document.documentElement.setAttribute('data-theme', target);
             localStorage.setItem('zdrop_theme', target);
-            dom.themeIcon.setAttribute('data-lucide', target === 'dark' ? 'sun' : 'moon');
-            lucide.createIcons();
-        };
-        
-        const updateThemeIcon = (theme) => {
-            dom.themeIcon.setAttribute('data-lucide', theme === 'dark' ? 'sun' : 'moon');
+            document.getElementById('theme-icon').setAttribute('data-lucide', target === 'dark' ? 'sun' : 'moon');
             lucide.createIcons();
         };
         
@@ -992,7 +1000,7 @@
             if (!/^[a-z0-9]+$/.test(username)) return showToast('Username must be letters/numbers only', 'error');
             if (password.length < 8) return showToast('Password min 8 chars', 'error');
             const { error } = await sb.from('users').insert([{ name, username, password, bio: '' }]);
-            if (error) return showToast(error.message === '23505' ? 'Username taken' : error.message, 'error');
+            if (error) return showToast(error.code === '23505' ? 'Username taken' : error.message, 'error');
             showToast('Account created! Please login', 'success');
             showView('login');
         };
@@ -1036,14 +1044,30 @@
             showToast('Bio updated', 'success');
         };
         
-        // ========== INBOX ==========
+        // ========== INBOX (with badge fix) ==========
         const subscribeInbox = () => {
             if (!currentUser) return;
             if (inboxSubscription) sb.removeChannel(inboxSubscription);
             inboxSubscription = sb.channel('inbox').on('postgres_changes', {
                 event: 'INSERT', schema: 'public', table: 'transfers',
                 filter: `receiver_username=eq.${currentUser.username}`
-            }, () => { fetchInbox(); playSound(); showToast('New file received!', 'success'); }).subscribe();
+            }, () => { 
+                fetchInbox(); 
+                playSound(); 
+                showToast('New file received!', 'success');
+            }).subscribe();
+        };
+        
+        const updateBadge = (count) => {
+            const badge = document.getElementById('inbox-badge');
+            if (!badge) return;
+            if (count > 0) {
+                badge.innerText = count > 99 ? '99+' : count;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+            unreadCount = count;
         };
         
         const fetchInbox = async () => {
@@ -1051,13 +1075,14 @@
             const twentyFourHoursAgo = new Date(Date.now() - 86400000).toISOString();
             const { data } = await sb.from('transfers').select('*').eq('receiver_username', currentUser.username).gte('created_at', twentyFourHoursAgo).order('created_at', { ascending: false });
             const container = document.getElementById('inbox-list');
-            const badge = document.getElementById('inbox-badge');
+            
             if (!data?.length) {
                 container.innerHTML = '<div class="text-center py-20 opacity-20"><i data-lucide="inbox" class="w-16 h-16 mx-auto mb-4"></i><p class="font-bold uppercase tracking-widest">Your inbox is empty</p></div>';
-                if (badge) badge.classList.add('hidden');
+                updateBadge(0);
                 return;
             }
-            if (badge) { badge.innerText = data.length; badge.classList.remove('hidden'); }
+            
+            updateBadge(data.length);
             container.innerHTML = data.map(item => `
                 <div class="glass p-6 flex items-center gap-6 group">
                     <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: var(--input-bg)">
@@ -1410,14 +1435,21 @@
         // ========== INIT ==========
         window.onload = () => {
             setTimeout(() => {
-                dom.intro.style.display = 'none';
-                dom.main.classList.remove('opacity-0');
-                dom.main.classList.add('opacity-100');
-            }, 2000);
+                const intro = document.getElementById('intro-screen');
+                const main = document.getElementById('main-content');
+                if (intro) intro.style.display = 'none';
+                if (main) {
+                    main.classList.remove('opacity-0');
+                    main.classList.add('opacity-100');
+                }
+            }, 1800);
+            
             lucide.createIcons();
             const savedTheme = localStorage.getItem('zdrop_theme') || 'dark';
             document.documentElement.setAttribute('data-theme', savedTheme);
-            updateThemeIcon(savedTheme);
+            document.getElementById('theme-icon').setAttribute('data-lucide', savedTheme === 'dark' ? 'sun' : 'moon');
+            lucide.createIcons();
+            
             const savedUser = localStorage.getItem('zdrop_user');
             if (savedUser) {
                 const user = JSON.parse(savedUser);
@@ -1439,6 +1471,7 @@
                     }
                 });
             }
+            
             // Setup dropzone
             const dropzone = document.getElementById('dropzone');
             const fileInput = document.getElementById('file-input');
@@ -1447,11 +1480,13 @@
             dropzone.ondragover = (e) => { e.preventDefault(); dropzone.style.borderColor = '#3b82f6'; };
             dropzone.ondragleave = () => { dropzone.style.borderColor = ''; };
             dropzone.ondrop = (e) => { e.preventDefault(); dropzone.style.borderColor = ''; handleFileSelection(e.dataTransfer.files[0]); };
+            
             // Enter key support
             document.getElementById('send-text').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } });
             document.getElementById('receive-username')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleReceive(); });
             document.getElementById('receive-password')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleReceive(); });
             document.getElementById('receive-code')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleReceive(); });
+            
             // Bio counter
             document.getElementById('profile-bio').addEventListener('input', (e) => {
                 document.getElementById('bio-count').innerText = `${e.target.value.length}/101`;
