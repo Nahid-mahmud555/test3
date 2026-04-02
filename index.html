@@ -6,18 +6,12 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>Z DROP | FAST SECURE PORTAL</title>
+    <title>Z DROP | SECURE PORTAL</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
         
         :root {
             --bg: #050505;
@@ -30,7 +24,6 @@
             --card-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
             --input-bg: rgba(255, 255, 255, 0.04);
             --modal-overlay: rgba(0, 0, 0, 0.8);
-            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         [data-theme="light"] {
@@ -85,7 +78,7 @@
             border: 1px solid var(--glass-border);
             border-radius: 32px;
             box-shadow: var(--card-shadow);
-            transition: var(--transition);
+            transition: all 0.2s ease;
         }
 
         .glass-hover:hover {
@@ -125,7 +118,7 @@
         }
 
         .btn-action {
-            transition: var(--transition);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
         }
@@ -148,7 +141,7 @@
             padding: 1rem 1.25rem;
             color: var(--text);
             width: 100%;
-            transition: var(--transition);
+            transition: all 0.15s;
         }
 
         .input-field:focus {
@@ -182,7 +175,7 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: var(--transition);
+            transition: all 0.2s;
         }
 
         .theme-toggle:hover {
@@ -200,7 +193,7 @@
             font-size: 1.125rem;
             font-weight: 800;
             border-radius: 2rem;
-            transition: var(--transition);
+            transition: all 0.2s ease;
         }
 
         .btn-big:hover {
@@ -219,7 +212,7 @@
 
         .dropzone-clean {
             min-height: 200px;
-            transition: var(--transition);
+            transition: all 0.2s ease;
         }
         
         button:disabled {
@@ -234,6 +227,16 @@
         @keyframes slideIn {
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .auto-logout-timer {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 100;
+            font-size: 10px;
+            opacity: 0.5;
+            font-family: monospace;
         }
     </style>
 </head>
@@ -453,7 +456,7 @@
                 </div>
                 <div class="text-center mb-16 space-y-4">
                     <h2 class="text-5xl md:text-7xl font-black tracking-tight">DROP YOUR <span class="text-blue-500">FILES</span></h2>
-                    <p class="max-w-lg mx-auto text-lg" style="color: var(--text-muted)">Secure, ephemeral file sharing. Encrypted at rest, deleted in 24 hours.</p>
+                    <p class="max-w-lg mx-auto text-lg" style="color: var(--text-muted)">Secure, ephemeral file sharing. Auto-delete after 1 hour.</p>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div class="glass glass-hover p-10 cursor-pointer group" onclick="showView('inbox')">
@@ -666,7 +669,7 @@
                                 <div id="comm-target-list" class="flex flex-wrap gap-2 max-h-32 overflow-y-auto pr-2"></div>
                                 <div class="flex items-center gap-2 opacity-40">
                                     <i data-lucide="clock" class="w-3 h-3"></i>
-                                    <span class="text-[10px] font-bold uppercase tracking-widest">Auto-Purge: 24h</span>
+                                    <span class="text-[10px] font-bold uppercase tracking-widest">Auto-Purge: 1 Hour</span>
                                 </div>
                             </div>
 
@@ -860,7 +863,7 @@
                             </div>
                         </div>
                         <div id="auto-delete-timer" class="hidden p-3 bg-red-500/10 rounded-xl border border-red-500/20 text-center">
-                            <p class="text-[10px] font-bold text-red-500 uppercase tracking-widest">Auto-deleting in <span id="timer-seconds">120</span>s</p>
+                            <p class="text-[10px] font-bold text-red-500 uppercase tracking-widest">Auto-deleting in <span id="timer-seconds">3600</span>s</p>
                         </div>
                     </div>
                 </div>
@@ -869,11 +872,13 @@
     </div>
 
     <footer class="fixed bottom-8 left-0 right-0 text-center text-[10px] uppercase tracking-[0.5em] font-black pointer-events-none" style="color: var(--text-muted); opacity: 0.2">
-        Z DROP &bull; EPHEMERAL STORAGE &bull; 24H AUTO-PURGE
+        Z DROP &bull; EPHEMERAL STORAGE &bull; 1H AUTO-PURGE
     </footer>
+    
+    <div id="auto-logout-timer" class="auto-logout-timer hidden"></div>
 
     <script>
-        // ========== SUPERFAST OPTIMIZED VERSION ==========
+        // ========== SUPERFAST OPTIMIZED VERSION WITH AUTO-DELETE & AUTO-LOGOUT ==========
         // SUPABASE CREDENTIALS
         const SUPABASE_URL = 'https://ersmbkzwcukkqkyrveqt.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_2w2WWtOBoKtNArFLZ51B-A_WYLCy0XD';
@@ -890,7 +895,8 @@
         let currentCommunity = null;
         let inboxSubscription = null;
         let communitySubscription = null;
-        let unreadCount = 0;
+        let autoLogoutTimer = null;
+        let sessionStartTime = null;
         
         // ========== FAST UTILITIES ==========
         const showToast = (msg, type = 'info') => {
@@ -922,8 +928,73 @@
             } catch(e) {}
         };
         
+        // ========== AUTO LOGOUT SYSTEM ==========
+        const startAutoLogoutTimer = () => {
+            if (autoLogoutTimer) clearInterval(autoLogoutTimer);
+            sessionStartTime = Date.now();
+            const timerDiv = document.getElementById('auto-logout-timer');
+            timerDiv.classList.remove('hidden');
+            
+            autoLogoutTimer = setInterval(() => {
+                if (!currentUser) return;
+                const elapsed = Math.floor((Date.now() - sessionStartTime) / 1000);
+                const remaining = 3600 - elapsed;
+                
+                if (remaining <= 0) {
+                    clearInterval(autoLogoutTimer);
+                    showToast('Session expired! Auto-logout in 10 seconds...', 'warning');
+                    setTimeout(() => {
+                        if (currentUser) {
+                            handleLogout();
+                            showToast('Auto-logged out due to inactivity', 'info');
+                        }
+                    }, 10000);
+                } else {
+                    const minutes = Math.floor(remaining / 60);
+                    const seconds = remaining % 60;
+                    timerDiv.innerHTML = `⏱️ Session expires: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+                    timerDiv.style.opacity = remaining < 300 ? '1' : '0.5';
+                }
+            }, 1000);
+        };
+        
+        const resetAutoLogoutTimer = () => {
+            if (currentUser) {
+                sessionStartTime = Date.now();
+            }
+        };
+        
+        // ========== AUTO DELETE OLD FILES (1 hour) ==========
+        const autoDeleteOldFiles = async () => {
+            const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+            
+            // Delete old transfers
+            const { data: oldTransfers } = await sb.from('transfers').select('id, file_path').lt('created_at', oneHourAgo);
+            if (oldTransfers && oldTransfers.length > 0) {
+                for (const item of oldTransfers) {
+                    await sb.storage.from('transfers').remove([item.file_path]).catch(() => {});
+                    await sb.from('transfers').delete().eq('id', item.id).catch(() => {});
+                }
+                console.log(`Deleted ${oldTransfers.length} old transfers`);
+            }
+            
+            // Delete old community files
+            const { data: oldCommFiles } = await sb.from('community_files').select('id, file_path').lt('created_at', oneHourAgo);
+            if (oldCommFiles && oldCommFiles.length > 0) {
+                for (const item of oldCommFiles) {
+                    await sb.storage.from('transfers').remove([item.file_path]).catch(() => {});
+                    await sb.from('community_files').delete().eq('id', item.id).catch(() => {});
+                }
+                console.log(`Deleted ${oldCommFiles.length} old community files`);
+            }
+        };
+        
+        // Run auto-delete every 5 minutes
+        setInterval(autoDeleteOldFiles, 5 * 60 * 1000);
+        
         // ========== NAVIGATION ==========
         const showView = (viewName) => {
+            resetAutoLogoutTimer();
             const view = document.getElementById(`view-${viewName}`);
             if (!view) return;
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -935,7 +1006,6 @@
                 const badge = document.getElementById('inbox-badge');
                 if (badge) {
                     badge.classList.add('hidden');
-                    unreadCount = 0;
                 }
                 fetchInbox();
             }
@@ -999,7 +1069,7 @@
             if (!name || !username || !password) return showToast('All fields required', 'error');
             if (!/^[a-z0-9]+$/.test(username)) return showToast('Username must be letters/numbers only', 'error');
             if (password.length < 8) return showToast('Password min 8 chars', 'error');
-            const { error } = await sb.from('users').insert([{ name, username, password, bio: '' }]);
+            const { error } = await sb.from('users').insert([{ name, username, password, bio: '', last_active: new Date().toISOString() }]);
             if (error) return showToast(error.code === '23505' ? 'Username taken' : error.message, 'error');
             showToast('Account created! Please login', 'success');
             showView('login');
@@ -1025,14 +1095,23 @@
             fetchInbox();
             subscribeInbox();
             fetchMyCommunities();
+            startAutoLogoutTimer();
+            
+            // Update last active
+            await sb.from('users').update({ last_active: new Date().toISOString() }).eq('id', currentUser.id);
         };
         
-        const handleLogout = () => {
+        const handleLogout = async () => {
             if (inboxSubscription) sb.removeChannel(inboxSubscription);
+            if (autoLogoutTimer) clearInterval(autoLogoutTimer);
+            if (currentUser) {
+                await sb.from('users').update({ last_active: new Date().toISOString() }).eq('id', currentUser.id);
+            }
             currentUser = null;
             localStorage.removeItem('zdrop_user');
             document.getElementById('user-display').classList.add('hidden');
             document.getElementById('user-info-bar').classList.add('hidden');
+            document.getElementById('auto-logout-timer').classList.add('hidden');
             showView('landing');
             showToast('Logged out', 'info');
         };
@@ -1067,13 +1146,22 @@
             } else {
                 badge.classList.add('hidden');
             }
-            unreadCount = count;
+        };
+        
+        // Track which files have been viewed
+        let viewedFiles = new Set();
+        
+        const markFileAsViewed = (fileId) => {
+            viewedFiles.add(fileId);
+            // Update badge count (only show unviewed files)
+            const unviewedCount = document.querySelectorAll('#inbox-list .inbox-item').length - viewedFiles.size;
+            updateBadge(unviewedCount > 0 ? unviewedCount : 0);
         };
         
         const fetchInbox = async () => {
             if (!currentUser) return;
-            const twentyFourHoursAgo = new Date(Date.now() - 86400000).toISOString();
-            const { data } = await sb.from('transfers').select('*').eq('receiver_username', currentUser.username).gte('created_at', twentyFourHoursAgo).order('created_at', { ascending: false });
+            const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+            const { data } = await sb.from('transfers').select('*').eq('receiver_username', currentUser.username).gte('created_at', oneHourAgo).order('created_at', { ascending: false });
             const container = document.getElementById('inbox-list');
             
             if (!data?.length) {
@@ -1082,9 +1170,12 @@
                 return;
             }
             
+            // Reset viewed files for new fetch
+            viewedFiles.clear();
             updateBadge(data.length);
+            
             container.innerHTML = data.map(item => `
-                <div class="glass p-6 flex items-center gap-6 group">
+                <div class="glass p-6 flex items-center gap-6 group inbox-item" data-id="${item.id}">
                     <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background: var(--input-bg)">
                         <i data-lucide="${item.is_public ? 'globe' : 'lock'}" class="w-6 h-6 ${item.is_public ? 'text-green-500' : 'text-blue-500'}"></i>
                     </div>
@@ -1093,16 +1184,25 @@
                         <p class="text-[10px] opacity-40">${new Date(item.created_at).toLocaleString()}</p>
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="openInboxItem('${item.id}', '${item.password || ''}', ${item.is_public})" class="p-3 bg-blue-600/10 hover:bg-blue-600 text-blue-500 hover:text-white rounded-xl transition-all"><i data-lucide="unlock" class="w-5 h-5"></i></button>
+                        <button onclick="openInboxItem('${item.id}', '${item.password || ''}', ${item.is_public}, this)" class="p-3 bg-blue-600/10 hover:bg-blue-600 text-blue-500 hover:text-white rounded-xl transition-all view-file-btn"><i data-lucide="unlock" class="w-5 h-5"></i></button>
                         <button onclick="deleteInboxItem('${item.id}', '${item.file_path}')" class="p-3 bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white rounded-xl transition-all"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
                     </div>
                 </div>`).join('');
             lucide.createIcons();
         };
         
-        const openInboxItem = async (id, password, isPublic) => {
+        const openInboxItem = async (id, password, isPublic, btnElement) => {
             const { data } = await sb.from('transfers').select('*').eq('id', id).single();
             if (!data) return;
+            
+            // Mark as viewed - remove badge for this file
+            const parentItem = btnElement.closest('.inbox-item');
+            if (parentItem && !viewedFiles.has(id)) {
+                viewedFiles.add(id);
+                const unviewedCount = document.querySelectorAll('#inbox-list .inbox-item').length - viewedFiles.size;
+                updateBadge(unviewedCount);
+            }
+            
             const download = async () => {
                 const { data: blob } = await sb.storage.from('transfers').download(data.file_path);
                 const url = URL.createObjectURL(blob);
@@ -1113,6 +1213,14 @@
                 URL.revokeObjectURL(url);
                 playSound();
                 showToast('Downloaded!', 'success');
+                
+                // Auto-delete after download (1 hour from creation, but download triggers immediate check)
+                setTimeout(async () => {
+                    await sb.storage.from('transfers').remove([data.file_path]);
+                    await sb.from('transfers').delete().eq('id', id);
+                    fetchInbox();
+                    showToast('File auto-deleted', 'info');
+                }, 5000);
             };
             if (isPublic || !data.password) return download();
             showModal('Unlock File', 'Enter password', '<input id="modal-pass" type="password" class="input-field">', async () => {
@@ -1231,7 +1339,8 @@
         
         const fetchCommunityFiles = async () => {
             if (!currentCommunity) return;
-            const { data } = await sb.from('community_files').select('*, users(*)').eq('community_id', currentCommunity.id).order('created_at', { ascending: false });
+            const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+            const { data } = await sb.from('community_files').select('*, users(*)').eq('community_id', currentCommunity.id).gte('created_at', oneHourAgo).order('created_at', { ascending: false });
             const { data: myMem } = await sb.from('community_members').select('permissions').eq('community_id', currentCommunity.id).eq('user_id', currentUser.id).single();
             const canDelete = myMem?.permissions?.can_delete || currentCommunity.creator_id === currentUser.id;
             const container = document.getElementById('comm-file-list');
@@ -1358,7 +1467,7 @@
                 const fileName = `${Date.now()}_${file.name}`;
                 const path = `${currentTransferMode === 'public' ? 'public' : receiver}/${fileName}`;
                 await sb.storage.from('transfers').upload(path, file);
-                await sb.from('transfers').insert([{ receiver_username: receiver, password: currentTransferMode === 'private' ? password : null, is_public: currentTransferMode === 'public', public_code: publicCode, sender_nickname: nickname, description: desc, file_name: file.name, file_path: path }]);
+                await sb.from('transfers').insert([{ receiver_username: receiver, password: currentTransferMode === 'private' ? password : null, is_public: currentTransferMode === 'public', public_code: publicCode, sender_nickname: nickname, description: desc, file_name: file.name, file_path: path, created_at: new Date().toISOString() }]);
                 playSound();
                 if (currentTransferMode === 'public') showModal('Public Drop', `Share code: ${publicCode}`, `<div class="text-center text-5xl font-black text-blue-500">${publicCode}</div><button onclick="window.print()" class="btn-primary mt-3">Print</button>`, () => showView('menu'));
                 else showToast('Drop sent!', 'success');
@@ -1412,7 +1521,7 @@
                         await sb.storage.from('transfers').remove([transfer.file_path]);
                         await sb.from('transfers').delete().eq('id', transfer.id);
                         result.classList.add('hidden');
-                        showToast('Auto-deleted', 'info');
+                        showToast('File auto-deleted', 'info');
                     }, 5000);
                 };
                 document.getElementById('receive-delete-btn').onclick = async () => {
@@ -1431,6 +1540,16 @@
             if (!str) return '';
             return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
         };
+        
+        // Track user activity to reset logout timer
+        const trackActivity = () => {
+            resetAutoLogoutTimer();
+        };
+        
+        // Add activity listeners
+        ['click', 'keydown', 'mousemove', 'scroll'].forEach(event => {
+            document.addEventListener(event, trackActivity);
+        });
         
         // ========== INIT ==========
         window.onload = () => {
@@ -1467,10 +1586,14 @@
                         fetchInbox();
                         subscribeInbox();
                         fetchMyCommunities();
+                        startAutoLogoutTimer();
                         showView('menu');
                     }
                 });
             }
+            
+            // Run initial auto-delete
+            autoDeleteOldFiles();
             
             // Setup dropzone
             const dropzone = document.getElementById('dropzone');
