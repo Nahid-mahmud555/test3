@@ -25,6 +25,56 @@
             --input-bg: rgba(255, 255, 255, 0.04);
             --modal-overlay: rgba(0, 0, 0, 0.8);
         }
+        <style>
+/* লোডিং স্ক্রিন স্টাইল */
+#loading-screen {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: #050505;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.loader-content {
+    text-align: center;
+}
+
+.logo-ex {
+    font-size: 100px;
+    font-weight: 900;
+    letter-spacing: -8px;
+    color: #ffcc00; /* তোর ফাইনাল করা গোল্ডেন কালার */
+    text-shadow: 0 0 20px rgba(255, 204, 0, 0.6);
+    animation: zoomPulse 1.5s ease-in-out infinite alternate;
+}
+
+.slogan {
+    font-size: 20px;
+    color: #00f2ff; /* নিয়ন ব্লু স্লোগান */
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-top: 10px;
+    text-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+}
+
+.slogan span { font-weight: bold; }
+
+/* লোগো অ্যানিমেশন */
+@keyframes zoomPulse {
+    from { transform: scale(0.95); opacity: 0.8; }
+    to { transform: scale(1.05); opacity: 1; }
+}
+
+/* লোডিং স্ক্রিন আউটের জন্য */
+.fade-out {
+    opacity: 0;
+    transition: opacity 0.8s ease-out;
+    pointer-events: none;
+}
+</style>
 
         [data-theme="light"] {
             --bg: #f8fafc;
@@ -241,6 +291,15 @@
     </style>
 </head>
 <body>
+    <div id="loading-screen">
+    <div class="loader-content">
+        <div class="logo-ex">EX</div>
+        <div class="slogan">Just <span>Use</span> It</div>
+    </div>
+</div>
+
+<div id="main-app" style="display: none;">
+    
     <div class="atmosphere">
         <div class="glow bg-blue-600/20 top-[-10%] left-[-10%]"></div>
         <div class="glow bg-purple-600/20 bottom-[-10%] right-[-10%]"></div>
