@@ -191,7 +191,6 @@
     let currentTransferMode = 'private';
     let currentReceiveMode = 'private';
     let currentReceiveFile = null;
-    let generatedCode = null;
     
     // Sound effects
     const playSound = (type) => {
@@ -237,7 +236,7 @@
       let code;
       let isUnique = false;
       while (!isUnique) {
-        code = Math.floor(Math.random() * 90 + 10).toString(); // 10-99
+        code = Math.floor(Math.random() * 90 + 10).toString();
         const {data} = await sb.from('transfers').select('id').eq('public_code', code).eq('is_public', true).limit(1);
         if (!data?.length) isUnique = true;
       }
@@ -352,7 +351,7 @@
             <p class="text-xs opacity-50">${i.sender_nickname || 'anonymous'} · ${new Date(i.created_at).toLocaleTimeString()}</p>
             ${i.public_code ? `<p class="text-xs text-blue-400">Code: ${i.public_code}</p>` : ''}
           </div>
-          <button class="view-inbox-btn p-3 bg-blue-600/20 hover:bg-blue-600 rounded-xl transition-all" data-id="${i.id}" data-password="${i.password || ''}" data-ispublic="${i.is_public}"><i data-lucide="eye"></i></button>
+          <button class="view-inbox-btn p-3 bg-blue-600/20 hover:bg-blue-600 rounded-xl transition-all" data-id="${i.id}" data-password="${i.password || ''}" data-ispublic="${i.is_public}"><i data-lucide="${i.is_public ? 'download' : 'eye'}"></i></button>
           <button class="delete-inbox-btn p-3 bg-red-500/20 hover:bg-red-600 rounded-xl transition-all" data-id="${i.id}" data-path="${i.file_path}"><i data-lucide="trash-2"></i></button>
         </div>
       `).join('');
@@ -406,10 +405,12 @@
         }
       };
       
+      // Public files don't need password
       if(isPublic || !data.password) {
         return downloadFile();
       }
       
+      // Private files need password
       const overlay = showModal('Unlock File', 'Enter password to access', async () => {
         const pw = overlay.querySelector('#modal-password-input')?.value;
         if(pw === pass) {
