@@ -148,9 +148,13 @@
         <div class="mt-10 text-center"><button onclick="showView('login')" class="text-blue-400 font-bold text-lg hover:underline">Already have account? Login →</button></div>
       </div>
 
-      <!-- SIGNUP / LOGIN / PROFILE -->
+      <!-- SIGNUP -->
       <div id="view-signup" class="view"><div class="max-w-md mx-auto glass-card p-9 space-y-6"><h2 class="text-3xl font-black">Create account</h2><input id="signup-name" placeholder="Full name" class="input-field"><input id="signup-username" placeholder="username" class="input-field"><input id="signup-password" type="password" placeholder="Password (min 8)" class="input-field"><button onclick="handleSignup()" class="w-full btn-primary py-4 text-lg">SIGN UP</button><button onclick="showView('landing')" class="w-full text-sm opacity-60">Cancel</button></div></div>
+      
+      <!-- LOGIN -->
       <div id="view-login" class="view"><div class="max-w-md mx-auto glass-card p-9 space-y-6"><h2 class="text-3xl font-black">Portal login</h2><input id="login-username" placeholder="username" class="input-field"><input id="login-password" type="password" placeholder="••••••••" class="input-field"><button onclick="handleLogin()" class="w-full btn-primary py-4 text-lg">ENTER</button><button onclick="showView('landing')" class="w-full text-sm opacity-60">Cancel</button></div></div>
+      
+      <!-- PROFILE -->
       <div id="view-profile" class="view"><div class="max-w-2xl mx-auto glass-card p-9 space-y-6"><div class="flex gap-4"><button onclick="showView('menu')" class="p-3 glass"><i data-lucide="chevron-left"></i></button><h2 class="text-3xl font-black">Profile</h2></div><div class="flex gap-6"><div class="w-20 h-20 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-3xl flex items-center justify-center"><i data-lucide="user" class="w-10 h-10 text-white"></i></div><div><h3 id="profile-name" class="text-2xl font-black"></h3><p id="profile-username" class="text-blue-400 font-bold"></p></div></div><textarea id="profile-bio" maxlength="101" placeholder="Bio · max 101 letters" class="input-field min-h-[110px]"></textarea><button onclick="updateBio()" class="w-full bg-white/5 py-4 rounded-2xl font-bold">SAVE BIO</button><button onclick="handleLogout()" class="text-red-400 font-medium">Logout</button></div></div>
 
       <!-- MENU -->
@@ -168,9 +172,13 @@
       <!-- COMMUNITY ROOM -->
       <div id="view-community-room" class="view"><div class="flex flex-col lg:flex-row gap-6"><div class="lg:w-1/3 glass-card p-6"><button onclick="showView('community-hub')" class="mb-4 flex items-center gap-2"><i data-lucide="chevron-left"></i> Back</button><h3 id="room-name" class="text-2xl font-black mb-1"></h3><p id="room-bio" class="text-sm opacity-50 mb-4"></p><div class="border-t border-white/10 pt-4"><div class="flex justify-between items-center mb-3"><h4 class="text-xs uppercase tracking-wider">Members</h4><span id="member-count" class="text-xs bg-white/10 px-2 py-1 rounded-full">0</span></div><div id="member-list" class="space-y-2 max-h-[300px] overflow-y-auto"></div></div></div><div class="lg:w-2/3 glass-card p-6"><div class="flex justify-between items-center mb-4"><h3 class="text-xl font-black">📁 Room Files</h3><button onclick="refreshCommunityFiles()" class="p-2 hover:bg-white/5 rounded-lg"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button></div><div id="comm-dropzone" class="dropzone-large flex flex-col items-center justify-center p-8 mb-4"><input type="file" id="comm-file-input" class="hidden"><div id="comm-dropzone-empty" class="text-center"><i data-lucide="cloud-upload" class="w-10 h-10 mx-auto opacity-40 mb-2"></i><p class="font-bold">Drop file to share</p><p class="text-xs opacity-50">Max 3MB</p></div><div id="comm-dropzone-file" class="hidden text-center"><i data-lucide="file-check" class="w-10 h-10 mx-auto text-green-400 mb-2"></i><p id="comm-file-name-display" class="font-bold"></p><p class="text-green-400 text-xs">Ready</p></div></div><div class="flex gap-3 mb-4"><button id="comm-send-btn" class="flex-1 bg-orange-600 py-3 rounded-xl font-black">📤 SEND</button><button onclick="removeCommFile()" class="bg-red-500/20 hover:bg-red-500/40 px-5 rounded-xl">Remove</button></div><div class="p-4 bg-white/5 rounded-xl mb-4"><div class="flex items-center justify-between mb-2"><span class="text-xs font-bold uppercase tracking-wider">Target members</span><button id="btn-toggle-all-targets" class="text-xs text-orange-400 font-bold">Select All</button></div><div id="comm-target-list" class="flex flex-wrap gap-2 max-h-24 overflow-y-auto"></div></div><div id="comm-file-list" class="space-y-3 max-h-[300px] overflow-y-auto"></div></div></div></div>
 
-      <!-- INBOX / SEND / RECEIVE -->
+      <!-- INBOX -->
       <div id="view-inbox" class="view"><div class="flex gap-4 mb-7"><button onclick="showView('menu')" class="p-3 glass"><i data-lucide="chevron-left"></i></button><h2 class="text-3xl font-black">INBOX</h2></div><div id="inbox-list" class="space-y-4"></div></div>
+      
+      <!-- SEND -->
       <div id="view-send" class="view"><div class="flex gap-4 mb-7"><button onclick="showView('menu')" class="p-3 glass"><i data-lucide="chevron-left"></i></button><h2 class="text-3xl font-black">SEND</h2></div><div class="grid lg:grid-cols-2 gap-7"><div class="glass-card p-7"><div class="flex gap-3 mb-5"><button onclick="setTransferMode('private')" id="mode-private" class="bg-blue-600 px-5 py-2 rounded-full text-sm font-bold">Private</button><button onclick="setTransferMode('public')" id="mode-public" class="px-5 py-2 rounded-full text-sm">Public</button></div><input id="send-receiver" placeholder="@username" class="input-field mb-4"><div id="private-fields"><input id="send-password" type="password" placeholder="secret password" class="input-field mb-4"></div><input id="send-nickname" placeholder="Your nickname" class="input-field mb-4"></div><div class="glass-card p-7 flex flex-col"><div id="dropzone" class="dropzone-large flex flex-col items-center justify-center p-10 flex-1"><input type="file" id="file-input" class="hidden"><div id="dropzone-empty" class="text-center"><i data-lucide="cloud-upload" class="w-16 h-16 mx-auto opacity-40 mb-4"></i><p class="text-xl font-bold opacity-60">Drop file here or click</p><p class="text-sm opacity-40 mt-2">Max 3MB · Press Enter to send</p></div><div id="dropzone-file" class="hidden text-center"><i data-lucide="file-check" class="w-16 h-16 mx-auto text-green-400 mb-4"></i><p id="file-name-display" class="text-xl font-bold"></p><p class="text-green-400 text-sm mt-2">✓ Ready to send</p></div></div><textarea id="send-text" placeholder="Or type a message... (Enter to send)" class="input-field mt-5 h-24 resize-none"></textarea><div class="flex gap-4 mt-5"><button onclick="handleSend()" id="send-now-btn" class="flex-1 btn-primary py-5 text-lg">🚀 SEND NOW</button><button onclick="removeFile()" class="bg-red-500/20 hover:bg-red-500/40 px-6 rounded-2xl font-bold">Remove</button></div></div></div></div>
+
+      <!-- RECEIVE -->
       <div id="view-receive" class="view"><div class="max-w-xl mx-auto glass-card p-9"><div class="flex gap-4 mb-7"><button onclick="showView('menu')" class="p-3 glass"><i data-lucide="chevron-left"></i></button><h2 class="text-3xl font-black">RECEIVE</h2></div><div class="flex mb-7"><button onclick="setReceiveMode('private')" id="recv-mode-private" class="flex-1 bg-purple-600 py-3 rounded-l-2xl font-bold text-sm">Private</button><button onclick="setReceiveMode('public')" id="recv-mode-public" class="flex-1 py-3 rounded-r-2xl text-sm">Public code</button></div><div id="receive-private-fields"><input id="receive-username" placeholder="@username" class="input-field mb-4"><input id="receive-password" type="password" placeholder="password" class="input-field mb-4"></div><div id="receive-public-fields" class="hidden"><label class="text-xs uppercase tracking-wider block mb-2">Enter 2‑digit code</label><input id="receive-code" type="text" inputmode="numeric" maxlength="2" placeholder="00" class="text-center text-6xl font-black py-6 input-field tracking-widest" autocomplete="off"><div id="code-feedback" class="text-sm mt-2 h-5"></div></div><button onclick="handleReceive()" id="receive-btn" class="w-full bg-purple-600 hover:bg-purple-700 py-5 rounded-2xl font-black text-white text-lg shadow-xl">🔓 DECRYPT & OPEN</button><div id="receive-result" class="hidden mt-8 glass p-6 rounded-3xl"><div class="flex items-center gap-4"><i data-lucide="file-check" class="text-green-400 w-8 h-8"></i><div><h4 id="res-filename" class="font-bold text-lg"></h4><p id="res-sender" class="text-xs text-purple-300"></p></div><div class="ml-auto flex gap-2"><button id="download-btn" class="p-3 bg-blue-600/20 hover:bg-blue-600 rounded-xl transition-all"><i data-lucide="download"></i></button><button id="print-btn" class="p-3 bg-green-600/20 hover:bg-green-600 rounded-xl transition-all"><i data-lucide="printer"></i></button><button id="receive-delete-btn" class="p-3 bg-red-500/20 hover:bg-red-600 rounded-xl transition-all"><i data-lucide="trash-2"></i></button></div></div></div></div></div>
     </main>
   </div>
@@ -270,10 +278,15 @@
       if(!currentUser) return showToast('Please login first','error');
       const name = document.getElementById('comm-join-name').value.trim().toLowerCase(), sentence = document.getElementById('comm-join-sentence').value.trim();
       if(!name||!sentence) return showToast('Room name and secret required','error');
-      const {data: comm} = await sb.from('communities').select('*').eq('name', name).eq('secret_sentence', sentence).single();
-      if(!comm) return showToast('Invalid room or secret','error');
+      
+      const {data: comm, error} = await sb.from('communities').select('*').eq('name', name).eq('secret_sentence', sentence).single();
+      if(error || !comm) return showToast('Invalid room name or secret sentence','error');
+      
       const {data: existing} = await sb.from('community_members').select('*').eq('community_id', comm.id).eq('user_id', currentUser.id).single();
-      if(!existing) await sb.from('community_members').insert([{community_id: comm.id, user_id: currentUser.id, role: 'member', permissions: {can_send: true}}]);
+      if(!existing) {
+        await sb.from('community_members').insert([{community_id: comm.id, user_id: currentUser.id, role: 'member', permissions: {can_send: true}}]);
+      }
+      
       playSound('success'); showToast(`Joined ${comm.name}!`,'success'); enterCommunityRoom(comm.id);
     };
     
@@ -305,7 +318,7 @@
       lucide.createIcons();
     };
     
-    window.toggleUserPermission = async (memberId) => { /* simplified */ showToast('Admin controls coming soon','info'); };
+    window.toggleUserPermission = async (memberId) => { showToast('Admin controls coming soon','info'); };
     
     const fetchCommunityFiles = async () => {
       const {data} = await sb.from('community_files').select('*, users(name)').eq('community_id', currentCommunity.id).order('created_at', {ascending: false});
@@ -335,7 +348,7 @@
     
     window.refreshCommunityFiles = ()=> fetchCommunityFiles();
 
-    // Inbox (unchanged but functional)
+    // Inbox
     const fetchInbox = async () => {
       if(!currentUser) return;
       const {data} = await sb.from('transfers').select('*').eq('receiver_username', currentUser.username).gte('created_at', new Date(Date.now()-3600000).toISOString()).order('created_at', {ascending: false});
@@ -356,17 +369,34 @@
     window.deleteInboxFile = async (id, path) => { await sb.storage.from('transfers').remove([path]); await sb.from('transfers').delete().eq('id',id); fetchInbox(); playSound('delete'); };
     const subscribeInbox = ()=> { if(currentUser) sb.channel('inbox').on('postgres_changes',{event:'INSERT',schema:'public',table:'transfers',filter:`receiver_username=eq.${currentUser.username}`},()=>{ fetchInbox(); playSound('notification'); showToast('📬 New file!','success'); }).subscribe(); };
 
-    // Send/Receive (simplified but working)
+    // Send/Receive
     window.handleFileSelection = (f)=> { if(f.size>3e6) return showToast('Max 3MB','error'); selectedFile=f; document.getElementById('dropzone-empty').classList.add('hidden'); document.getElementById('dropzone-file').classList.remove('hidden'); document.getElementById('file-name-display').innerText=f.name; };
     window.removeFile = ()=> { selectedFile=null; document.getElementById('dropzone-empty').classList.remove('hidden'); document.getElementById('dropzone-file').classList.add('hidden'); };
-    window.handleSend = async ()=> { /* existing logic */ showToast('Send feature ready','info'); };
-    window.handleReceive = async ()=> { /* existing logic */ showToast('Receive feature ready','info'); };
+    window.handleSend = async ()=> {
+      const rec = document.getElementById('send-receiver').value.trim().toLowerCase(), pass = document.getElementById('send-password').value, nick = document.getElementById('send-nickname').value.trim(), text = document.getElementById('send-text').value;
+      if(!rec||!nick) return showToast('Receiver and nickname required','error');
+      let file = selectedFile; if(text&&!file) file = new File([text],'message.txt',{type:'text/plain'});
+      if(!file) return showToast('Select file or type message','error');
+      const btn = document.getElementById('send-now-btn'); btn.disabled=true; btn.innerHTML='<div class="loader-spin"></div>';
+      const path = `${rec}/${Date.now()}_${file.name}`; await sb.storage.from('transfers').upload(path, file);
+      await sb.from('transfers').insert([{receiver_username:rec, password:currentTransferMode==='private'?pass:null, is_public:currentTransferMode==='public', sender_nickname:nick, file_name:file.name, file_path:path}]);
+      playSound('send'); showToast('Sent!','success'); showView('menu'); btn.disabled=false; btn.innerHTML='🚀 SEND NOW';
+    };
+    window.handleReceive = async ()=> {
+      let q = sb.from('transfers').select('*');
+      if(currentReceiveMode==='private'){ const u=document.getElementById('receive-username').value.trim().toLowerCase(), p=document.getElementById('receive-password').value; if(!u||!p) return showToast('Fill fields','error'); q=q.eq('receiver_username',u).eq('password',p); }
+      else { const c=document.getElementById('receive-code').value.trim(); if(c.length!==2) return showToast('Enter 2-digit code','error'); q=q.eq('public_code',c).eq('is_public',true); }
+      const {data} = await q.order('created_at',{ascending:false}).limit(1); if(!data?.length) return showToast('No file found','error');
+      const t=data[0]; document.getElementById('receive-result').classList.remove('hidden'); document.getElementById('res-filename').innerText=t.file_name;
+      document.getElementById('download-btn').onclick = async ()=>{ const blob=await sb.storage.from('transfers').download(t.file_path); const url=URL.createObjectURL(blob.data); const a=document.createElement('a'); a.href=url; a.download=t.file_name; a.click(); playSound('receive'); };
+    };
     
     const escapeHtml = s=> s?String(s).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])):'';
 
     window.onload = ()=>{
       setTimeout(()=>{ document.getElementById('loading-screen').style.opacity='0'; setTimeout(()=>{ document.getElementById('loading-screen').style.display='none'; document.getElementById('main-app').style.display='block'; lucide.createIcons(); },600); },2000);
       const theme = localStorage.getItem('ex_theme')||'dark'; document.documentElement.setAttribute('data-theme',theme); document.getElementById('theme-icon').setAttribute('data-lucide', theme==='dark'?'sun':'moon');
+      const dz = document.getElementById('dropzone'); dz.onclick = ()=> document.getElementById('file-input').click(); document.getElementById('file-input').onchange = e=> handleFileSelection(e.target.files[0]);
       showView('landing');
     };
     
