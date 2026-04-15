@@ -12,29 +12,27 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --bg: #0a0a0f; --text: #ffffff; --text-muted: #8a8a9e;
       --glass-bg: rgba(20, 20, 30, 0.7); --glass-border: rgba(255, 255, 255, 0.08);
-      --accent: #3b82f6; --accent-soft: #2563eb; --input-bg: rgba(10, 10, 18, 0.8);
-      --glow-1: rgba(59, 130, 246, 0.2); --shadow-lg: 0 25px 40px -15px rgba(0, 0, 0, 0.6);
-      --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
+      --accent: #3b82f6; --input-bg: rgba(10, 10, 18, 0.8);
+      --shadow-lg: 0 25px 40px -15px rgba(0, 0, 0, 0.6);
     }
     [data-theme="light"] {
       --bg: #f5f7fa; --text: #0b0b12; --text-muted: #4b5563;
       --glass-bg: rgba(255, 255, 255, 0.8); --glass-border: rgba(0, 0, 0, 0.08);
-      --accent: #2563eb; --accent-soft: #1d4ed8; --input-bg: #ffffff;
-      --glow-1: rgba(37, 99, 235, 0.1); --shadow-lg: 0 20px 35px -8px rgba(0, 0, 0, 0.1);
+      --accent: #2563eb; --input-bg: #ffffff;
+      --shadow-lg: 0 20px 35px -8px rgba(0, 0, 0, 0.1);
     }
     body {
       font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text);
-      margin: 0; min-height: 100vh; transition: background 0.2s, color 0.2s;
-      -webkit-font-smoothing: antialiased;
+      min-height: 100vh; transition: background 0.2s, color 0.2s;
     }
     .bg-glow { position: fixed; inset: 0; pointer-events: none; z-index: -1; }
     .glow-orb {
       position: absolute; width: 70vw; height: 70vw; border-radius: 50%; filter: blur(140px);
-      opacity: 0.2; animation: floatGlow 14s infinite alternate ease-in-out;
+      opacity: 0.15; animation: floatGlow 14s infinite alternate ease-in-out;
     }
     @keyframes floatGlow { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(5%, 5%) scale(1.05); } }
     
@@ -49,35 +47,35 @@
       box-shadow: 0 15px 30px -10px rgba(0,0,0,0.2);
       transition: all 0.2s;
     }
-    .glass-card:hover { border-color: var(--accent); transform: translateY(-4px); box-shadow: 0 25px 40px -12px var(--glow-1); }
+    .glass-card:hover { border-color: var(--accent); transform: translateY(-4px); }
     
     .input-field {
       background: var(--input-bg); border: 1.5px solid var(--glass-border);
       border-radius: 20px; padding: 1rem 1.3rem; color: var(--text); width: 100%;
-      transition: all 0.15s; font-weight: 450; backdrop-filter: blur(8px);
+      transition: all 0.15s;
     }
-    .input-field:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px var(--glow-1); }
+    .input-field:focus { outline: none; border-color: var(--accent); }
     
     .btn-primary {
       background: var(--accent); color: white; font-weight: 700; border-radius: 40px;
-      padding: 1rem 2rem; transition: 0.2s; box-shadow: 0 10px 20px -5px var(--glow-1);
+      padding: 1rem 2rem; transition: 0.2s;
     }
-    .btn-primary:hover { background: var(--accent-soft); transform: scale(1.02); }
+    .btn-primary:hover { opacity: 0.9; transform: scale(1.02); }
     
-    .view { display: none; opacity: 0; animation: viewFade 0.3s forwards; }
-    .view.active { display: block; }
-    @keyframes viewFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .view { display: none; }
+    .view.active { display: block; animation: viewFade 0.25s forwards; }
+    @keyframes viewFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     
     .slogan-animated {
       background: linear-gradient(135deg, #a5f3fc, #fde047, #f0abfc, #a5f3fc, #6ee7b7);
       background-size: 400% 400%; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      animation: gradientFlow 8s infinite alternate; font-weight: 800; letter-spacing: 1px;
+      animation: gradientFlow 8s infinite alternate; font-weight: 800;
     }
     @keyframes gradientFlow { 0% { background-position: 0% 30%; } 100% { background-position: 100% 70%; } }
     
-    .loading-screen {
-      position: fixed; inset: 0; background: #05050a; z-index: 9999; display: flex;
-      align-items: center; justify-content: center; transition: opacity 0.6s;
+    #loading-screen {
+      position: fixed; inset: 0; background: #05050a; z-index: 9999;
+      display: flex; align-items: center; justify-content: center;
     }
     .loader-spin { width: 50px; height: 50px; border: 3px solid rgba(255,255,255,0.1); border-top-color: #3b82f6; border-radius: 50%; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -90,37 +88,24 @@
       background: var(--glass-bg); backdrop-filter: blur(12px);
       transition: all 0.3s; cursor: pointer;
     }
-    .dropzone-large:hover, .dropzone-large.drag-over {
-      border-color: var(--accent); background: rgba(59, 130, 246, 0.08);
-      transform: scale(1.01); box-shadow: 0 0 40px var(--glow-1);
-    }
+    .dropzone-large:hover { border-color: var(--accent); background: rgba(59, 130, 246, 0.08); }
     
-    /* Professional modal */
     .modal-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
       z-index: 1000; display: flex; align-items: center; justify-content: center;
-      animation: fadeIn 0.2s;
     }
     .modal-content {
       background: var(--glass-bg); backdrop-filter: blur(25px);
       border: 1px solid var(--glass-border); border-radius: 32px;
       padding: 2rem; max-width: 420px; width: 90%;
-      box-shadow: 0 30px 60px rgba(0,0,0,0.5);
     }
   </style>
 </head>
 <body>
 
-<!-- SOUND EFFECTS -->
-<audio id="sound-send" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3" preload="auto"></audio>
-<audio id="sound-receive" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" preload="auto"></audio>
-<audio id="sound-success" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3" preload="auto"></audio>
-<audio id="sound-delete" src="https://assets.mixkit.co/active_storage/sfx/2570/2570-preview.mp3" preload="auto"></audio>
-<audio id="sound-notification" src="https://assets.mixkit.co/active_storage/sfx/1995/1995-preview.mp3" preload="auto"></audio>
-
-<div id="loading-screen" class="loading-screen">
+<div id="loading-screen">
   <div class="text-center">
-    <div class="text-[110px] font-black tracking-[-6px] text-[#ffcc00] drop-shadow-2xl">EX</div>
+    <div class="text-[100px] font-black tracking-[-6px] text-[#ffcc00]">EX</div>
     <div class="slogan-animated text-3xl mt-2">Just Use It</div>
     <div class="loader-spin mx-auto mt-8"></div>
   </div>
@@ -137,7 +122,7 @@
   <div id="main-content">
     <nav class="px-6 py-6 flex justify-between items-center max-w-6xl mx-auto">
       <div class="flex items-center gap-3 cursor-pointer" onclick="showView('landing')">
-        <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-xl shadow-blue-500/30"><i data-lucide="zap" class="text-white w-6 h-6"></i></div>
+        <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-xl"><i data-lucide="zap" class="text-white w-6 h-6"></i></div>
         <div><span class="text-2xl font-black tracking-tight">EX<span class="text-blue-400">·PORTAL</span></span><span class="block text-[10px] uppercase tracking-[0.3em] opacity-40">Just Use It</span></div>
       </div>
       <div class="flex items-center gap-4">
@@ -163,27 +148,33 @@
         <div class="mt-10 text-center"><button onclick="showView('login')" class="text-blue-400 font-bold text-lg hover:underline">Already have account? Login →</button></div>
       </div>
 
-      <!-- SIGNUP / LOGIN / PROFILE -->
+      <!-- SIGNUP -->
       <div id="view-signup" class="view"><div class="max-w-md mx-auto glass-card p-9 space-y-6"><h2 class="text-3xl font-black">Create account</h2><input id="signup-name" placeholder="Full name" class="input-field"><input id="signup-username" placeholder="username" class="input-field"><input id="signup-password" type="password" placeholder="Password (min 8)" class="input-field"><button onclick="handleSignup()" class="w-full btn-primary py-4 text-lg">SIGN UP</button><button onclick="showView('landing')" class="w-full text-sm opacity-60">Cancel</button></div></div>
+      
+      <!-- LOGIN -->
       <div id="view-login" class="view"><div class="max-w-md mx-auto glass-card p-9 space-y-6"><h2 class="text-3xl font-black">Portal login</h2><input id="login-username" placeholder="username" class="input-field"><input id="login-password" type="password" placeholder="••••••••" class="input-field"><button onclick="handleLogin()" class="w-full btn-primary py-4 text-lg">ENTER</button><button onclick="showView('landing')" class="w-full text-sm opacity-60">Cancel</button></div></div>
-      <div id="view-profile" class="view"><div class="max-w-2xl mx-auto glass-card p-9 space-y-6"><div class="flex gap-4"><button onclick="showView('menu')" class="p-3 glass"><i data-lucide="chevron-left"></i></button><h2 class="text-3xl font-black">Profile</h2></div><div class="flex gap-6"><div class="w-20 h-20 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-3xl flex items-center justify-center shadow-xl"><i data-lucide="user" class="w-10 h-10 text-white"></i></div><div><h3 id="profile-name" class="text-2xl font-black"></h3><p id="profile-username" class="text-blue-400 font-bold"></p></div></div><textarea id="profile-bio" maxlength="101" placeholder="Bio · max 101 letters" class="input-field min-h-[110px]"></textarea><button onclick="updateBio()" class="w-full bg-white/5 py-4 rounded-2xl font-bold">SAVE BIO</button><button onclick="handleLogout()" class="text-red-400 font-medium">Logout</button></div></div>
+      
+      <!-- PROFILE -->
+      <div id="view-profile" class="view"><div class="max-w-2xl mx-auto glass-card p-9 space-y-6"><div class="flex gap-4"><button onclick="showView('menu')" class="p-3 glass"><i data-lucide="chevron-left"></i></button><h2 class="text-3xl font-black">Profile</h2></div><div class="flex gap-6"><div class="w-20 h-20 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-3xl flex items-center justify-center"><i data-lucide="user" class="w-10 h-10 text-white"></i></div><div><h3 id="profile-name" class="text-2xl font-black"></h3><p id="profile-username" class="text-blue-400 font-bold"></p></div></div><textarea id="profile-bio" maxlength="101" placeholder="Bio · max 101 letters" class="input-field min-h-[110px]"></textarea><button onclick="updateBio()" class="w-full bg-white/5 py-4 rounded-2xl font-bold">SAVE BIO</button><button onclick="handleLogout()" class="text-red-400 font-medium">Logout</button></div></div>
 
       <!-- MENU -->
       <div id="view-menu" class="view"><div class="flex gap-4 mb-7"><button onclick="showView('landing')" class="p-3 glass"><i data-lucide="chevron-left"></i></button><h2 class="text-4xl font-black">EX PORTAL</h2></div><div class="text-center mb-10"><h2 class="text-5xl font-black">DROP <span class="text-blue-400">FILES</span></h2><p class="opacity-60 text-lg">Auto-delete 1h</p></div><div class="grid md:grid-cols-2 gap-6"><div class="glass-card p-9 cursor-pointer relative" onclick="showView('inbox')"><i data-lucide="inbox" class="w-12 h-12 text-green-400 mb-5"></i><h3 class="text-3xl font-bold">INBOX</h3><span id="inbox-badge" class="hidden absolute top-6 right-6 bg-red-500 text-white text-xs font-black px-3 py-1.5 rounded-full">0</span></div><div class="glass-card p-9 cursor-pointer" onclick="showView('send')"><i data-lucide="send" class="w-12 h-12 text-blue-400 mb-5"></i><h3 class="text-3xl font-bold">SEND</h3></div><div class="glass-card p-9 cursor-pointer" onclick="showView('receive')"><i data-lucide="download" class="w-12 h-12 text-purple-400 mb-5"></i><h3 class="text-3xl font-bold">RECEIVE</h3></div><div class="glass-card p-9 cursor-pointer" onclick="showView('community-hub')"><i data-lucide="users" class="w-12 h-12 text-orange-400 mb-5"></i><h3 class="text-3xl font-bold">COMMUNITY</h3></div></div></div>
 
       <!-- COMMUNITY HUB -->
       <div id="view-community-hub" class="view"><div class="flex gap-4 mb-7"><button onclick="showView('menu')" class="p-3 glass"><i data-lucide="chevron-left"></i></button><h2 class="text-4xl font-black">EX COMMUNITY</h2></div><div id="joined-communities-section" class="hidden mb-9"><h3 class="text-xs uppercase tracking-wider mb-3">Your groups</h3><div id="my-communities-list" class="grid grid-cols-2 gap-4"></div></div><div class="grid grid-cols-2 gap-6"><div class="glass-card p-9 cursor-pointer" onclick="showView('create-community')"><i data-lucide="plus-circle" class="w-12 h-12 text-orange-400"></i><h3 class="text-3xl font-bold mt-5">CREATE</h3></div><div class="glass-card p-9 cursor-pointer" onclick="showView('join-community')"><i data-lucide="user-plus" class="w-12 h-12 text-blue-400"></i><h3 class="text-3xl font-bold mt-5">JOIN</h3></div></div></div>
-      <div id="view-create-community" class="view"><div class="max-w-md mx-auto glass-card p-8"><h2 class="text-3xl font-black mb-5">Start room</h2><input id="comm-create-name" placeholder="room_name" class="input-field mb-3"><input id="comm-create-sentence" placeholder="secret sentence" class="input-field mb-3"><textarea id="comm-create-bio" placeholder="bio" class="input-field mb-5"></textarea><button onclick="handleCreateCommunity()" class="w-full bg-orange-600 py-4 rounded-2xl text-white font-black text-lg">CREATE ROOM</button><button onclick="showView('community-hub')" class="w-full text-sm mt-4 opacity-60">Cancel</button></div></div>
-      <div id="view-join-community" class="view"><div class="max-w-md mx-auto glass-card p-8"><h2 class="text-3xl font-black mb-5">Join room</h2><input id="comm-join-name" placeholder="room name" class="input-field mb-3"><input id="comm-join-sentence" placeholder="secret sentence" class="input-field mb-5"><button onclick="handleJoinCommunity()" class="w-full bg-blue-600 py-4 rounded-2xl text-white font-black text-lg">ENTER ROOM</button><button onclick="showView('community-hub')" class="w-full text-sm mt-4 opacity-60">Cancel</button></div></div>
       
-      <!-- INBOX (PROFESSIONAL WITH DELETE) -->
+      <div id="view-create-community" class="view"><div class="max-w-md mx-auto glass-card p-8"><h2 class="text-3xl font-black mb-5">Start room</h2><input id="comm-create-name" placeholder="room_name" class="input-field mb-3"><input id="comm-create-sentence" placeholder="secret sentence" class="input-field mb-3"><textarea id="comm-create-bio" placeholder="bio" class="input-field mb-5"></textarea><button onclick="handleCreateCommunity()" class="w-full bg-orange-600 py-4 rounded-2xl text-white font-black text-lg">CREATE ROOM</button><button onclick="showView('community-hub')" class="w-full text-sm mt-4 opacity-60">Cancel</button></div></div>
+      
+      <div id="view-join-community" class="view"><div class="max-w-md mx-auto glass-card p-8"><h2 class="text-3xl font-black mb-5">Join room</h2><input id="comm-join-name" placeholder="room name" class="input-field mb-3"><input id="comm-join-sentence" placeholder="secret sentence" class="input-field mb-5"><button onclick="handleJoinCommunity()" class="w-full bg-blue-600 py-4 rounded-2xl text-white font-black text-lg">ENTER ROOM</button><button onclick="showView('community-hub')" class="w-full text-sm mt-4 opacity-60">Cancel</button></div></div>
+
+      <!-- INBOX -->
       <div id="view-inbox" class="view"><div class="flex gap-4 mb-7"><button onclick="showView('menu')" class="p-3 glass"><i data-lucide="chevron-left"></i></button><h2 class="text-3xl font-black">INBOX</h2></div><div id="inbox-list" class="space-y-4"></div></div>
       
       <!-- SEND -->
       <div id="view-send" class="view"><div class="flex gap-4 mb-7"><button onclick="showView('menu')" class="p-3 glass"><i data-lucide="chevron-left"></i></button><h2 class="text-3xl font-black">SEND</h2></div><div class="grid lg:grid-cols-2 gap-7"><div class="glass-card p-7"><div class="flex gap-3 mb-5"><button onclick="setTransferMode('private')" id="mode-private" class="bg-blue-600 px-5 py-2 rounded-full text-sm font-bold">Private</button><button onclick="setTransferMode('public')" id="mode-public" class="px-5 py-2 rounded-full text-sm">Public</button></div><input id="send-receiver" placeholder="@username" class="input-field mb-4"><div id="private-fields"><input id="send-password" type="password" placeholder="secret password" class="input-field mb-4"></div><input id="send-nickname" placeholder="Your nickname" class="input-field mb-4"><input id="send-desc" placeholder="description (optional)" class="input-field"></div><div class="glass-card p-7 flex flex-col"><div id="dropzone" class="dropzone-large flex flex-col items-center justify-center p-10 flex-1"><input type="file" id="file-input" class="hidden"><div id="dropzone-empty" class="text-center"><i data-lucide="cloud-upload" class="w-16 h-16 mx-auto opacity-40 mb-4"></i><p class="text-xl font-bold opacity-60">Drop file here or click</p><p class="text-sm opacity-40 mt-2">Max 3MB · Press Enter to send</p></div><div id="dropzone-file" class="hidden text-center"><i data-lucide="file-check" class="w-16 h-16 mx-auto text-green-400 mb-4"></i><p id="file-name-display" class="text-xl font-bold"></p><p class="text-green-400 text-sm mt-2">✓ Ready to send</p></div></div><textarea id="send-text" placeholder="Or type a message... (Enter to send)" class="input-field mt-5 h-24 resize-none"></textarea><div class="flex gap-4 mt-5"><button onclick="handleSend()" id="send-now-btn" class="flex-1 btn-primary py-5 text-lg">🚀 SEND NOW</button><button onclick="removeFile()" class="bg-red-500/20 hover:bg-red-500/40 px-6 rounded-2xl font-bold">Remove</button></div></div></div></div>
 
       <!-- RECEIVE -->
-      <div id="view-receive" class="view"><div class="max-w-xl mx-auto glass-card p-9"><div class="flex gap-4 mb-7"><button onclick="showView('menu')" class="p-3 glass"><i data-lucide="chevron-left"></i></button><h2 class="text-3xl font-black">RECEIVE</h2></div><div class="flex mb-7"><button onclick="setReceiveMode('private')" id="recv-mode-private" class="flex-1 bg-purple-600 py-3 rounded-l-2xl font-bold text-sm">Private</button><button onclick="setReceiveMode('public')" id="recv-mode-public" class="flex-1 py-3 rounded-r-2xl text-sm">Public code</button></div><div id="receive-private-fields"><input id="receive-username" placeholder="@username" class="input-field mb-4"><input id="receive-password" type="password" placeholder="password" class="input-field mb-4"></div><div id="receive-public-fields" class="hidden"><label class="text-xs uppercase tracking-wider block mb-2">2‑digit code</label><input id="receive-code" type="text" inputmode="numeric" maxlength="2" placeholder="00" class="text-center text-5xl font-black py-4 input-field" autocomplete="off"><div id="code-feedback" class="text-sm mt-2 h-5"></div></div><button onclick="handleReceive()" class="w-full bg-purple-600 hover:bg-purple-700 py-5 rounded-2xl font-black text-white text-lg shadow-xl shadow-purple-600/30">🔓 DECRYPT & OPEN</button><div id="receive-result" class="hidden mt-8 glass p-6 rounded-3xl"><div class="flex items-center gap-4"><i data-lucide="file-check" class="text-green-400 w-8 h-8"></i><div><h4 id="res-filename" class="font-bold text-lg"></h4><p id="res-sender" class="text-xs text-purple-300"></p></div><div class="ml-auto flex gap-2"><button id="download-btn" class="p-3 bg-blue-600/20 rounded-xl"><i data-lucide="download"></i></button><button id="receive-delete-btn" class="p-3 bg-red-500/20 rounded-xl"><i data-lucide="trash-2"></i></button></div></div></div></div></div>
+      <div id="view-receive" class="view"><div class="max-w-xl mx-auto glass-card p-9"><div class="flex gap-4 mb-7"><button onclick="showView('menu')" class="p-3 glass"><i data-lucide="chevron-left"></i></button><h2 class="text-3xl font-black">RECEIVE</h2></div><div class="flex mb-7"><button onclick="setReceiveMode('private')" id="recv-mode-private" class="flex-1 bg-purple-600 py-3 rounded-l-2xl font-bold text-sm">Private</button><button onclick="setReceiveMode('public')" id="recv-mode-public" class="flex-1 py-3 rounded-r-2xl text-sm">Public code</button></div><div id="receive-private-fields"><input id="receive-username" placeholder="@username" class="input-field mb-4"><input id="receive-password" type="password" placeholder="password" class="input-field mb-4"></div><div id="receive-public-fields" class="hidden"><label class="text-xs uppercase tracking-wider block mb-2">2‑digit code</label><input id="receive-code" type="text" inputmode="numeric" maxlength="2" placeholder="00" class="text-center text-5xl font-black py-4 input-field" autocomplete="off"><div id="code-feedback" class="text-sm mt-2 h-5"></div></div><button onclick="handleReceive()" class="w-full bg-purple-600 hover:bg-purple-700 py-5 rounded-2xl font-black text-white text-lg shadow-xl">🔓 DECRYPT & OPEN</button><div id="receive-result" class="hidden mt-8 glass p-6 rounded-3xl"><div class="flex items-center gap-4"><i data-lucide="file-check" class="text-green-400 w-8 h-8"></i><div><h4 id="res-filename" class="font-bold text-lg"></h4><p id="res-sender" class="text-xs text-purple-300"></p></div><div class="ml-auto flex gap-2"><button id="download-btn" class="p-3 bg-blue-600/20 rounded-xl"><i data-lucide="download"></i></button><button id="receive-delete-btn" class="p-3 bg-red-500/20 rounded-xl"><i data-lucide="trash-2"></i></button></div></div></div></div></div>
     </main>
   </div>
   <footer class="fixed bottom-5 left-0 right-0 text-center text-[11px] uppercase tracking-[0.4em] font-bold opacity-20">EX · EPHEMERAL · 1H PURGE</footer>
@@ -191,153 +182,379 @@
 
 <script>
   (function(){
+    // Supabase client
     const sb = supabase.createClient('https://ersmbkzwcukkqkyrveqt.supabase.co', 'sb_publishable_2w2WWtOBoKtNArFLZ51B-A_WYLCy0XD');
-    let currentUser = null, selectedFile = null, currentTransferMode = 'private', currentReceiveMode = 'private';
     
+    // State
+    let currentUser = null;
+    let selectedFile = null;
+    let currentTransferMode = 'private';
+    let currentReceiveMode = 'private';
+    
+    // Sound effects
     const playSound = (type) => {
-      try { const s = document.getElementById(`sound-${type}`); if(s) { s.currentTime = 0; s.volume = 0.25; s.play().catch(()=>{}); } } catch(e) {}
+      try { 
+        const sounds = {
+          send: 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3',
+          receive: 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3',
+          success: 'https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3',
+          delete: 'https://assets.mixkit.co/active_storage/sfx/2570/2570-preview.mp3',
+          notification: 'https://assets.mixkit.co/active_storage/sfx/1995/1995-preview.mp3'
+        };
+        const audio = new Audio(sounds[type]);
+        audio.volume = 0.25;
+        audio.play().catch(()=>{});
+      } catch(e) {}
     };
 
+    // Toast notifications
     const showToast = (msg, type='info') => {
-      const c = document.getElementById('toast-container'); const t = document.createElement('div');
-      t.className = `${type==='success'?'bg-green-500':type==='error'?'bg-red-500':'bg-blue-500'} p-5 rounded-2xl text-white font-bold toast shadow-2xl`;
-      t.innerHTML = `<i data-lucide="${type==='success'?'check-circle':'alert-circle'}"></i> ${msg}`; c.appendChild(t); lucide.createIcons(); setTimeout(()=>t.remove(),3000);
+      const c = document.getElementById('toast-container'); 
+      const t = document.createElement('div');
+      const colors = { success: 'bg-green-500', error: 'bg-red-500', info: 'bg-blue-500' };
+      t.className = `${colors[type]} p-5 rounded-2xl text-white font-bold toast shadow-2xl flex items-center gap-2`;
+      t.innerHTML = `<i data-lucide="${type==='success'?'check-circle':'alert-circle'}"></i> ${msg}`; 
+      c.appendChild(t); 
+      lucide.createIcons(); 
+      setTimeout(()=>t.remove(), 3000);
     };
     
-    // Professional modal
+    // Modal
     const showModal = (title, message, onConfirm, confirmText='Confirm', isDestructive=false) => {
-      const overlay = document.createElement('div'); overlay.className = 'modal-overlay';
+      const overlay = document.createElement('div'); 
+      overlay.className = 'modal-overlay';
       overlay.innerHTML = `<div class="modal-content"><h3 class="text-2xl font-black mb-3">${title}</h3><p class="opacity-70 mb-6">${message}</p><div class="flex gap-3"><button class="cancel-btn flex-1 py-4 rounded-2xl bg-white/5 font-bold">Cancel</button><button class="confirm-btn flex-1 py-4 rounded-2xl font-bold text-white ${isDestructive ? 'bg-red-600' : 'bg-blue-600'}">${confirmText}</button></div></div>`;
       document.body.appendChild(overlay);
       overlay.querySelector('.cancel-btn').onclick = () => overlay.remove();
       overlay.querySelector('.confirm-btn').onclick = () => { onConfirm(); overlay.remove(); };
     };
 
+    // View navigation
     const showView = (name) => {
       document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-      document.getElementById(`view-${name}`).classList.add('active');
-      if(name==='inbox'&&currentUser) fetchInbox();
-      window.scrollTo(0,0); lucide.createIcons();
+      const viewEl = document.getElementById(`view-${name}`);
+      if(viewEl) viewEl.classList.add('active');
+      if(name==='inbox' && currentUser) fetchInbox();
+      window.scrollTo(0,0); 
+      lucide.createIcons();
     };
 
+    // Theme toggle
     window.toggleTheme = () => {
-      const cur = document.documentElement.getAttribute('data-theme'), next = cur==='dark'?'light':'dark';
-      document.documentElement.setAttribute('data-theme', next); localStorage.setItem('ex_theme', next);
-      document.getElementById('theme-icon').setAttribute('data-lucide', next==='dark'?'sun':'moon'); lucide.createIcons();
-    };
-    
-    window.setTransferMode = (m) => { currentTransferMode=m; document.getElementById('mode-private').classList.toggle('bg-blue-600',m==='private'); document.getElementById('mode-public').classList.toggle('bg-blue-600',m==='public'); document.getElementById('private-fields').classList.toggle('hidden',m!=='private'); };
-    window.setReceiveMode = (m) => { currentReceiveMode=m; document.getElementById('recv-mode-private').classList.toggle('bg-purple-600',m==='private'); document.getElementById('recv-mode-public').classList.toggle('bg-purple-600',m==='public'); document.getElementById('receive-private-fields').classList.toggle('hidden',m!=='private'); document.getElementById('receive-public-fields').classList.toggle('hidden',m!=='public'); };
-
-    // AUTH
-    window.handleSignup = async () => {
-      const n = document.getElementById('signup-name').value.trim(), u = document.getElementById('signup-username').value.trim().toLowerCase(), p = document.getElementById('signup-password').value;
-      if(!n||!u||p.length<8) return showToast('All fields required, password min 8','error');
-      const {error} = await sb.from('users').insert([{name:n,username:u,password:p,bio:''}]);
-      if(error) return showToast(error.code==='23505'?'Username taken':error.message,'error');
-      playSound('success'); showToast('Account created!','success'); showView('login');
-    };
-    window.handleLogin = async () => {
-      const u = document.getElementById('login-username').value.trim().toLowerCase(), p = document.getElementById('login-password').value;
-      const {data,error} = await sb.from('users').select('*').eq('username',u).eq('password',p).single();
-      if(error||!data) return showToast('Invalid credentials','error');
-      currentUser=data;
-      document.getElementById('user-display').classList.remove('hidden'); document.getElementById('nav-username').innerText = `@${u}`;
-      document.getElementById('profile-name').innerText=data.name; document.getElementById('profile-username').innerText=`@${u}`; document.getElementById('profile-bio').value=data.bio||'';
-      playSound('success'); showToast(`Welcome ${data.name}`,'success'); showView('menu'); fetchInbox(); subscribeInbox();
-    };
-    window.handleLogout = () => { currentUser=null; document.getElementById('user-display').classList.add('hidden'); showView('landing'); };
-    window.updateBio = async () => { const b = document.getElementById('profile-bio').value.slice(0,101); await sb.from('users').update({bio:b}).eq('id',currentUser.id); showToast('Bio updated','success'); };
-
-    // INBOX with delete
-    const fetchInbox = async () => {
-      if(!currentUser) return;
-      const {data} = await sb.from('transfers').select('*').eq('receiver_username',currentUser.username).gte('created_at',new Date(Date.now()-3600000).toISOString()).order('created_at',{ascending:false});
-      const c=document.getElementById('inbox-list'); const badge = document.getElementById('inbox-badge');
-      if(!data?.length) { c.innerHTML='<div class="text-center py-20 opacity-30">📭 Inbox empty</div>'; badge.classList.add('hidden'); return; }
-      badge.classList.remove('hidden'); badge.innerText = data.length > 99 ? '99+' : data.length;
-      c.innerHTML = data.map(i=>`<div class="glass-card p-5 flex items-center gap-4"><i data-lucide="${i.is_public?'globe':'lock'}" class="w-6 h-6"></i><div class="flex-1"><h4 class="font-bold">${escapeHtml(i.file_name)}</h4><p class="text-xs opacity-50">${i.sender_nickname||'anonymous'} · ${new Date(i.created_at).toLocaleTimeString()}</p></div><button onclick="openInboxFile('${i.id}','${i.password||''}',${i.is_public})" class="p-3 bg-blue-600/20 rounded-xl"><i data-lucide="eye"></i></button><button onclick="deleteInboxFile('${i.id}','${i.file_path}')" class="p-3 bg-red-500/20 rounded-xl"><i data-lucide="trash-2"></i></button></div>`).join('');
+      const cur = document.documentElement.getAttribute('data-theme');
+      const next = cur==='dark'?'light':'dark';
+      document.documentElement.setAttribute('data-theme', next); 
+      localStorage.setItem('ex_theme', next);
+      document.getElementById('theme-icon').setAttribute('data-lucide', next==='dark'?'sun':'moon'); 
       lucide.createIcons();
     };
     
-    window.openInboxFile = (id, pass, isPublic) => {
+    // Transfer modes
+    window.setTransferMode = (m) => { 
+      currentTransferMode=m; 
+      document.getElementById('mode-private').classList.toggle('bg-blue-600', m==='private'); 
+      document.getElementById('mode-public').classList.toggle('bg-blue-600', m==='public'); 
+      document.getElementById('private-fields').classList.toggle('hidden', m!=='private'); 
+    };
+    
+    window.setReceiveMode = (m) => { 
+      currentReceiveMode=m; 
+      document.getElementById('recv-mode-private').classList.toggle('bg-purple-600', m==='private'); 
+      document.getElementById('recv-mode-public').classList.toggle('bg-purple-600', m==='public'); 
+      document.getElementById('receive-private-fields').classList.toggle('hidden', m!=='private'); 
+      document.getElementById('receive-public-fields').classList.toggle('hidden', m!=='public'); 
+    };
+
+    // Auth functions
+    window.handleSignup = async () => {
+      const n = document.getElementById('signup-name').value.trim();
+      const u = document.getElementById('signup-username').value.trim().toLowerCase();
+      const p = document.getElementById('signup-password').value;
+      if(!n||!u||p.length<8) return showToast('All fields required, password min 8','error');
+      
+      const {error} = await sb.from('users').insert([{name:n, username:u, password:p, bio:''}]);
+      if(error) return showToast(error.code==='23505'?'Username taken':error.message,'error');
+      
+      playSound('success'); 
+      showToast('Account created!','success'); 
+      showView('login');
+    };
+    
+    window.handleLogin = async () => {
+      const u = document.getElementById('login-username').value.trim().toLowerCase();
+      const p = document.getElementById('login-password').value;
+      const {data, error} = await sb.from('users').select('*').eq('username',u).eq('password',p).single();
+      if(error || !data) return showToast('Invalid credentials','error');
+      
+      currentUser = data;
+      document.getElementById('user-display').classList.remove('hidden'); 
+      document.getElementById('nav-username').innerText = `@${u}`;
+      document.getElementById('profile-name').innerText = data.name; 
+      document.getElementById('profile-username').innerText = `@${u}`; 
+      document.getElementById('profile-bio').value = data.bio || '';
+      
+      playSound('success'); 
+      showToast(`Welcome ${data.name}`,'success'); 
+      showView('menu'); 
+      fetchInbox(); 
+      subscribeInbox();
+    };
+    
+    window.handleLogout = () => { 
+      currentUser = null; 
+      document.getElementById('user-display').classList.add('hidden'); 
+      showView('landing'); 
+    };
+    
+    window.updateBio = async () => { 
+      const b = document.getElementById('profile-bio').value.slice(0,101); 
+      await sb.from('users').update({bio:b}).eq('id', currentUser.id); 
+      showToast('Bio updated','success'); 
+    };
+
+    // Inbox functions
+    const fetchInbox = async () => {
+      if(!currentUser) return;
+      const oneHourAgo = new Date(Date.now() - 3600000).toISOString();
+      const {data} = await sb.from('transfers').select('*').eq('receiver_username', currentUser.username).gte('created_at', oneHourAgo).order('created_at', {ascending:false});
+      const c = document.getElementById('inbox-list'); 
+      const badge = document.getElementById('inbox-badge');
+      
+      if(!data?.length) { 
+        c.innerHTML = '<div class="text-center py-20 opacity-30">📭 Inbox empty</div>'; 
+        badge.classList.add('hidden'); 
+        return; 
+      }
+      
+      badge.classList.remove('hidden'); 
+      badge.innerText = data.length > 99 ? '99+' : data.length;
+      
+      c.innerHTML = data.map(i=>`
+        <div class="glass-card p-5 flex items-center gap-4">
+          <i data-lucide="${i.is_public?'globe':'lock'}" class="w-6 h-6"></i>
+          <div class="flex-1">
+            <h4 class="font-bold">${escapeHtml(i.file_name)}</h4>
+            <p class="text-xs opacity-50">${i.sender_nickname || 'anonymous'} · ${new Date(i.created_at).toLocaleTimeString()}</p>
+          </div>
+          <button onclick="openInboxFile('${i.id}','${i.password||''}',${i.is_public})" class="p-3 bg-blue-600/20 rounded-xl"><i data-lucide="eye"></i></button>
+          <button onclick="deleteInboxFile('${i.id}','${i.file_path}')" class="p-3 bg-red-500/20 rounded-xl"><i data-lucide="trash-2"></i></button>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    };
+    
+    window.openInboxFile = async (id, pass, isPublic) => {
+      const {data} = await sb.from('transfers').select('*').eq('id', id).single();
+      if(isPublic || !data.password) {
+        const blob = await sb.storage.from('transfers').download(data.file_path);
+        const url = URL.createObjectURL(blob.data); 
+        const a = document.createElement('a'); 
+        a.href = url; 
+        a.download = data.file_name; 
+        a.click();
+        playSound('receive');
+        return;
+      }
+      
       showModal('Unlock File', 'Enter password to access', async () => {
         const pw = document.querySelector('.modal-content input')?.value;
-        if(isPublic || pw === pass) {
-          const {data} = await sb.from('transfers').select('*').eq('id',id).single();
+        if(pw === pass) {
           const blob = await sb.storage.from('transfers').download(data.file_path);
-          const url=URL.createObjectURL(blob.data); const a=document.createElement('a'); a.href=url; a.download=data.file_name; a.click();
-          playSound('receive'); showToast('Downloaded!','success');
+          const url = URL.createObjectURL(blob.data); 
+          const a = document.createElement('a'); 
+          a.href = url; 
+          a.download = data.file_name; 
+          a.click();
+          playSound('receive'); 
+          showToast('Downloaded!','success');
         } else showToast('Wrong password','error');
       }, 'Download');
+      
       const modal = document.querySelector('.modal-content');
-      const input = document.createElement('input'); input.type='password'; input.placeholder='Enter password'; input.className='input-field mb-4';
+      const input = document.createElement('input'); 
+      input.type = 'password'; 
+      input.placeholder = 'Enter password'; 
+      input.className = 'input-field mb-4';
       modal.insertBefore(input, modal.querySelector('.flex'));
     };
     
     window.deleteInboxFile = (id, path) => {
       showModal('Delete File', 'This action cannot be undone.', async () => {
         await sb.storage.from('transfers').remove([path]);
-        await sb.from('transfers').delete().eq('id',id);
-        playSound('delete'); fetchInbox(); showToast('File deleted','success');
+        await sb.from('transfers').delete().eq('id', id);
+        playSound('delete'); 
+        fetchInbox(); 
+        showToast('File deleted','success');
       }, 'Delete', true);
     };
     
     const subscribeInbox = () => {
       if(!currentUser) return;
-      sb.channel('inbox').on('postgres_changes',{event:'INSERT',schema:'public',table:'transfers',filter:`receiver_username=eq.${currentUser.username}`},()=>{
-        fetchInbox(); playSound('notification');
+      sb.channel('inbox').on('postgres_changes', {
+        event: 'INSERT', schema: 'public', table: 'transfers', 
+        filter: `receiver_username=eq.${currentUser.username}`
+      }, () => {
+        fetchInbox(); 
+        playSound('notification');
         showToast('📬 New file received!','success');
-        if(Notification.permission==='granted') new Notification('EX · New file',{body:'Someone sent you a file',icon:'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\'%3E%3Cpath fill=\'%233b82f6\' d=\'M12 2L2 7v10l10 5 10-5V7l-10-5z\'/%3E%3C/svg%3E'});
+        if(Notification.permission === 'granted') {
+          new Notification('EX · New file', {body: 'Someone sent you a file'});
+        }
       }).subscribe();
       if('Notification' in window) Notification.requestPermission();
     };
 
-    // SEND
-    window.handleFileSelection = (f) => { if(f.size>3e6) return showToast('Max 3MB','error'); selectedFile=f; document.getElementById('dropzone-empty').classList.add('hidden'); document.getElementById('dropzone-file').classList.remove('hidden'); document.getElementById('file-name-display').innerText=f.name; };
-    window.removeFile = () => { selectedFile=null; document.getElementById('dropzone-empty').classList.remove('hidden'); document.getElementById('dropzone-file').classList.add('hidden'); };
+    // Send functions
+    window.handleFileSelection = (f) => { 
+      if(f.size > 3e6) return showToast('Max 3MB','error'); 
+      selectedFile = f; 
+      document.getElementById('dropzone-empty').classList.add('hidden'); 
+      document.getElementById('dropzone-file').classList.remove('hidden'); 
+      document.getElementById('file-name-display').innerText = f.name; 
+    };
+    
+    window.removeFile = () => { 
+      selectedFile = null; 
+      document.getElementById('dropzone-empty').classList.remove('hidden'); 
+      document.getElementById('dropzone-file').classList.add('hidden'); 
+    };
+    
     window.handleSend = async () => {
       const rec = document.getElementById('send-receiver').value.trim().toLowerCase();
       const pass = document.getElementById('send-password').value;
       const nick = document.getElementById('send-nickname').value.trim();
       const desc = document.getElementById('send-desc').value;
       const text = document.getElementById('send-text').value;
-      if(!rec||!nick) return showToast('Receiver and nickname required','error');
-      let file = selectedFile; if(text&&!file) file = new File([text],'message.txt',{type:'text/plain'});
+      
+      if(!rec || !nick) return showToast('Receiver and nickname required','error');
+      
+      let file = selectedFile; 
+      if(text && !file) file = new File([text], 'message.txt', {type: 'text/plain'});
       if(!file) return showToast('Select file or type message','error');
-      const btn = document.getElementById('send-now-btn'); btn.disabled=true; btn.innerHTML='<div class="loader-spin"></div>';
-      const path = `${rec}/${Date.now()}_${file.name}`; await sb.storage.from('transfers').upload(path, file);
-      await sb.from('transfers').insert([{receiver_username:rec,password:currentTransferMode==='private'?pass:null,is_public:currentTransferMode==='public',sender_nickname:nick,description:desc,file_name:file.name,file_path:path,created_at:new Date().toISOString()}]);
-      playSound('send'); showToast('🚀 Sent!','success'); showView('menu'); btn.disabled=false; btn.innerHTML='🚀 SEND NOW';
+      
+      const btn = document.getElementById('send-now-btn'); 
+      btn.disabled = true; 
+      btn.innerHTML = '<div class="loader-spin"></div>';
+      
+      const path = `${rec}/${Date.now()}_${file.name}`; 
+      await sb.storage.from('transfers').upload(path, file);
+      await sb.from('transfers').insert([{
+        receiver_username: rec,
+        password: currentTransferMode === 'private' ? pass : null,
+        is_public: currentTransferMode === 'public',
+        sender_nickname: nick,
+        description: desc,
+        file_name: file.name,
+        file_path: path,
+        created_at: new Date().toISOString()
+      }]);
+      
+      playSound('send'); 
+      showToast('🚀 Sent!','success'); 
+      showView('menu'); 
+      btn.disabled = false; 
+      btn.innerHTML = '🚀 SEND NOW';
     };
 
-    // RECEIVE
+    // Receive functions
     window.handleReceive = async () => {
       let q = sb.from('transfers').select('*');
-      if(currentReceiveMode==='private'){ const u=document.getElementById('receive-username').value.trim().toLowerCase(), p=document.getElementById('receive-password').value; if(!u||!p) return showToast('Fill fields','error'); q=q.eq('receiver_username',u).eq('password',p); }
-      else { const c=document.getElementById('receive-code').value.trim(); if(c.length!==2) return showToast('Enter 2-digit code','error'); q=q.eq('public_code',c).eq('is_public',true); }
-      const {data} = await q.order('created_at',{ascending:false}).limit(1); if(!data?.length) return showToast('No file found','error');
-      const t=data[0]; document.getElementById('receive-result').classList.remove('hidden'); document.getElementById('res-filename').innerText=t.file_name;
-      document.getElementById('download-btn').onclick = async ()=>{ const blob=await sb.storage.from('transfers').download(t.file_path); const url=URL.createObjectURL(blob.data); const a=document.createElement('a'); a.href=url; a.download=t.file_name; a.click(); playSound('receive'); };
-      document.getElementById('receive-delete-btn').onclick = ()=> showModal('Delete File','Remove this file?', async ()=>{ await sb.storage.from('transfers').remove([t.file_path]); await sb.from('transfers').delete().eq('id',t.id); document.getElementById('receive-result').classList.add('hidden'); playSound('delete'); }, 'Delete', true);
+      if(currentReceiveMode === 'private') {
+        const u = document.getElementById('receive-username').value.trim().toLowerCase();
+        const p = document.getElementById('receive-password').value;
+        if(!u || !p) return showToast('Fill fields','error');
+        q = q.eq('receiver_username', u).eq('password', p);
+      } else {
+        const c = document.getElementById('receive-code').value.trim();
+        if(c.length !== 2) return showToast('Enter 2-digit code','error');
+        q = q.eq('public_code', c).eq('is_public', true);
+      }
+      
+      const {data} = await q.order('created_at', {ascending: false}).limit(1); 
+      if(!data?.length) return showToast('No file found','error');
+      
+      const t = data[0]; 
+      document.getElementById('receive-result').classList.remove('hidden'); 
+      document.getElementById('res-filename').innerText = t.file_name;
+      document.getElementById('res-sender').innerText = `from ${t.sender_nickname || 'anonymous'}`;
+      
+      document.getElementById('download-btn').onclick = async () => {
+        const blob = await sb.storage.from('transfers').download(t.file_path);
+        const url = URL.createObjectURL(blob.data); 
+        const a = document.createElement('a'); 
+        a.href = url; 
+        a.download = t.file_name; 
+        a.click();
+        playSound('receive');
+      };
+      
+      document.getElementById('receive-delete-btn').onclick = () => showModal('Delete File', 'Remove this file?', async () => {
+        await sb.storage.from('transfers').remove([t.file_path]);
+        await sb.from('transfers').delete().eq('id', t.id);
+        document.getElementById('receive-result').classList.add('hidden');
+        playSound('delete');
+      }, 'Delete', true);
     };
 
+    // Community functions (placeholder)
+    window.handleCreateCommunity = () => showToast('Community feature coming soon','info');
+    window.handleJoinCommunity = () => showToast('Community feature coming soon','info');
+    
     const escapeHtml = s => s ? s.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])) : '';
-    const dropzone = document.getElementById('dropzone');
-    ['dragenter','dragover','dragleave','drop'].forEach(e=>dropzone.addEventListener(e, (ev)=>ev.preventDefault()));
-    dropzone.addEventListener('dragover', ()=> dropzone.classList.add('drag-over'));
-    dropzone.addEventListener('dragleave', ()=> dropzone.classList.remove('drag-over'));
-    dropzone.addEventListener('drop', (e)=> { dropzone.classList.remove('drag-over'); const f=e.dataTransfer.files[0]; if(f) handleFileSelection(f); });
-    document.getElementById('send-text').addEventListener('keydown', (e)=> { if(e.key==='Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } });
-    document.getElementById('receive-code')?.addEventListener('input', async (e)=> { const v=e.target.value.replace(/\D/g,''); e.target.value=v; if(v.length===2) { const fb=document.getElementById('code-feedback'); fb.innerHTML='<span class="text-blue-400">searching...</span>'; const {data}=await sb.from('transfers').select('id').eq('public_code',v).eq('is_public',true).limit(1); fb.innerHTML=data?.length?'<span class="text-green-400">✓ file found</span>':'<span class="text-red-400">✗ no file</span>'; } });
 
+    // Initialize
     window.onload = () => {
-      setTimeout(()=>{ document.getElementById('loading-screen').style.opacity='0'; setTimeout(()=>{ document.getElementById('loading-screen').style.display='none'; document.getElementById('main-app').style.display='block'; lucide.createIcons(); },600); },2000);
-      const theme = localStorage.getItem('ex_theme')||'dark'; document.documentElement.setAttribute('data-theme',theme); document.getElementById('theme-icon').setAttribute('data-lucide', theme==='dark'?'sun':'moon');
-      dropzone.onclick = ()=> document.getElementById('file-input').click();
-      document.getElementById('file-input').onchange = e=> handleFileSelection(e.target.files[0]);
+      // Hide loading screen after 2 seconds
+      setTimeout(() => {
+        document.getElementById('loading-screen').style.opacity = '0';
+        setTimeout(() => {
+          document.getElementById('loading-screen').style.display = 'none';
+          document.getElementById('main-app').style.display = 'block';
+          lucide.createIcons();
+        }, 600);
+      }, 2000);
+      
+      // Set theme
+      const theme = localStorage.getItem('ex_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+      document.getElementById('theme-icon').setAttribute('data-lucide', theme==='dark'?'sun':'moon');
+      
+      // Setup dropzone
+      const dropzone = document.getElementById('dropzone');
+      dropzone.onclick = () => document.getElementById('file-input').click();
+      document.getElementById('file-input').onchange = e => handleFileSelection(e.target.files[0]);
+      
+      // Drag & drop
+      ['dragenter','dragover','dragleave','drop'].forEach(e => dropzone.addEventListener(e, ev => ev.preventDefault()));
+      dropzone.addEventListener('dragover', () => dropzone.classList.add('drag-over'));
+      dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
+      dropzone.addEventListener('drop', e => {
+        dropzone.classList.remove('drag-over');
+        const f = e.dataTransfer.files[0];
+        if(f) handleFileSelection(f);
+      });
+      
+      // Enter key to send
+      document.getElementById('send-text').addEventListener('keydown', e => {
+        if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
+      });
+      
+      // Code feedback
+      document.getElementById('receive-code')?.addEventListener('input', async e => {
+        const v = e.target.value.replace(/\D/g,''); e.target.value = v;
+        const fb = document.getElementById('code-feedback');
+        if(v.length === 2) {
+          fb.innerHTML = '<span class="text-blue-400">searching...</span>';
+          const {data} = await sb.from('transfers').select('id').eq('public_code', v).eq('is_public', true).limit(1);
+          fb.innerHTML = data?.length ? '<span class="text-green-400">✓ file found</span>' : '<span class="text-red-400">✗ no file</span>';
+        } else fb.innerHTML = '';
+      });
+      
       showView('landing');
+      lucide.createIcons();
     };
+    
+    // Expose to window
     window.showView = showView;
   })();
 </script>
