@@ -171,10 +171,10 @@
       <div id="view-inbox" class="view"><div class="flex gap-4 mb-7"><button onclick="showView('menu')" class="p-3 glass"><i data-lucide="chevron-left"></i></button><h2 class="text-3xl font-black">INBOX</h2></div><div id="inbox-list" class="space-y-4"></div></div>
       
       <!-- SEND -->
-      <div id="view-send" class="view"><div class="flex gap-4 mb-7"><button onclick="showView('menu')" class="p-3 glass"><i data-lucide="chevron-left"></i></button><h2 class="text-3xl font-black">SEND</h2></div><div class="grid lg:grid-cols-2 gap-7"><div class="glass-card p-7"><div class="flex gap-3 mb-5"><button onclick="setTransferMode('private')" id="mode-private" class="bg-blue-600 px-5 py-2 rounded-full text-sm font-bold">Private</button><button onclick="setTransferMode('public')" id="mode-public" class="px-5 py-2 rounded-full text-sm">Public</button></div><input id="send-receiver" placeholder="@username" class="input-field mb-4"><div id="private-fields"><input id="send-password" type="password" placeholder="secret password" class="input-field mb-4"></div><input id="send-nickname" placeholder="Your nickname" class="input-field mb-4"><input id="send-desc" placeholder="description (optional)" class="input-field"></div><div class="glass-card p-7 flex flex-col"><div id="dropzone" class="dropzone-large flex flex-col items-center justify-center p-10 flex-1"><input type="file" id="file-input" class="hidden"><div id="dropzone-empty" class="text-center"><i data-lucide="cloud-upload" class="w-16 h-16 mx-auto opacity-40 mb-4"></i><p class="text-xl font-bold opacity-60">Drop file here or click</p><p class="text-sm opacity-40 mt-2">Max 3MB · Press Enter to send</p></div><div id="dropzone-file" class="hidden text-center"><i data-lucide="file-check" class="w-16 h-16 mx-auto text-green-400 mb-4"></i><p id="file-name-display" class="text-xl font-bold"></p><p class="text-green-400 text-sm mt-2">✓ Ready to send</p></div></div><textarea id="send-text" placeholder="Or type a message... (Enter to send)" class="input-field mt-5 h-24 resize-none"></textarea><div class="flex gap-4 mt-5"><button onclick="handleSend()" id="send-now-btn" class="flex-1 btn-primary py-5 text-lg">🚀 SEND NOW</button><button onclick="removeFile()" class="bg-red-500/20 hover:bg-red-500/40 px-6 rounded-2xl font-bold">Remove</button></div></div></div></div>
+      <div id="view-send" class="view"><div class="flex gap-4 mb-7"><button onclick="showView('menu')" class="p-3 glass"><i data-lucide="chevron-left"></i></button><h2 class="text-3xl font-black">SEND</h2></div><div class="grid lg:grid-cols-2 gap-7"><div class="glass-card p-7"><div class="flex gap-3 mb-5"><button onclick="setTransferMode('private')" id="mode-private" class="bg-blue-600 px-5 py-2 rounded-full text-sm font-bold">Private</button><button onclick="setTransferMode('public')" id="mode-public" class="px-5 py-2 rounded-full text-sm">Public</button></div><input id="send-receiver" placeholder="@username" class="input-field mb-4"><div id="private-fields"><input id="send-password" type="password" placeholder="secret password" class="input-field mb-4"></div><input id="send-nickname" placeholder="Your nickname" class="input-field mb-4"></div><div class="glass-card p-7 flex flex-col"><div id="dropzone" class="dropzone-large flex flex-col items-center justify-center p-10 flex-1"><input type="file" id="file-input" class="hidden"><div id="dropzone-empty" class="text-center"><i data-lucide="cloud-upload" class="w-16 h-16 mx-auto opacity-40 mb-4"></i><p class="text-xl font-bold opacity-60">Drop file here or click</p><p class="text-sm opacity-40 mt-2">Max 3MB · Press Enter to send</p></div><div id="dropzone-file" class="hidden text-center"><i data-lucide="file-check" class="w-16 h-16 mx-auto text-green-400 mb-4"></i><p id="file-name-display" class="text-xl font-bold"></p><p class="text-green-400 text-sm mt-2">✓ Ready to send</p></div></div><textarea id="send-text" placeholder="Or type a message... (Enter to send)" class="input-field mt-5 h-24 resize-none"></textarea><div class="flex gap-4 mt-5"><button onclick="handleSend()" id="send-now-btn" class="flex-1 btn-primary py-5 text-lg">🚀 SEND NOW</button><button onclick="removeFile()" class="bg-red-500/20 hover:bg-red-500/40 px-6 rounded-2xl font-bold">Remove</button></div></div></div></div>
 
       <!-- RECEIVE -->
-      <div id="view-receive" class="view"><div class="max-w-xl mx-auto glass-card p-9"><div class="flex gap-4 mb-7"><button onclick="showView('menu')" class="p-3 glass"><i data-lucide="chevron-left"></i></button><h2 class="text-3xl font-black">RECEIVE</h2></div><div class="flex mb-7"><button onclick="setReceiveMode('private')" id="recv-mode-private" class="flex-1 bg-purple-600 py-3 rounded-l-2xl font-bold text-sm">Private</button><button onclick="setReceiveMode('public')" id="recv-mode-public" class="flex-1 py-3 rounded-r-2xl text-sm">Public code</button></div><div id="receive-private-fields"><input id="receive-username" placeholder="@username" class="input-field mb-4"><input id="receive-password" type="password" placeholder="password" class="input-field mb-4"></div><div id="receive-public-fields" class="hidden"><label class="text-xs uppercase tracking-wider block mb-2">2‑digit code</label><input id="receive-code" type="text" inputmode="numeric" maxlength="2" placeholder="00" class="text-center text-5xl font-black py-4 input-field" autocomplete="off"><div id="code-feedback" class="text-sm mt-2 h-5"></div></div><button onclick="handleReceive()" class="w-full bg-purple-600 hover:bg-purple-700 py-5 rounded-2xl font-black text-white text-lg shadow-xl">🔓 DECRYPT & OPEN</button><div id="receive-result" class="hidden mt-8 glass p-6 rounded-3xl"><div class="flex items-center gap-4"><i data-lucide="file-check" class="text-green-400 w-8 h-8"></i><div><h4 id="res-filename" class="font-bold text-lg"></h4><p id="res-sender" class="text-xs text-purple-300"></p></div><div class="ml-auto flex gap-2"><button id="download-btn" class="p-3 bg-blue-600/20 rounded-xl"><i data-lucide="download"></i></button><button id="receive-delete-btn" class="p-3 bg-red-500/20 rounded-xl"><i data-lucide="trash-2"></i></button></div></div></div></div></div>
+      <div id="view-receive" class="view"><div class="max-w-xl mx-auto glass-card p-9"><div class="flex gap-4 mb-7"><button onclick="showView('menu')" class="p-3 glass"><i data-lucide="chevron-left"></i></button><h2 class="text-3xl font-black">RECEIVE</h2></div><div class="flex mb-7"><button onclick="setReceiveMode('private')" id="recv-mode-private" class="flex-1 bg-purple-600 py-3 rounded-l-2xl font-bold text-sm">Private</button><button onclick="setReceiveMode('public')" id="recv-mode-public" class="flex-1 py-3 rounded-r-2xl text-sm">Public code</button></div><div id="receive-private-fields"><input id="receive-username" placeholder="@username" class="input-field mb-4"><input id="receive-password" type="password" placeholder="password" class="input-field mb-4"></div><div id="receive-public-fields" class="hidden"><label class="text-xs uppercase tracking-wider block mb-2">Enter 2‑digit code</label><input id="receive-code" type="text" inputmode="numeric" maxlength="2" placeholder="00" class="text-center text-6xl font-black py-6 input-field tracking-widest" autocomplete="off"><div id="code-feedback" class="text-sm mt-2 h-5"></div></div><button onclick="handleReceive()" id="receive-btn" class="w-full bg-purple-600 hover:bg-purple-700 py-5 rounded-2xl font-black text-white text-lg shadow-xl">🔓 DECRYPT & OPEN</button><div id="receive-result" class="hidden mt-8 glass p-6 rounded-3xl"><div class="flex items-center gap-4"><i data-lucide="file-check" class="text-green-400 w-8 h-8"></i><div><h4 id="res-filename" class="font-bold text-lg"></h4><p id="res-sender" class="text-xs text-purple-300"></p></div><div class="ml-auto flex gap-2"><button id="download-btn" class="p-3 bg-blue-600/20 hover:bg-blue-600 rounded-xl transition-all"><i data-lucide="download"></i></button><button id="print-btn" class="p-3 bg-green-600/20 hover:bg-green-600 rounded-xl transition-all"><i data-lucide="printer"></i></button><button id="receive-delete-btn" class="p-3 bg-red-500/20 hover:bg-red-600 rounded-xl transition-all"><i data-lucide="trash-2"></i></button></div></div></div></div></div>
     </main>
   </div>
   <footer class="fixed bottom-5 left-0 right-0 text-center text-[11px] uppercase tracking-[0.4em] font-bold opacity-20">EX · EPHEMERAL · 1H PURGE</footer>
@@ -191,19 +191,20 @@
     let currentTransferMode = 'private';
     let currentReceiveMode = 'private';
     let currentReceiveFile = null;
+    let generatedCode = null;
     
     // Sound effects
     const playSound = (type) => {
       try { 
         const sounds = {
-          send: 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3',
-          receive: 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3',
-          success: 'https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3',
-          delete: 'https://assets.mixkit.co/active_storage/sfx/2570/2570-preview.mp3',
-          notification: 'https://assets.mixkit.co/active_storage/sfx/1995/1995-preview.mp3'
+          send: 'https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3',
+          receive: 'https://assets.mixkit.co/active_storage/sfx/2001/2001-preview.mp3',
+          success: 'https://assets.mixkit.co/active_storage/sfx/2002/2002-preview.mp3',
+          delete: 'https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3',
+          notification: 'https://assets.mixkit.co/active_storage/sfx/2004/2004-preview.mp3'
         };
         const audio = new Audio(sounds[type]);
-        audio.volume = 0.25;
+        audio.volume = 0.2;
         audio.play().catch(()=>{});
       } catch(e) {}
     };
@@ -229,6 +230,18 @@
       overlay.querySelector('.cancel-btn').onclick = () => overlay.remove();
       overlay.querySelector('.confirm-btn').onclick = () => { onConfirm(); overlay.remove(); };
       return overlay;
+    };
+
+    // Generate unique 2-digit code
+    const generateUniqueCode = async () => {
+      let code;
+      let isUnique = false;
+      while (!isUnique) {
+        code = Math.floor(Math.random() * 90 + 10).toString(); // 10-99
+        const {data} = await sb.from('transfers').select('id').eq('public_code', code).eq('is_public', true).limit(1);
+        if (!data?.length) isUnique = true;
+      }
+      return code;
     };
 
     // View navigation
@@ -337,6 +350,7 @@
           <div class="flex-1">
             <h4 class="font-bold">${escapeHtml(i.file_name)}</h4>
             <p class="text-xs opacity-50">${i.sender_nickname || 'anonymous'} · ${new Date(i.created_at).toLocaleTimeString()}</p>
+            ${i.public_code ? `<p class="text-xs text-blue-400">Code: ${i.public_code}</p>` : ''}
           </div>
           <button class="view-inbox-btn p-3 bg-blue-600/20 hover:bg-blue-600 rounded-xl transition-all" data-id="${i.id}" data-password="${i.password || ''}" data-ispublic="${i.is_public}"><i data-lucide="eye"></i></button>
           <button class="delete-inbox-btn p-3 bg-red-500/20 hover:bg-red-600 rounded-xl transition-all" data-id="${i.id}" data-path="${i.file_path}"><i data-lucide="trash-2"></i></button>
@@ -381,6 +395,15 @@
         URL.revokeObjectURL(url);
         playSound('receive');
         showToast('Downloaded!','success');
+        
+        // Remove badge notification for this file
+        const badge = document.getElementById('inbox-badge');
+        const currentCount = parseInt(badge.innerText) || 0;
+        if(currentCount > 1) {
+          badge.innerText = currentCount - 1;
+        } else {
+          badge.classList.add('hidden');
+        }
       };
       
       if(isPublic || !data.password) {
@@ -464,7 +487,6 @@
       const rec = document.getElementById('send-receiver').value.trim().toLowerCase();
       const pass = document.getElementById('send-password').value;
       const nick = document.getElementById('send-nickname').value.trim();
-      const desc = document.getElementById('send-desc').value;
       const text = document.getElementById('send-text').value;
       
       if(!rec || !nick) return showToast('Receiver and nickname required','error');
@@ -479,6 +501,11 @@
       btn.innerHTML = '<div class="loader-spin"></div> SENDING';
       
       try {
+        let publicCode = null;
+        if(currentTransferMode === 'public') {
+          publicCode = await generateUniqueCode();
+        }
+        
         const path = `${rec}/${Date.now()}_${file.name}`; 
         const {error: uploadError} = await sb.storage.from('transfers').upload(path, file);
         if(uploadError) throw uploadError;
@@ -486,10 +513,10 @@
         const transferData = {
           receiver_username: rec,
           sender_nickname: nick,
-          description: desc || null,
           file_name: file.name,
           file_path: path,
           is_public: currentTransferMode === 'public',
+          public_code: publicCode,
           created_at: new Date().toISOString()
         };
         if(currentTransferMode === 'private') transferData.password = pass;
@@ -497,15 +524,25 @@
         const {error: insertError} = await sb.from('transfers').insert([transferData]);
         if(insertError) throw insertError;
         
-        playSound('send'); 
-        showToast('🚀 File sent successfully!','success'); 
+        playSound('send');
+        
+        if(currentTransferMode === 'public') {
+          showModal('📋 Public Code Generated', 
+            `Share this 2-digit code with the recipient:<br><div class="text-6xl font-black text-center my-4 text-blue-400">${publicCode}</div>`, 
+            () => {
+              showToast('Code copied to clipboard','success');
+              navigator.clipboard?.writeText(publicCode);
+            }, 'Copy Code');
+        } else {
+          showToast('🚀 File sent successfully!','success');
+        }
+        
         showView('menu');
         
         // Clear form
         document.getElementById('send-receiver').value = '';
         document.getElementById('send-password').value = '';
         document.getElementById('send-nickname').value = '';
-        document.getElementById('send-desc').value = '';
         document.getElementById('send-text').value = '';
         removeFile();
       } catch(e) {
@@ -518,7 +555,7 @@
 
     // Receive functions
     window.handleReceive = async () => {
-      const btn = document.querySelector('#view-receive .btn-primary');
+      const btn = document.getElementById('receive-btn');
       btn.disabled = true;
       btn.innerHTML = '<div class="loader-spin"></div> SEARCHING';
       
@@ -555,6 +592,12 @@
           a.click();
           URL.revokeObjectURL(url);
           playSound('receive');
+          showToast('Downloaded!','success');
+        };
+        
+        // Setup print button
+        document.getElementById('print-btn').onclick = () => {
+          window.open(t.file_path, '_blank');
         };
         
         // Setup delete button
@@ -607,18 +650,21 @@
       
       // Setup dropzone
       const dropzone = document.getElementById('dropzone');
-      dropzone.onclick = () => document.getElementById('file-input').click();
-      document.getElementById('file-input').onchange = e => handleFileSelection(e.target.files[0]);
+      if(dropzone) {
+        dropzone.onclick = () => document.getElementById('file-input').click();
+        
+        // Drag & drop
+        ['dragenter','dragover','dragleave','drop'].forEach(e => dropzone.addEventListener(e, ev => ev.preventDefault()));
+        dropzone.addEventListener('dragover', () => dropzone.classList.add('drag-over'));
+        dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
+        dropzone.addEventListener('drop', e => {
+          dropzone.classList.remove('drag-over');
+          const f = e.dataTransfer.files[0];
+          if(f) handleFileSelection(f);
+        });
+      }
       
-      // Drag & drop
-      ['dragenter','dragover','dragleave','drop'].forEach(e => dropzone.addEventListener(e, ev => ev.preventDefault()));
-      dropzone.addEventListener('dragover', () => dropzone.classList.add('drag-over'));
-      dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
-      dropzone.addEventListener('drop', e => {
-        dropzone.classList.remove('drag-over');
-        const f = e.dataTransfer.files[0];
-        if(f) handleFileSelection(f);
-      });
+      document.getElementById('file-input').onchange = e => handleFileSelection(e.target.files[0]);
       
       // Enter key to send
       document.getElementById('send-text').addEventListener('keydown', e => {
