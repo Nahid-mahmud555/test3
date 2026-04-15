@@ -139,13 +139,89 @@
   // FILE SEND/RECEIVE
   window.handleFileSelection=(f)=>{ if(!f) return; if(f.size>3*1024*1024) return showToast('Max 3MB','error'); selectedFile=f; document.getElementById('dropzone-empty').classList.add('hidden'); document.getElementById('dropzone-file').classList.remove('hidden'); document.getElementById('file-name-display').innerText=f.name; };
   window.removeFile=()=>{ selectedFile=null; document.getElementById('dropzone-empty').classList.remove('hidden'); document.getElementById('dropzone-file').classList.add('hidden'); document.getElementById('file-input').value=''; };
-  window.handleSend=async()=>{ let receiver=document.getElementById('send-receiver').value.trim().toLowerCase().replace('@',''); let password=document.getElementById('send-password').value; let nickname=document.getElementById('send-nickname').value.trim()||'Anonymous'; let isPublic=currentTransferMode==='public'; if(!receiver) return showToast('Receiver required','error'); if(!selectedFile) return showToast('File required','error'); if(!isPublic && !password) return showToast('Password for private','error'); setLoading('send-btn-text','send-spinner','send-now-btn',true); try{ let filePath=null; if(selectedFile){ filePath=`transfers/${Date.now()}_${selectedFile.name}`; let {error:upErr}=await sb.storage.from('transfers').upload(filePath,selectedFile); if(upErr) throw upErr; } let publicCode=isPublic?document.getElementById('generated-code').innerText:null; let {error}=await sb.from('transfers').insert([{ sender_nickname:nickname, receiver_username:receiver, file_name:selectedFile.name, file_path:filePath, password:isPublic?null:password, is_public:isPublic, public_code:publicCode }]); if(error) throw error; showToast('Sent!','success'); removeFile(); document.getElementById('send-receiver').value=''; document.getElementById('send-password').value=''; showView('menu'); }catch(e){ showToast(e.message,'error'); } setLoading('send-btn-text','send-spinner','send-now-btn',false); };
+  window.handleSend=async()=>{ 
+    let receiverInput = document.getElementById('send-receiver').value.trim();
+    let receiver = receiverInput.toLowerCase().replace('@', ''); 
+    let password=document.getElementById('send-password').value; 
+    let nickname=document.getElementById('send-nickname').value.trim()||'Anonymous'; 
+    let isPublic=currentTransferMode==='public'; 
+    if(!receiver) return showToast('Receiver required','error'); 
+    if(!selectedFile) return showToast('File required','error'); 
+    if(!isPublic && !password) return showToast('Password for private','error'); 
+    setLoading('send-btn-text','send-spinner','send-now-btn',true); 
+    try{ 
+      let filePath=null; 
+      if(selectedFile){ 
+        filePath=`transfers/${Date.now()}_${selectedFile.name}`; 
+        let {error:upErr}=await sb.storage.from('transfers').upload(filePath,selectedFile); 
+        if(upErr) throw upErr; 
+      } 
+      let publicCode=isPublic?document.getElementById('generated-code').innerText:null; 
+      let {error}=await sb.from('transfers').insert([{ 
+        sender_nickname:nickname, 
+        receiver_username:receiver, 
+        file_name:selectedFile.name, 
+        file_path:filePath, 
+        password:isPublic?null:password, 
+        is_public:isPublic, 
+        public_code:publicCode 
+      }]); 
+      if(error) throw error; 
+      showToast(`Sent successfully to @${receiver}`,'success'); 
+      removeFile(); 
+      document.getElementById('send-receiver').value=''; 
+      document.getElementById('send-password').value=''; 
+      showView('menu'); 
+    }catch(e){ 
+      showToast(e.message,'error'); 
+    } 
+    setLoading('send-btn-text','send-spinner','send-now-btn',false); 
+  };
   
   window.handleReceive=async()=>{ setLoading('receive-btn-text','receive-spinner','receive-btn',true); let resultDiv=document.getElementById('receive-result'); resultDiv.classList.add('hidden'); try{ let transfer=null; let cutoff=new Date(Date.now()-3600000).toISOString(); if(currentReceiveMode==='private'){ let user=document.getElementById('receive-username').value.trim().toLowerCase().replace('@',''); let pass=document.getElementById('receive-password').value; if(!user||!pass) throw new Error('Username/password'); let {data}=await sb.from('transfers').select('*').eq('receiver_username',user).eq('password',pass).gte('created_at',cutoff).order('created_at',{ascending:false}).limit(1); transfer=data?.[0]; } else { let code=document.getElementById('receive-code').value.trim(); if(!code||code.length!==2) throw new Error('Valid 2-digit code'); let {data}=await sb.from('transfers').select('*').eq('public_code',code).eq('is_public',true).gte('created_at',cutoff).order('created_at',{ascending:false}).limit(1); transfer=data?.[0]; } if(!transfer) throw new Error('No file found or expired'); document.getElementById('res-filename').innerText=transfer.file_name; document.getElementById('res-sender').innerText=`From: ${transfer.sender_nickname} · ${new Date(transfer.created_at).toLocaleTimeString()}`; resultDiv.classList.remove('hidden'); let dlBtn=document.getElementById('download-btn'),delBtn=document.getElementById('delete-receive-btn'); dlBtn.onclick=async()=>{ if(transfer.file_path){ let {data:blob,error}=await sb.storage.from('transfers').download(transfer.file_path); if(error) throw error; triggerDownload(blob,transfer.file_name); } }; delBtn.onclick=async()=>{ if(transfer.file_path) await sb.storage.from('transfers').remove([transfer.file_path]); await sb.from('transfers').delete().eq('id',transfer.id); resultDiv.classList.add('hidden'); showToast('Deleted','success'); }; }catch(e){ showToast(e.message,'error'); } setLoading('receive-btn-text','receive-spinner','receive-btn',false); };
   function triggerDownload(blob,name){ let a=document.createElement('a'); let url=URL.createObjectURL(blob); a.href=url; a.download=name; a.click(); URL.revokeObjectURL(url); showToast('Download started','success'); }
   
   // INBOX
-  async function fetchInbox(){ if(!currentUser) return; let cutoff=new Date(Date.now()-3600000).toISOString(); let {data}=await sb.from('transfers').select('*').eq('receiver_username',currentUser.username).gte('created_at',cutoff).order('created_at',{ascending:false}); let container=document.getElementById('inbox-list'); let badge=document.getElementById('inbox-badge'); if(!data?.length){ container.innerHTML='<div class="text-center py-10 text-gray-400">Empty inbox</div>'; badge.classList.add('hidden'); return; } badge.classList.remove('hidden'); badge.innerText=data.length; container.innerHTML=data.map(f=>`<div class="file-item p-3 rounded-xl flex gap-3 items-center"><i data-lucide="${f.is_public?'globe':'lock'}" class="w-5 h-5 text-indigo-400"></i><div class="flex-1"><div class="font-semibold">${escapeHtml(f.file_name)}</div><div class="text-xs text-gray-400">${escapeHtml(f.sender_nickname)} · ${new Date(f.created_at).toLocaleTimeString()}</div></div><div class="flex gap-2"><button onclick="openInboxItem('${f.id}','${f.password||''}',${f.is_public},'${f.file_path||''}','${escapeHtml(f.file_name)}')" class="btn btn-ghost !p-2"><i data-lucide="download" class="w-4 h-4"></i></button><button onclick="deleteInboxFile('${f.id}','${f.file_path}')" class="btn btn-danger !p-2"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></div>`).join(''); lucide.createIcons(); }
+  async function fetchInbox(){ 
+    if(!currentUser) return; 
+    let cutoff = new Date(Date.now() - (3600000 + 300000)).toISOString(); 
+    let myUsername = currentUser.username.toLowerCase().trim().replace('@', '');
+    let {data, error} = await sb.from('transfers')
+      .select('*')
+      .eq('receiver_username', myUsername)
+      .gte('created_at', cutoff)
+      .order('created_at', {ascending: false}); 
+    
+    let container=document.getElementById('inbox-list'); 
+    let badge=document.getElementById('inbox-badge'); 
+    
+    if(error) return showToast('Error fetching inbox', 'error');
+
+    if(!data?.length){ 
+      container.innerHTML='<div class="text-center py-10 text-gray-400">Empty inbox<br><span class="text-[10px]">Files expire after 1 hour</span></div>'; 
+      badge.classList.add('hidden'); 
+      return; 
+    } 
+    badge.classList.remove('hidden'); 
+    badge.innerText=data.length; 
+    container.innerHTML=data.map(f=>`
+      <div class="file-item p-3 rounded-xl flex gap-3 items-center">
+        <i data-lucide="${f.is_public?'globe':'lock'}" class="w-5 h-5 text-indigo-400"></i>
+        <div class="flex-1">
+          <div class="font-semibold truncate max-w-[150px]">${escapeHtml(f.file_name)}</div>
+          <div class="text-xs text-gray-400">From: ${escapeHtml(f.sender_nickname)}</div>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="openInboxItem('${f.id}','${f.password||''}',${f.is_public},'${f.file_path||''}','${escapeHtml(f.file_name)}')" class="btn btn-ghost !p-2">
+            <i data-lucide="download" class="w-4 h-4"></i>
+          </button>
+          <button onclick="deleteInboxFile('${f.id}','${f.file_path}')" class="btn btn-danger !p-2">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>`).join(''); 
+    lucide.createIcons(); 
+  }
   window.openInboxItem=async(id,pass,isPublic,path,name)=>{ let downloadNow=()=>{ if(path){ sb.storage.from('transfers').download(path).then(({data})=>triggerDownload(data,name)); } }; if(isPublic||!pass) return downloadNow(); let p=prompt('Enter password:'); if(p===pass) downloadNow(); else showToast('Wrong password','error'); };
   window.deleteInboxFile=async(id,path)=>{ if(path && path!=='null') await sb.storage.from('transfers').remove([path]); await sb.from('transfers').delete().eq('id',id); fetchInbox(); showToast('Deleted','success'); };
   
