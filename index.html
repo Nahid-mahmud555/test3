@@ -190,6 +190,7 @@
     let selectedFile = null;
     let currentTransferMode = 'private';
     let currentReceiveMode = 'private';
+    let currentReceiveFile = null;
     
     // Sound effects
     const playSound = (type) => {
@@ -227,6 +228,7 @@
       document.body.appendChild(overlay);
       overlay.querySelector('.cancel-btn').onclick = () => overlay.remove();
       overlay.querySelector('.confirm-btn').onclick = () => { onConfirm(); overlay.remove(); };
+      return overlay;
     };
 
     // View navigation
@@ -330,61 +332,98 @@
       badge.innerText = data.length > 99 ? '99+' : data.length;
       
       c.innerHTML = data.map(i=>`
-        <div class="glass-card p-5 flex items-center gap-4">
+        <div class="glass-card p-5 flex items-center gap-4" data-id="${i.id}">
           <i data-lucide="${i.is_public?'globe':'lock'}" class="w-6 h-6"></i>
           <div class="flex-1">
             <h4 class="font-bold">${escapeHtml(i.file_name)}</h4>
             <p class="text-xs opacity-50">${i.sender_nickname || 'anonymous'} · ${new Date(i.created_at).toLocaleTimeString()}</p>
           </div>
-          <button onclick="openInboxFile('${i.id}','${i.password||''}',${i.is_public})" class="p-3 bg-blue-600/20 rounded-xl"><i data-lucide="eye"></i></button>
-          <button onclick="deleteInboxFile('${i.id}','${i.file_path}')" class="p-3 bg-red-500/20 rounded-xl"><i data-lucide="trash-2"></i></button>
+          <button class="view-inbox-btn p-3 bg-blue-600/20 hover:bg-blue-600 rounded-xl transition-all" data-id="${i.id}" data-password="${i.password || ''}" data-ispublic="${i.is_public}"><i data-lucide="eye"></i></button>
+          <button class="delete-inbox-btn p-3 bg-red-500/20 hover:bg-red-600 rounded-xl transition-all" data-id="${i.id}" data-path="${i.file_path}"><i data-lucide="trash-2"></i></button>
         </div>
       `).join('');
+      
+      // Attach event listeners
+      document.querySelectorAll('.view-inbox-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const id = btn.dataset.id;
+          const pass = btn.dataset.password;
+          const isPublic = btn.dataset.ispublic === 'true';
+          openInboxFile(id, pass, isPublic);
+        });
+      });
+      
+      document.querySelectorAll('.delete-inbox-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const id = btn.dataset.id;
+          const path = btn.dataset.path;
+          deleteInboxFile(id, path);
+        });
+      });
+      
       lucide.createIcons();
     };
     
-    window.openInboxFile = async (id, pass, isPublic) => {
+    const openInboxFile = async (id, pass, isPublic) => {
       const {data} = await sb.from('transfers').select('*').eq('id', id).single();
-      if(isPublic || !data.password) {
-        const blob = await sb.storage.from('transfers').download(data.file_path);
-        const url = URL.createObjectURL(blob.data); 
+      if(!data) return showToast('File not found','error');
+      
+      const downloadFile = async () => {
+        const {data: blob, error} = await sb.storage.from('transfers').download(data.file_path);
+        if(error) return showToast('Download failed','error');
+        const url = URL.createObjectURL(blob); 
         const a = document.createElement('a'); 
         a.href = url; 
         a.download = data.file_name; 
         a.click();
+        URL.revokeObjectURL(url);
         playSound('receive');
-        return;
+        showToast('Downloaded!','success');
+      };
+      
+      if(isPublic || !data.password) {
+        return downloadFile();
       }
       
-      showModal('Unlock File', 'Enter password to access', async () => {
-        const pw = document.querySelector('.modal-content input')?.value;
+      const overlay = showModal('Unlock File', 'Enter password to access', async () => {
+        const pw = overlay.querySelector('#modal-password-input')?.value;
         if(pw === pass) {
-          const blob = await sb.storage.from('transfers').download(data.file_path);
-          const url = URL.createObjectURL(blob.data); 
-          const a = document.createElement('a'); 
-          a.href = url; 
-          a.download = data.file_name; 
-          a.click();
-          playSound('receive'); 
-          showToast('Downloaded!','success');
-        } else showToast('Wrong password','error');
+          await downloadFile();
+        } else {
+          showToast('Wrong password','error');
+        }
       }, 'Download');
       
-      const modal = document.querySelector('.modal-content');
-      const input = document.createElement('input'); 
-      input.type = 'password'; 
-      input.placeholder = 'Enter password'; 
-      input.className = 'input-field mb-4';
-      modal.insertBefore(input, modal.querySelector('.flex'));
+      const modalContent = overlay.querySelector('.modal-content');
+      const existingInput = modalContent.querySelector('#modal-password-input');
+      if(!existingInput) {
+        const input = document.createElement('input'); 
+        input.id = 'modal-password-input';
+        input.type = 'password'; 
+        input.placeholder = 'Enter password'; 
+        input.className = 'input-field mb-4';
+        const flexDiv = modalContent.querySelector('.flex');
+        modalContent.insertBefore(input, flexDiv);
+      }
     };
     
-    window.deleteInboxFile = (id, path) => {
-      showModal('Delete File', 'This action cannot be undone.', async () => {
-        await sb.storage.from('transfers').remove([path]);
-        await sb.from('transfers').delete().eq('id', id);
-        playSound('delete'); 
-        fetchInbox(); 
-        showToast('File deleted','success');
+    const deleteInboxFile = (id, path) => {
+      showModal('Delete File', 'This action cannot be undone. Are you sure?', async () => {
+        try {
+          const {error: storageError} = await sb.storage.from('transfers').remove([path]);
+          if(storageError) throw storageError;
+          
+          const {error: dbError} = await sb.from('transfers').delete().eq('id', id);
+          if(dbError) throw dbError;
+          
+          playSound('delete'); 
+          fetchInbox(); 
+          showToast('File deleted successfully','success');
+        } catch(e) {
+          showToast('Delete failed: ' + e.message,'error');
+        }
       }, 'Delete', true);
     };
     
@@ -406,6 +445,7 @@
 
     // Send functions
     window.handleFileSelection = (f) => { 
+      if(!f) return;
       if(f.size > 3e6) return showToast('Max 3MB','error'); 
       selectedFile = f; 
       document.getElementById('dropzone-empty').classList.add('hidden'); 
@@ -417,6 +457,7 @@
       selectedFile = null; 
       document.getElementById('dropzone-empty').classList.remove('hidden'); 
       document.getElementById('dropzone-file').classList.add('hidden'); 
+      document.getElementById('file-input').value = '';
     };
     
     window.handleSend = async () => {
@@ -427,6 +468,7 @@
       const text = document.getElementById('send-text').value;
       
       if(!rec || !nick) return showToast('Receiver and nickname required','error');
+      if(currentTransferMode === 'private' && !pass) return showToast('Password required for private mode','error');
       
       let file = selectedFile; 
       if(text && !file) file = new File([text], 'message.txt', {type: 'text/plain'});
@@ -434,77 +476,121 @@
       
       const btn = document.getElementById('send-now-btn'); 
       btn.disabled = true; 
-      btn.innerHTML = '<div class="loader-spin"></div>';
+      btn.innerHTML = '<div class="loader-spin"></div> SENDING';
       
-      const path = `${rec}/${Date.now()}_${file.name}`; 
-      await sb.storage.from('transfers').upload(path, file);
-      await sb.from('transfers').insert([{
-        receiver_username: rec,
-        password: currentTransferMode === 'private' ? pass : null,
-        is_public: currentTransferMode === 'public',
-        sender_nickname: nick,
-        description: desc,
-        file_name: file.name,
-        file_path: path,
-        created_at: new Date().toISOString()
-      }]);
-      
-      playSound('send'); 
-      showToast('🚀 Sent!','success'); 
-      showView('menu'); 
-      btn.disabled = false; 
-      btn.innerHTML = '🚀 SEND NOW';
+      try {
+        const path = `${rec}/${Date.now()}_${file.name}`; 
+        const {error: uploadError} = await sb.storage.from('transfers').upload(path, file);
+        if(uploadError) throw uploadError;
+        
+        const transferData = {
+          receiver_username: rec,
+          sender_nickname: nick,
+          description: desc || null,
+          file_name: file.name,
+          file_path: path,
+          is_public: currentTransferMode === 'public',
+          created_at: new Date().toISOString()
+        };
+        if(currentTransferMode === 'private') transferData.password = pass;
+        
+        const {error: insertError} = await sb.from('transfers').insert([transferData]);
+        if(insertError) throw insertError;
+        
+        playSound('send'); 
+        showToast('🚀 File sent successfully!','success'); 
+        showView('menu');
+        
+        // Clear form
+        document.getElementById('send-receiver').value = '';
+        document.getElementById('send-password').value = '';
+        document.getElementById('send-nickname').value = '';
+        document.getElementById('send-desc').value = '';
+        document.getElementById('send-text').value = '';
+        removeFile();
+      } catch(e) {
+        showToast(e.message || 'Send failed','error');
+      } finally {
+        btn.disabled = false; 
+        btn.innerHTML = '🚀 SEND NOW';
+      }
     };
 
     // Receive functions
     window.handleReceive = async () => {
-      let q = sb.from('transfers').select('*');
-      if(currentReceiveMode === 'private') {
-        const u = document.getElementById('receive-username').value.trim().toLowerCase();
-        const p = document.getElementById('receive-password').value;
-        if(!u || !p) return showToast('Fill fields','error');
-        q = q.eq('receiver_username', u).eq('password', p);
-      } else {
-        const c = document.getElementById('receive-code').value.trim();
-        if(c.length !== 2) return showToast('Enter 2-digit code','error');
-        q = q.eq('public_code', c).eq('is_public', true);
+      const btn = document.querySelector('#view-receive .btn-primary');
+      btn.disabled = true;
+      btn.innerHTML = '<div class="loader-spin"></div> SEARCHING';
+      
+      try {
+        let q = sb.from('transfers').select('*');
+        if(currentReceiveMode === 'private') {
+          const u = document.getElementById('receive-username').value.trim().toLowerCase();
+          const p = document.getElementById('receive-password').value;
+          if(!u || !p) throw new Error('Username and password required');
+          q = q.eq('receiver_username', u).eq('password', p);
+        } else {
+          const c = document.getElementById('receive-code').value.trim();
+          if(c.length !== 2) throw new Error('Enter 2-digit code');
+          q = q.eq('public_code', c).eq('is_public', true);
+        }
+        
+        const {data} = await q.order('created_at', {ascending: false}).limit(1); 
+        if(!data?.length) throw new Error('No file found');
+        
+        currentReceiveFile = data[0];
+        const t = currentReceiveFile;
+        const resultDiv = document.getElementById('receive-result');
+        resultDiv.classList.remove('hidden'); 
+        document.getElementById('res-filename').innerText = t.file_name;
+        document.getElementById('res-sender').innerText = `from ${t.sender_nickname || 'anonymous'}`;
+        
+        // Setup download button
+        document.getElementById('download-btn').onclick = async () => {
+          const {data: blob} = await sb.storage.from('transfers').download(t.file_path);
+          const url = URL.createObjectURL(blob); 
+          const a = document.createElement('a'); 
+          a.href = url; 
+          a.download = t.file_name; 
+          a.click();
+          URL.revokeObjectURL(url);
+          playSound('receive');
+        };
+        
+        // Setup delete button
+        document.getElementById('receive-delete-btn').onclick = () => {
+          showModal('Delete File', 'Remove this file permanently?', async () => {
+            try {
+              await sb.storage.from('transfers').remove([t.file_path]);
+              await sb.from('transfers').delete().eq('id', t.id);
+              resultDiv.classList.add('hidden');
+              currentReceiveFile = null;
+              playSound('delete');
+              showToast('File deleted','success');
+            } catch(e) {
+              showToast('Delete failed','error');
+            }
+          }, 'Delete', true);
+        };
+        
+        playSound('success');
+      } catch(e) {
+        showToast(e.message,'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '🔓 DECRYPT & OPEN';
       }
-      
-      const {data} = await q.order('created_at', {ascending: false}).limit(1); 
-      if(!data?.length) return showToast('No file found','error');
-      
-      const t = data[0]; 
-      document.getElementById('receive-result').classList.remove('hidden'); 
-      document.getElementById('res-filename').innerText = t.file_name;
-      document.getElementById('res-sender').innerText = `from ${t.sender_nickname || 'anonymous'}`;
-      
-      document.getElementById('download-btn').onclick = async () => {
-        const blob = await sb.storage.from('transfers').download(t.file_path);
-        const url = URL.createObjectURL(blob.data); 
-        const a = document.createElement('a'); 
-        a.href = url; 
-        a.download = t.file_name; 
-        a.click();
-        playSound('receive');
-      };
-      
-      document.getElementById('receive-delete-btn').onclick = () => showModal('Delete File', 'Remove this file?', async () => {
-        await sb.storage.from('transfers').remove([t.file_path]);
-        await sb.from('transfers').delete().eq('id', t.id);
-        document.getElementById('receive-result').classList.add('hidden');
-        playSound('delete');
-      }, 'Delete', true);
     };
 
-    // Community functions (placeholder)
+    // Community functions
     window.handleCreateCommunity = () => showToast('Community feature coming soon','info');
     window.handleJoinCommunity = () => showToast('Community feature coming soon','info');
     
-    const escapeHtml = s => s ? s.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])) : '';
+    const escapeHtml = s => s ? String(s).replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])) : '';
 
     // Initialize
     window.onload = () => {
-      // Hide loading screen after 2 seconds
+      // Hide loading screen
       setTimeout(() => {
         document.getElementById('loading-screen').style.opacity = '0';
         setTimeout(() => {
@@ -539,16 +625,22 @@
         if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
       });
       
-      // Code feedback
-      document.getElementById('receive-code')?.addEventListener('input', async e => {
-        const v = e.target.value.replace(/\D/g,''); e.target.value = v;
-        const fb = document.getElementById('code-feedback');
-        if(v.length === 2) {
-          fb.innerHTML = '<span class="text-blue-400">searching...</span>';
-          const {data} = await sb.from('transfers').select('id').eq('public_code', v).eq('is_public', true).limit(1);
-          fb.innerHTML = data?.length ? '<span class="text-green-400">✓ file found</span>' : '<span class="text-red-400">✗ no file</span>';
-        } else fb.innerHTML = '';
-      });
+      // Code feedback for receive
+      const codeInput = document.getElementById('receive-code');
+      if(codeInput) {
+        codeInput.addEventListener('input', async e => {
+          const v = e.target.value.replace(/\D/g,''); 
+          e.target.value = v;
+          const fb = document.getElementById('code-feedback');
+          if(v.length === 2) {
+            fb.innerHTML = '<span class="text-blue-400">searching...</span>';
+            const {data} = await sb.from('transfers').select('id').eq('public_code', v).eq('is_public', true).limit(1);
+            fb.innerHTML = data?.length ? '<span class="text-green-400">✓ file found</span>' : '<span class="text-red-400">✗ no file</span>';
+          } else {
+            fb.innerHTML = '';
+          }
+        });
+      }
       
       showView('landing');
       lucide.createIcons();
@@ -556,6 +648,8 @@
     
     // Expose to window
     window.showView = showView;
+    window.openInboxFile = openInboxFile;
+    window.deleteInboxFile = deleteInboxFile;
   })();
 </script>
 </body>
