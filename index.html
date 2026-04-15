@@ -212,11 +212,11 @@
     window.setTransferMode = (m) => { currentTransferMode=m; document.getElementById('mode-private').classList.toggle('bg-blue-600',m==='private'); document.getElementById('mode-public').classList.toggle('bg-blue-600',m==='public'); document.getElementById('private-fields').classList.toggle('hidden',m!=='private'); };
     window.setReceiveMode = (m) => { currentReceiveMode=m; document.getElementById('recv-mode-private').classList.toggle('bg-purple-600',m==='private'); document.getElementById('recv-mode-public').classList.toggle('bg-purple-600',m==='public'); document.getElementById('receive-private-fields').classList.toggle('hidden',m!=='private'); document.getElementById('receive-public-fields').classList.toggle('hidden',m!=='public'); };
 
-    // AUTH (working)
+    // AUTH (FIXED: removed last_active)
     window.handleSignup = async () => {
       const n = document.getElementById('signup-name').value.trim(), u = document.getElementById('signup-username').value.trim().toLowerCase(), p = document.getElementById('signup-password').value;
       if(!n||!u||p.length<8) return showToast('Name, username, password (min 8) required','error');
-      const {error} = await sb.from('users').insert([{name:n,username:u,password:p,bio:'',last_active:new Date()}]);
+      const {error} = await sb.from('users').insert([{name:n,username:u,password:p,bio:''}]);
       if(error) return showToast(error.code==='23505'?'Username taken':error.message,'error');
       showToast('Account created! Please login','success'); showView('login');
     };
@@ -228,7 +228,6 @@
       document.getElementById('user-display').classList.remove('hidden'); document.getElementById('nav-username').innerText = `@${u}`;
       document.getElementById('profile-name').innerText=data.name; document.getElementById('profile-username').innerText=`@${u}`; document.getElementById('profile-bio').value=data.bio||'';
       showToast(`Welcome ${data.name}`,'success'); showView('menu'); fetchInbox(); subscribeInbox(); fetchMyCommunities();
-      await sb.from('users').update({last_active:new Date()}).eq('id',data.id);
     };
     window.handleLogout = async () => { if(inboxSubscription) sb.removeChannel(inboxSubscription); clearInterval(autoLogoutTimer); currentUser=null; document.getElementById('user-display').classList.add('hidden'); document.getElementById('auto-logout-timer').classList.add('hidden'); showView('landing'); showToast('Logged out','info'); };
     window.updateBio = async () => { const b = document.getElementById('profile-bio').value.slice(0,101); await sb.from('users').update({bio:b}).eq('id',currentUser.id); currentUser.bio=b; showToast('Bio updated','success'); };
