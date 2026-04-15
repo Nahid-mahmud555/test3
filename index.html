@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>EX · Just Use It</title>
-  <!-- Tailwind + Lucide + Supabase (loaded once) -->
+  <!-- Tailwind + Lucide + Supabase -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -34,7 +34,6 @@
       margin: 0; min-height: 100vh; transition: background 0.2s, color 0.2s;
       -webkit-font-smoothing: antialiased;
     }
-    /* atmosphere glow */
     .bg-glow { position: fixed; inset: 0; pointer-events: none; z-index: -1; }
     .glow-orb {
       position: absolute; width: 70vw; height: 70vw; border-radius: 50%; filter: blur(140px);
@@ -42,7 +41,6 @@
     }
     @keyframes floatGlow { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(5%, 5%) scale(1.05); } }
     
-    /* glassmorphism with backdrop */
     .glass {
       background: var(--glass-bg); backdrop-filter: blur(18px);
       border: 1px solid var(--glass-border); border-radius: 32px;
@@ -73,13 +71,13 @@
     .view.active { display: block; }
     @keyframes viewFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     
-    /* animated slogan */
-    .slogan-glow {
-      background: linear-gradient(135deg, #a5f3fc, #fde047, #f0abfc, #a5f3fc);
-      background-size: 300% 300%; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      animation: gradientText 7s infinite alternate; font-weight: 800; letter-spacing: 1px;
+    /* colorful animated slogan */
+    .slogan-animated {
+      background: linear-gradient(135deg, #a5f3fc, #fde047, #f0abfc, #a5f3fc, #6ee7b7);
+      background-size: 400% 400%; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      animation: gradientFlow 8s infinite alternate; font-weight: 800; letter-spacing: 1px;
     }
-    @keyframes gradientText { 0% { background-position: 0% 30%; } 100% { background-position: 100% 70%; } }
+    @keyframes gradientFlow { 0% { background-position: 0% 30%; } 100% { background-position: 100% 70%; } }
     
     .loading-screen {
       position: fixed; inset: 0; background: #05050a; z-index: 9999; display: flex;
@@ -91,7 +89,6 @@
     .toast { animation: slideToast 0.2s; backdrop-filter: blur(20px); }
     @keyframes slideToast { from { transform: translateX(30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     
-    /* modern code input */
     .code-digit-box {
       background: var(--input-bg); border: 2px solid var(--glass-border);
       border-radius: 28px; padding: 0.8rem 0; text-align: center; font-size: 2.8rem;
@@ -106,7 +103,7 @@
 <div id="loading-screen" class="loading-screen">
   <div class="text-center">
     <div class="text-[110px] font-black tracking-[-6px] text-[#ffcc00] drop-shadow-2xl">EX</div>
-    <div class="slogan-glow text-3xl mt-2">Just Use It</div>
+    <div class="slogan-animated text-3xl mt-2">Just Use It</div>
     <div class="loader-spin mx-auto mt-8"></div>
   </div>
 </div>
@@ -120,7 +117,7 @@
 
   <div id="toast-container" class="fixed top-5 right-5 z-[200] flex flex-col gap-3 pointer-events-none"></div>
 
-  <!-- minimal modal -->
+  <!-- modal -->
   <div id="custom-modal" class="fixed inset-0 z-[150] hidden flex items-center justify-center p-6 bg-black/60 backdrop-blur-md">
     <div class="glass max-w-md w-full p-8 space-y-5">
       <div><h3 id="modal-title" class="text-2xl font-black">Title</h3><p id="modal-desc" class="text-sm opacity-60"></p></div>
@@ -130,14 +127,14 @@
   </div>
 
   <div id="main-content">
-    <!-- NAVBAR clean -->
+    <!-- NAVBAR: user display hidden until login -->
     <nav class="px-6 py-6 flex justify-between items-center max-w-6xl mx-auto">
       <div class="flex items-center gap-3 cursor-pointer" onclick="showView('landing')">
         <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-xl shadow-blue-500/30"><i data-lucide="zap" class="text-white w-6 h-6"></i></div>
         <div><span class="text-2xl font-black tracking-tight">EX<span class="text-blue-400">·PORTAL</span></span><span class="block text-[10px] uppercase tracking-[0.3em] opacity-40">Just Use It</span></div>
       </div>
       <div class="flex items-center gap-4">
-        <div id="user-display" class="hidden md:flex items-center gap-3 glass-card px-5 py-2.5 cursor-pointer" onclick="showView('profile')"><i data-lucide="user" class="w-4 h-4 text-blue-400"></i><span id="nav-username" class="font-semibold text-sm">guest</span></div>
+        <div id="user-display" class="hidden md:flex items-center gap-3 glass-card px-5 py-2.5 cursor-pointer" onclick="showView('profile')"><i data-lucide="user" class="w-4 h-4 text-blue-400"></i><span id="nav-username" class="font-semibold text-sm"></span></div>
         <button onclick="toggleTheme()" class="w-12 h-12 rounded-2xl glass flex items-center justify-center"><i id="theme-icon" data-lucide="sun" class="w-5 h-5"></i></button>
       </div>
     </nav>
@@ -147,7 +144,7 @@
       <div id="view-landing" class="view active">
         <div class="text-center mb-12">
           <h2 class="text-6xl md:text-7xl font-black tracking-tight">WELCOME TO <span class="text-blue-500">EX</span></h2>
-          <p class="text-xl opacity-70 mt-3 slogan-glow inline-block px-6 py-2">Just Use It — secure ephemeral sharing</p>
+          <p class="text-xl mt-3 slogan-animated inline-block px-6 py-2">Just Use It — secure ephemeral sharing</p>
         </div>
         <div class="grid md:grid-cols-2 gap-7">
           <div class="glass-card p-10 cursor-pointer" onclick="showView('signup')"><i data-lucide="user-plus" class="w-12 h-12 text-blue-400 mb-5"></i><h3 class="text-4xl font-black">SIGN UP</h3><p class="opacity-50 text-lg">Create identity</p><div class="mt-8 text-blue-400 flex items-center gap-2 font-bold">Get started <i data-lucide="arrow-right" class="w-4 h-4"></i></div></div>
@@ -159,7 +156,7 @@
         <div class="mt-10 text-center"><button onclick="showView('login')" class="text-blue-400 font-bold text-lg hover:underline">Already have account? Login →</button></div>
       </div>
 
-      <!-- SIGNUP/LOGIN/PROFILE (modern) -->
+      <!-- SIGNUP / LOGIN / PROFILE -->
       <div id="view-signup" class="view"><div class="max-w-md mx-auto glass-card p-9 space-y-6"><h2 class="text-3xl font-black">Create account</h2><input id="signup-name" placeholder="Full name" class="input-field"><input id="signup-username" placeholder="username" class="input-field"><input id="signup-password" type="password" placeholder="Password (min 8)" class="input-field"><button onclick="handleSignup()" class="w-full btn-primary py-4 text-lg">SIGN UP</button><button onclick="showView('landing')" class="w-full text-sm opacity-60">Cancel</button></div></div>
       <div id="view-login" class="view"><div class="max-w-md mx-auto glass-card p-9 space-y-6"><h2 class="text-3xl font-black">Portal login</h2><input id="login-username" placeholder="username" class="input-field"><input id="login-password" type="password" placeholder="••••••••" class="input-field"><button onclick="handleLogin()" class="w-full btn-primary py-4 text-lg">ENTER</button><button onclick="showView('landing')" class="w-full text-sm opacity-60">Cancel</button></div></div>
       <div id="view-profile" class="view"><div class="max-w-2xl mx-auto glass-card p-9 space-y-6"><div class="flex gap-4"><button onclick="showView('menu')" class="p-3 glass"><i data-lucide="chevron-left"></i></button><h2 class="text-3xl font-black">Profile</h2></div><div class="flex gap-6"><div class="w-20 h-20 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-3xl flex items-center justify-center shadow-xl"><i data-lucide="user" class="w-10 h-10 text-white"></i></div><div><h3 id="profile-name" class="text-2xl font-black"></h3><p id="profile-username" class="text-blue-400 font-bold"></p></div></div><textarea id="profile-bio" maxlength="101" placeholder="Bio · max 101 letters" class="input-field min-h-[110px]"></textarea><button onclick="updateBio()" class="w-full bg-white/5 py-4 rounded-2xl font-bold">SAVE BIO</button><button onclick="handleLogout()" class="text-red-400 font-medium">Logout</button></div></div>
@@ -167,19 +164,15 @@
       <!-- MENU -->
       <div id="view-menu" class="view"><div class="flex gap-4 mb-7"><button onclick="showView('landing')" class="p-3 glass"><i data-lucide="chevron-left"></i></button><h2 class="text-4xl font-black">EX PORTAL</h2></div><div class="text-center mb-10"><h2 class="text-5xl font-black">DROP <span class="text-blue-400">FILES</span></h2><p class="opacity-60 text-lg">Auto-delete 1h</p></div><div class="grid md:grid-cols-2 gap-6"><div class="glass-card p-9 cursor-pointer relative" onclick="showView('inbox')"><i data-lucide="inbox" class="w-12 h-12 text-green-400 mb-5"></i><h3 class="text-3xl font-bold">INBOX</h3><span id="inbox-badge" class="hidden absolute top-6 right-6 bg-red-500 text-white text-xs font-black px-3 py-1.5 rounded-full">0</span></div><div class="glass-card p-9 cursor-pointer" onclick="showView('send')"><i data-lucide="send" class="w-12 h-12 text-blue-400 mb-5"></i><h3 class="text-3xl font-bold">SEND</h3></div><div class="glass-card p-9 cursor-pointer" onclick="showView('receive')"><i data-lucide="download" class="w-12 h-12 text-purple-400 mb-5"></i><h3 class="text-3xl font-bold">RECEIVE</h3></div><div class="glass-card p-9 cursor-pointer" onclick="showView('community-hub')"><i data-lucide="users" class="w-12 h-12 text-orange-400 mb-5"></i><h3 class="text-3xl font-bold">COMMUNITY</h3></div></div></div>
 
-      <!-- COMMUNITY (single entry) -->
+      <!-- COMMUNITY (single hub) -->
       <div id="view-community-hub" class="view"><div class="flex gap-4 mb-7"><button onclick="showView('menu')" class="p-3 glass"><i data-lucide="chevron-left"></i></button><h2 class="text-4xl font-black">EX COMMUNITY</h2></div><div id="joined-communities-section" class="hidden mb-9"><h3 class="text-xs uppercase tracking-wider mb-3">Your groups</h3><div id="my-communities-list" class="grid grid-cols-2 gap-4"></div></div><div class="grid grid-cols-2 gap-6"><div class="glass-card p-9 cursor-pointer" onclick="showView('create-community')"><i data-lucide="plus-circle" class="w-12 h-12 text-orange-400"></i><h3 class="text-3xl font-bold mt-5">CREATE</h3></div><div class="glass-card p-9 cursor-pointer" onclick="showView('join-community')"><i data-lucide="user-plus" class="w-12 h-12 text-blue-400"></i><h3 class="text-3xl font-bold mt-5">JOIN</h3></div></div></div>
       <div id="view-create-community" class="view"><div class="max-w-md mx-auto glass-card p-8"><h2 class="text-3xl font-black mb-5">Start room</h2><input id="comm-create-name" placeholder="room_name" class="input-field mb-3"><input id="comm-create-sentence" placeholder="secret sentence" class="input-field mb-3"><textarea id="comm-create-bio" placeholder="bio" class="input-field mb-5"></textarea><button onclick="handleCreateCommunity()" class="w-full bg-orange-600 py-4 rounded-2xl text-white font-black text-lg">CREATE ROOM</button><button onclick="showView('community-hub')" class="w-full text-sm mt-4 opacity-60">Cancel</button></div></div>
       <div id="view-join-community" class="view"><div class="max-w-md mx-auto glass-card p-8"><h2 class="text-3xl font-black mb-5">Join room</h2><input id="comm-join-name" placeholder="room name" class="input-field mb-3"><input id="comm-join-sentence" placeholder="secret sentence" class="input-field mb-5"><button onclick="handleJoinCommunity()" class="w-full bg-blue-600 py-4 rounded-2xl text-white font-black text-lg">ENTER ROOM</button><button onclick="showView('community-hub')" class="w-full text-sm mt-4 opacity-60">Cancel</button></div></div>
       <div id="view-community-room" class="view"><div class="flex flex-col lg:flex-row gap-7"><div class="lg:w-1/3 glass-card p-7"><button onclick="showView('community-hub')" class="mb-5"><i data-lucide="chevron-left"></i> back</button><h3 id="room-name" class="text-3xl font-black"></h3><p id="room-bio" class="text-sm opacity-50"></p><div class="mt-5"><h4 class="text-xs uppercase tracking-wider">Members</h4><div id="member-list" class="space-y-2 mt-2"></div></div></div><div class="lg:w-2/3 glass-card p-7"><h3 class="text-2xl font-black mb-5">FILES</h3><div id="comm-dropzone" class="border-2 border-dashed border-white/20 p-8 rounded-3xl text-center cursor-pointer hover:border-blue-400/60 transition"><input type="file" id="comm-file-input" class="hidden"><div id="comm-dropzone-empty"><i data-lucide="upload-cloud" class="w-10 h-10 mx-auto opacity-60"></i><p class="mt-2">Drop file (max 3MB)</p></div><div id="comm-dropzone-file" class="hidden"><p id="comm-file-name-display" class="font-bold"></p><span class="text-green-400">ready</span></div></div><div class="flex gap-4 mt-5"><button id="comm-send-btn" class="flex-1 bg-orange-600 py-4 rounded-2xl font-black">SEND</button><button onclick="removeCommFile()" class="bg-red-500/20 hover:bg-red-500/40 px-6 rounded-2xl">Remove</button></div><div id="comm-file-list" class="mt-7 space-y-4"></div></div></div></div>
 
-      <!-- INBOX / SEND / RECEIVE modern -->
+      <!-- INBOX / SEND / RECEIVE -->
       <div id="view-inbox" class="view"><div class="flex gap-4 mb-7"><button onclick="showView('menu')" class="p-3 glass"><i data-lucide="chevron-left"></i></button><h2 class="text-3xl font-black">INBOX</h2></div><div id="inbox-list" class="space-y-4"></div></div>
-      
-      <!-- SEND -->
       <div id="view-send" class="view"><div class="flex gap-4 mb-7"><button onclick="showView('menu')" class="p-3 glass"><i data-lucide="chevron-left"></i></button><h2 class="text-3xl font-black">SEND</h2></div><div class="grid lg:grid-cols-2 gap-7"><div class="glass-card p-7"><div class="flex gap-3 mb-5"><button onclick="setTransferMode('private')" id="mode-private" class="bg-blue-600 px-5 py-2 rounded-full text-sm font-bold">Private</button><button onclick="setTransferMode('public')" id="mode-public" class="px-5 py-2 rounded-full text-sm">Public</button></div><input id="send-receiver" placeholder="@username" class="input-field mb-4"><div id="private-fields"><input id="send-password" type="password" placeholder="secret" class="input-field mb-4"></div><input id="send-nickname" placeholder="Your nickname" class="input-field mb-4"><input id="send-desc" placeholder="description" class="input-field"></div><div class="glass-card p-7"><div id="dropzone" class="border-2 border-dashed border-white/20 p-8 rounded-3xl text-center cursor-pointer hover:border-blue-400/60"><input type="file" id="file-input" class="hidden"><div id="dropzone-empty"><i data-lucide="upload-cloud" class="w-10 h-10 mx-auto opacity-60"></i><p>Drop file</p></div><div id="dropzone-file" class="hidden"><p id="file-name-display" class="font-bold"></p><span class="text-green-400">ready</span></div></div><textarea id="send-text" placeholder="or type message..." class="input-field mt-5 h-28"></textarea><div class="flex gap-4 mt-5"><button onclick="handleSend()" class="flex-1 btn-primary py-4 text-lg">SEND NOW</button><button onclick="removeFile()" class="bg-red-500/20 hover:bg-red-500/40 px-6 rounded-2xl">Remove</button></div></div></div></div>
-
-      <!-- RECEIVE (fast public search) -->
       <div id="view-receive" class="view"><div class="max-w-xl mx-auto glass-card p-9"><div class="flex gap-4 mb-7"><button onclick="showView('menu')" class="p-3 glass"><i data-lucide="chevron-left"></i></button><h2 class="text-3xl font-black">RECEIVE</h2></div><div class="flex mb-7"><button onclick="setReceiveMode('private')" id="recv-mode-private" class="flex-1 bg-purple-600 py-3 rounded-l-2xl font-bold text-sm">Private</button><button onclick="setReceiveMode('public')" id="recv-mode-public" class="flex-1 py-3 rounded-r-2xl text-sm">Public code</button></div><div id="receive-private-fields"><input id="receive-username" placeholder="@username" class="input-field mb-4"><input id="receive-password" type="password" placeholder="password" class="input-field mb-4"></div><div id="receive-public-fields" class="hidden"><label class="text-xs uppercase tracking-wider block mb-2">2‑digit code</label><input id="receive-code" type="text" inputmode="numeric" maxlength="2" placeholder="00" class="code-digit-box w-full" autocomplete="off"><div id="code-feedback" class="text-sm mt-2 h-5 text-red-400"></div></div><button onclick="handleReceive()" class="w-full bg-purple-600 hover:bg-purple-700 py-5 rounded-2xl font-black text-white text-lg shadow-xl shadow-purple-600/30">DECRYPT & OPEN</button><div id="receive-result" class="hidden mt-8 glass p-6 rounded-3xl"><div class="flex items-center gap-4"><i data-lucide="file-check" class="text-green-400 w-8 h-8"></i><div><h4 id="res-filename" class="font-bold text-lg"></h4><p id="res-sender" class="text-xs text-purple-300"></p></div><div class="ml-auto flex gap-2"><button id="download-btn" class="p-3 bg-blue-600/20 rounded-xl"><i data-lucide="download"></i></button><button id="receive-delete-btn" class="p-3 bg-red-500/20 rounded-xl"><i data-lucide="trash-2"></i></button></div></div></div></div></div>
     </main>
   </div>
@@ -191,7 +184,7 @@
   (function(){
     const sb = supabase.createClient('https://ersmbkzwcukkqkyrveqt.supabase.co', 'sb_publishable_2w2WWtOBoKtNArFLZ51B-A_WYLCy0XD');
     let currentUser = null, selectedFile = null, selectedCommFile = null, currentTransferMode = 'private', currentReceiveMode = 'private', currentCommunity = null;
-    let inboxSubscription = null, autoLogoutTimer = null;
+    let inboxSubscription = null, autoLogoutTimer = null, sessionStart = Date.now();
 
     const showToast = (msg, type='info') => {
       const c = document.getElementById('toast-container'); const t = document.createElement('div');
@@ -202,7 +195,6 @@
     const escapeHtml = s => s ? s.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])) : '';
 
     function startTimer() { if(autoLogoutTimer) clearInterval(autoLogoutTimer); document.getElementById('auto-logout-timer').classList.remove('hidden'); autoLogoutTimer = setInterval(() => { if(!currentUser) return; const rem = 3600 - Math.floor((Date.now()-sessionStart)/1000); if(rem<=0) { handleLogout(); } else document.getElementById('auto-logout-timer').innerHTML = `⏱️ ${Math.floor(rem/60)}:${(rem%60).toString().padStart(2,'0')}`; },1000); }
-    let sessionStart = Date.now();
 
     const showView = (name) => {
       document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
@@ -220,18 +212,18 @@
     window.setTransferMode = (m) => { currentTransferMode=m; document.getElementById('mode-private').classList.toggle('bg-blue-600',m==='private'); document.getElementById('mode-public').classList.toggle('bg-blue-600',m==='public'); document.getElementById('private-fields').classList.toggle('hidden',m!=='private'); };
     window.setReceiveMode = (m) => { currentReceiveMode=m; document.getElementById('recv-mode-private').classList.toggle('bg-purple-600',m==='private'); document.getElementById('recv-mode-public').classList.toggle('bg-purple-600',m==='public'); document.getElementById('receive-private-fields').classList.toggle('hidden',m!=='private'); document.getElementById('receive-public-fields').classList.toggle('hidden',m!=='public'); };
 
-    // Auth
+    // AUTH (working)
     window.handleSignup = async () => {
       const n = document.getElementById('signup-name').value.trim(), u = document.getElementById('signup-username').value.trim().toLowerCase(), p = document.getElementById('signup-password').value;
-      if(!n||!u||p.length<8) return showToast('Invalid','error');
+      if(!n||!u||p.length<8) return showToast('Name, username, password (min 8) required','error');
       const {error} = await sb.from('users').insert([{name:n,username:u,password:p,bio:'',last_active:new Date()}]);
       if(error) return showToast(error.code==='23505'?'Username taken':error.message,'error');
-      showToast('Account created','success'); showView('login');
+      showToast('Account created! Please login','success'); showView('login');
     };
     window.handleLogin = async () => {
       const u = document.getElementById('login-username').value.trim().toLowerCase(), p = document.getElementById('login-password').value;
       const {data,error} = await sb.from('users').select('*').eq('username',u).eq('password',p).single();
-      if(error||!data) return showToast('Invalid','error');
+      if(error||!data) return showToast('Invalid credentials','error');
       currentUser=data; sessionStart=Date.now(); startTimer();
       document.getElementById('user-display').classList.remove('hidden'); document.getElementById('nav-username').innerText = `@${u}`;
       document.getElementById('profile-name').innerText=data.name; document.getElementById('profile-username').innerText=`@${u}`; document.getElementById('profile-bio').value=data.bio||'';
@@ -245,50 +237,43 @@
     window.downloadInbox = async (id,pass,isPublic) => { const {data} = await sb.from('transfers').select('*').eq('id',id).single(); const download = async () => { const blob = await sb.storage.from('transfers').download(data.file_path); const url=URL.createObjectURL(blob.data); const a=document.createElement('a'); a.href=url; a.download=data.file_name; a.click(); }; if(isPublic||!data.password) download(); else { const pw=prompt('Password'); if(pw===pass) download(); else showToast('Wrong','error'); } };
     const subscribeInbox = () => { if(!currentUser) return; inboxSubscription = sb.channel('inbox').on('postgres_changes',{event:'INSERT',schema:'public',table:'transfers',filter:`receiver_username=eq.${currentUser.username}`},()=>{ fetchInbox(); showToast('New file!','success'); }).subscribe(); };
 
-    // Community (fast)
     const fetchMyCommunities = async () => { const {data} = await sb.from('community_members').select('community_id, communities(*)').eq('user_id',currentUser.id); const sec=document.getElementById('joined-communities-section'); if(data?.length) { sec.classList.remove('hidden'); document.getElementById('my-communities-list').innerHTML = data.map(i=>`<div onclick="enterCommunityRoom('${i.communities.id}')" class="glass-card p-5 cursor-pointer font-bold">${escapeHtml(i.communities.name)}</div>`).join(''); } else sec.classList.add('hidden'); };
-    window.handleCreateCommunity = async () => { /* same as before */ };
-    window.handleJoinCommunity = async () => { /* same */ };
+    window.handleCreateCommunity = async () => { const n=document.getElementById('comm-create-name').value.trim().toLowerCase(), s=document.getElementById('comm-create-sentence').value.trim(), b=document.getElementById('comm-create-bio').value.trim(); if(!n||!s) return showToast('Fill fields','error'); const {data:comm,error} = await sb.from('communities').insert([{name:n,secret_sentence:s,bio:b,creator_id:currentUser.id}]).select().single(); if(error) return showToast('Name taken','error'); await sb.from('community_members').insert([{community_id:comm.id,user_id:currentUser.id,role:'admin',permissions:{can_send:true}}]); showToast('Created','success'); enterCommunityRoom(comm.id); };
+    window.handleJoinCommunity = async () => { const n=document.getElementById('comm-join-name').value.trim().toLowerCase(), s=document.getElementById('comm-join-sentence').value.trim(); const {data:comm} = await sb.from('communities').select('*').eq('name',n).eq('secret_sentence',s).single(); if(!comm) return showToast('Invalid','error'); await sb.from('community_members').upsert([{community_id:comm.id,user_id:currentUser.id,role:'member'}]); enterCommunityRoom(comm.id); };
     window.enterCommunityRoom = async (id) => { currentCommunity = (await sb.from('communities').select('*').eq('id',id).single()).data; document.getElementById('room-name').innerText=currentCommunity.name; document.getElementById('room-bio').innerText=currentCommunity.bio||''; showView('community-room'); fetchCommunityFiles(); };
     window.removeCommFile = () => { selectedCommFile=null; document.getElementById('comm-dropzone-empty').classList.remove('hidden'); document.getElementById('comm-dropzone-file').classList.add('hidden'); };
     const fetchCommunityFiles = async () => { const {data} = await sb.from('community_files').select('*, users(*)').eq('community_id',currentCommunity.id).order('created_at',{ascending:false}); document.getElementById('comm-file-list').innerHTML = data?.length ? data.map(f=>`<div class="flex justify-between"><span>${escapeHtml(f.file_name)}</span><button onclick="downloadCommFile('${f.id}')"><i data-lucide="download"></i></button></div>`).join('') : '<p class="opacity-40">No files</p>'; lucide.createIcons(); };
     window.downloadCommFile = async (id) => { const {data} = await sb.from('community_files').select('*').eq('id',id).single(); const blob = await sb.storage.from('transfers').download(data.file_path); const url=URL.createObjectURL(blob.data); const a=document.createElement('a'); a.href=url; a.download=data.file_name; a.click(); };
 
-    // SEND
     window.handleFileSelection = (f) => { if(f.size>3e6) return showToast('Max 3MB','error'); selectedFile=f; document.getElementById('dropzone-empty').classList.add('hidden'); document.getElementById('dropzone-file').classList.remove('hidden'); document.getElementById('file-name-display').innerText=f.name; };
     window.removeFile = () => { selectedFile=null; document.getElementById('dropzone-empty').classList.remove('hidden'); document.getElementById('dropzone-file').classList.add('hidden'); };
-    window.handleSend = async () => { /* same logic */ };
-
-    // RECEIVE FAST PUBLIC SEARCH
-    const codeInput = document.getElementById('receive-code'), feedback = document.getElementById('code-feedback');
-    codeInput?.addEventListener('input', async (e) => {
-      const v = e.target.value.replace(/\D/g,''); e.target.value = v;
-      if(v.length === 2) {
-        feedback.innerHTML = '<span class="text-blue-400">searching...</span>';
-        const {data, error} = await sb.from('transfers').select('id').eq('public_code', v).eq('is_public', true).limit(1);
-        if(data?.length) feedback.innerHTML = '<span class="text-green-400">✓ file found</span>';
-        else feedback.innerHTML = '<span class="text-red-400">✗ no file with this code</span>';
-      } else feedback.innerHTML = '';
-    });
-    window.handleReceive = async () => {
-      let query = sb.from('transfers').select('*');
-      if(currentReceiveMode==='private'){
-        const u = document.getElementById('receive-username').value.trim().toLowerCase(), p = document.getElementById('receive-password').value;
-        if(!u||!p) return showToast('Fill fields','error');
-        query = query.eq('receiver_username',u).eq('password',p);
-      } else {
-        const code = document.getElementById('receive-code').value.trim();
-        if(!code||code.length!==2) return showToast('Enter 2-digit code','error');
-        query = query.eq('public_code',code).eq('is_public',true);
-      }
-      const {data} = await query.order('created_at',{ascending:false}).limit(1);
-      if(!data?.length) return showToast('No file found','error');
-      const t = data[0];
-      document.getElementById('receive-result').classList.remove('hidden');
-      document.getElementById('res-filename').innerText = t.file_name;
-      document.getElementById('res-sender').innerText = `from ${t.sender_nickname||'anonymous'}`;
-      document.getElementById('download-btn').onclick = async ()=>{ const blob = await sb.storage.from('transfers').download(t.file_path); const url=URL.createObjectURL(blob.data); const a=document.createElement('a'); a.href=url; a.download=t.file_name; a.click(); };
+    window.handleSend = async () => {
+      const rec = document.getElementById('send-receiver').value.trim().toLowerCase(), pass = document.getElementById('send-password').value, nick = document.getElementById('send-nickname').value.trim(), desc = document.getElementById('send-desc').value, text = document.getElementById('send-text').value;
+      if(!rec||!nick) return showToast('Receiver and nickname required','error');
+      let file = selectedFile; if(text&&!file) file = new File([text],'message.txt',{type:'text/plain'}); if(!file) return showToast('Select file or type message','error');
+      const btn = document.getElementById('send-now-btn'); btn.disabled=true; btn.innerHTML='<div class="loader-spin"></div>';
+      const path = `${rec}/${Date.now()}_${file.name}`; await sb.storage.from('transfers').upload(path, file);
+      await sb.from('transfers').insert([{receiver_username:rec,password:currentTransferMode==='private'?pass:null,is_public:currentTransferMode==='public',sender_nickname:nick,description:desc,file_name:file.name,file_path:path}]);
+      showToast('Sent!','success'); showView('menu'); btn.disabled=false; btn.innerHTML='SEND NOW';
     };
+
+    // RECEIVE + fast code feedback
+    const codeInput = document.getElementById('receive-code'), fb = document.getElementById('code-feedback');
+    codeInput?.addEventListener('input', async (e) => { const v=e.target.value.replace(/\D/g,''); e.target.value=v; if(v.length===2) { fb.innerHTML='<span class="text-blue-400">searching...</span>'; const {data}=await sb.from('transfers').select('id').eq('public_code',v).eq('is_public',true).limit(1); fb.innerHTML=data?.length?'<span class="text-green-400">✓ file found</span>':'<span class="text-red-400">✗ no file</span>'; } else fb.innerHTML=''; });
+    window.handleReceive = async () => {
+      let q = sb.from('transfers').select('*');
+      if(currentReceiveMode==='private'){ const u=document.getElementById('receive-username').value.trim().toLowerCase(), p=document.getElementById('receive-password').value; if(!u||!p) return showToast('Fill fields','error'); q=q.eq('receiver_username',u).eq('password',p); }
+      else { const c=document.getElementById('receive-code').value.trim(); if(c.length!==2) return showToast('Enter 2-digit code','error'); q=q.eq('public_code',c).eq('is_public',true); }
+      const {data} = await q.order('created_at',{ascending:false}).limit(1); if(!data?.length) return showToast('No file found','error');
+      const t=data[0]; document.getElementById('receive-result').classList.remove('hidden'); document.getElementById('res-filename').innerText=t.file_name; document.getElementById('res-sender').innerText=`from ${t.sender_nickname||'anonymous'}`;
+      document.getElementById('download-btn').onclick = async ()=>{ const blob=await sb.storage.from('transfers').download(t.file_path); const url=URL.createObjectURL(blob.data); const a=document.createElement('a'); a.href=url; a.download=t.file_name; a.click(); };
+      document.getElementById('receive-delete-btn').onclick = async ()=>{ await sb.storage.from('transfers').remove([t.file_path]); await sb.from('transfers').delete().eq('id',t.id); document.getElementById('receive-result').classList.add('hidden'); };
+    };
+
+    // community file send
+    document.getElementById('comm-dropzone').onclick = ()=> document.getElementById('comm-file-input').click();
+    document.getElementById('comm-file-input').onchange = e => { const f=e.target.files[0]; if(f&&f.size<3e6){ selectedCommFile=f; document.getElementById('comm-dropzone-empty').classList.add('hidden'); document.getElementById('comm-dropzone-file').classList.remove('hidden'); document.getElementById('comm-file-name-display').innerText=f.name; } else showToast('Max 3MB','error'); };
+    document.getElementById('comm-send-btn').onclick = async () => { if(!selectedCommFile) return; const path=`community/${currentCommunity.id}/${Date.now()}_${selectedCommFile.name}`; await sb.storage.from('transfers').upload(path, selectedCommFile); await sb.from('community_files').insert([{community_id:currentCommunity.id,sender_id:currentUser.id,file_name:selectedCommFile.name,file_path:path}]); showToast('Sent','success'); removeCommFile(); fetchCommunityFiles(); };
 
     window.onload = () => {
       setTimeout(()=>{ document.getElementById('loading-screen').style.opacity='0'; setTimeout(()=>{ document.getElementById('loading-screen').style.display='none'; document.getElementById('main-app').style.display='block'; lucide.createIcons(); },600); },2000);
