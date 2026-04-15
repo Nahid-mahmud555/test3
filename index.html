@@ -2,406 +2,1444 @@
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
   <title>EX · Just Use It</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     :root {
-      --bg: #0a0a0f; --text: #ffffff; --text-muted: #8a8a9e;
-      --glass-bg: rgba(20, 20, 30, 0.7); --glass-border: rgba(255, 255, 255, 0.08);
-      --accent: #3b82f6; --input-bg: rgba(10, 10, 18, 0.8);
-      --shadow-lg: 0 25px 40px -15px rgba(0, 0, 0, 0.6);
+      --bg: #050508;
+      --bg2: #0c0c14;
+      --text: #f0f0ff;
+      --muted: #6b7280;
+      --glass: rgba(255,255,255,0.04);
+      --glass-border: rgba(255,255,255,0.09);
+      --glass-hover: rgba(255,255,255,0.08);
+      --accent: #4f6ef7;
+      --accent2: #a78bfa;
+      --accent3: #fb923c;
+      --green: #34d399;
+      --red: #f87171;
+      --card-radius: 24px;
+      --input-bg: rgba(255,255,255,0.05);
     }
     [data-theme="light"] {
-      --bg: #f5f7fa; --text: #0b0b12; --text-muted: #4b5563;
-      --glass-bg: rgba(255, 255, 255, 0.8); --glass-border: rgba(0, 0, 0, 0.08);
-      --accent: #2563eb; --input-bg: #ffffff;
-      --shadow-lg: 0 20px 35px -8px rgba(0, 0, 0, 0.1);
+      --bg: #f0f2f8;
+      --bg2: #e4e8f5;
+      --text: #0d0d1a;
+      --muted: #6b7280;
+      --glass: rgba(255,255,255,0.7);
+      --glass-border: rgba(0,0,0,0.08);
+      --glass-hover: rgba(255,255,255,0.9);
+      --accent: #3b5bdb;
+      --accent2: #7c3aed;
+      --accent3: #ea580c;
+      --green: #059669;
+      --red: #dc2626;
+      --input-bg: rgba(255,255,255,0.8);
     }
+
     body {
-      font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text);
-      min-height: 100vh; transition: background 0.2s, color 0.2s;
+      font-family: 'Space Grotesk', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      transition: background 0.3s, color 0.3s;
     }
-    .bg-glow { position: fixed; inset: 0; pointer-events: none; z-index: -1; }
-    .glow-orb {
-      position: absolute; width: 70vw; height: 70vw; border-radius: 50%; filter: blur(140px);
-      opacity: 0.15; animation: floatGlow 14s infinite alternate ease-in-out;
+
+    /* Noise texture */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
     }
-    @keyframes floatGlow { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(5%, 5%) scale(1.05); } }
-    
-    .glass {
-      background: var(--glass-bg); backdrop-filter: blur(20px);
-      border: 1px solid var(--glass-border); border-radius: 32px;
-      box-shadow: var(--shadow-lg); transition: all 0.25s ease;
+
+    /* Ambient glow orbs */
+    .glow-canvas {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
     }
-    .glass-card {
-      background: var(--glass-bg); backdrop-filter: blur(18px);
-      border: 1px solid var(--glass-border); border-radius: 28px;
-      box-shadow: 0 15px 30px -10px rgba(0,0,0,0.2);
-      transition: all 0.2s;
+    .orb {
+      position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.18;
+      animation: orbFloat 20s infinite alternate ease-in-out;
     }
-    .glass-card:hover { border-color: var(--accent); transform: translateY(-4px); }
-    
-    .input-field {
-      background: var(--input-bg); border: 1.5px solid var(--glass-border);
-      border-radius: 20px; padding: 1rem 1.3rem; color: var(--text); width: 100%;
-      transition: all 0.15s;
+    .orb-1 { width: 60vw; height: 60vw; background: #3b4fd4; top: -20%; left: -10%; animation-duration: 22s; }
+    .orb-2 { width: 50vw; height: 50vw; background: #7c3aed; bottom: -15%; right: -5%; animation-duration: 28s; animation-delay: -10s; }
+    .orb-3 { width: 30vw; height: 30vw; background: #059669; top: 40%; left: 50%; animation-duration: 18s; animation-delay: -5s; opacity: 0.08; }
+    @keyframes orbFloat {
+      0% { transform: translate(0,0) scale(1); }
+      50% { transform: translate(4%,6%) scale(1.05); }
+      100% { transform: translate(-3%,3%) scale(0.97); }
     }
-    .input-field:focus { outline: none; border-color: var(--accent); }
-    
-    .btn-primary {
-      background: var(--accent); color: white; font-weight: 700; border-radius: 40px;
-      padding: 1rem 2rem; transition: 0.2s;
-    }
-    .btn-primary:hover { opacity: 0.9; transform: scale(1.02); }
-    
-    .view { display: none; }
-    .view.active { display: block; animation: viewFade 0.25s forwards; }
-    @keyframes viewFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    
-    .slogan-animated {
-      background: linear-gradient(135deg, #a5f3fc, #fde047, #f0abfc, #a5f3fc, #6ee7b7);
-      background-size: 400% 400%; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      animation: gradientFlow 8s infinite alternate; font-weight: 800;
-    }
-    @keyframes gradientFlow { 0% { background-position: 0% 30%; } 100% { background-position: 100% 70%; } }
-    
+
+    /* Loading screen */
     #loading-screen {
-      position: fixed; inset: 0; background: #05050a; z-index: 9999;
+      position: fixed; inset: 0; background: #030305; z-index: 9999;
       display: flex; align-items: center; justify-content: center;
+      transition: opacity 0.6s ease;
     }
-    .loader-spin { width: 50px; height: 50px; border: 3px solid rgba(255,255,255,0.1); border-top-color: #3b82f6; border-radius: 50%; animation: spin 0.8s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    
-    .toast { animation: slideToast 0.3s; backdrop-filter: blur(20px); }
-    @keyframes slideToast { from { transform: translateX(30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-    
-    .dropzone-large {
-      min-height: 200px; border: 3px dashed var(--glass-border); border-radius: 24px;
-      background: var(--glass-bg); backdrop-filter: blur(12px);
-      transition: all 0.3s; cursor: pointer;
+    .loader-logo {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 120px;
+      letter-spacing: -4px;
+      background: linear-gradient(135deg, #4f6ef7, #a78bfa, #fb923c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: logoPulse 2s ease-in-out infinite alternate;
     }
-    .dropzone-large:hover { border-color: var(--accent); background: rgba(59, 130, 246, 0.08); }
-    
+    @keyframes logoPulse { from { opacity: 0.7; } to { opacity: 1; filter: drop-shadow(0 0 30px rgba(79,110,247,0.5)); } }
+    .loader-bar {
+      width: 200px; height: 2px; background: rgba(255,255,255,0.1); border-radius: 99px; overflow: hidden; margin-top: 24px;
+    }
+    .loader-fill {
+      height: 100%; background: linear-gradient(90deg, #4f6ef7, #a78bfa); border-radius: 99px;
+      animation: loadFill 2s ease forwards;
+    }
+    @keyframes loadFill { from { width: 0; } to { width: 100%; } }
+
+    /* Glass cards */
+    .glass {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+    .card {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: var(--card-radius);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .card:hover { background: var(--glass-hover); border-color: rgba(79,110,247,0.3); transform: translateY(-3px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+    .card-static { border-radius: var(--card-radius); background: var(--glass); border: 1px solid var(--glass-border); backdrop-filter: blur(20px); }
+
+    /* Inputs */
+    .inp {
+      background: var(--input-bg);
+      border: 1.5px solid var(--glass-border);
+      border-radius: 14px;
+      padding: 0.85rem 1.2rem;
+      color: var(--text);
+      width: 100%;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.9rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+    .inp:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,110,247,0.15); }
+    .inp::placeholder { color: var(--muted); }
+    textarea.inp { resize: none; }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 0.85rem 1.8rem; border-radius: 12px; font-weight: 700;
+      font-family: 'Space Grotesk', sans-serif; font-size: 0.9rem;
+      cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); border: none;
+    }
+    .btn-accent { background: var(--accent); color: white; }
+    .btn-accent:hover { filter: brightness(1.1); transform: scale(1.02); box-shadow: 0 8px 24px rgba(79,110,247,0.4); }
+    .btn-accent2 { background: var(--accent2); color: white; }
+    .btn-accent2:hover { filter: brightness(1.1); transform: scale(1.02); box-shadow: 0 8px 24px rgba(167,139,250,0.4); }
+    .btn-accent3 { background: var(--accent3); color: white; }
+    .btn-accent3:hover { filter: brightness(1.1); transform: scale(1.02); }
+    .btn-ghost { background: var(--glass); border: 1px solid var(--glass-border); color: var(--text); }
+    .btn-ghost:hover { background: var(--glass-hover); }
+    .btn-danger { background: rgba(248,113,113,0.15); border: 1px solid rgba(248,113,113,0.3); color: var(--red); }
+    .btn-danger:hover { background: rgba(248,113,113,0.3); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .btn-sm { padding: 0.5rem 1rem; font-size: 0.8rem; border-radius: 9px; }
+    .btn-icon { width: 40px; height: 40px; padding: 0; border-radius: 10px; }
+
+    /* Views */
+    .view { display: none; animation: viewIn 0.3s cubic-bezier(0.4,0,0.2,1) forwards; }
+    .view.active { display: block; }
+    @keyframes viewIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Nav */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(5,5,8,0.8);
+      backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--glass-border);
+      padding: 1rem 1.5rem;
+    }
+    [data-theme="light"] nav { background: rgba(240,242,248,0.85); }
+
+    /* Logo */
+    .logo-text {
+      font-family: 'Bebas Neue', cursive;
+      font-size: 2rem;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, #4f6ef7, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
+    }
+
+    /* Hero */
+    .hero-title {
+      font-family: 'Bebas Neue', cursive;
+      font-size: clamp(64px, 12vw, 130px);
+      letter-spacing: -2px;
+      line-height: 0.9;
+    }
+    .gradient-text {
+      background: linear-gradient(135deg, #4f6ef7 0%, #a78bfa 50%, #fb923c 100%);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gradientShift 6s ease infinite;
+    }
+    @keyframes gradientShift { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+
+    /* Dropzone */
+    .dropzone {
+      border: 2px dashed var(--glass-border);
+      border-radius: 18px;
+      padding: 2.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s;
+      background: var(--glass);
+    }
+    .dropzone:hover, .dropzone.drag-over { border-color: var(--accent); background: rgba(79,110,247,0.08); }
+
+    /* Toast */
+    #toast-container { position: fixed; top: 1.5rem; right: 1.5rem; z-index: 2000; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+    .toast {
+      display: flex; align-items: center; gap: 10px;
+      padding: 0.9rem 1.2rem; border-radius: 14px;
+      font-weight: 600; font-size: 0.875rem;
+      backdrop-filter: blur(20px); pointer-events: auto;
+      border: 1px solid rgba(255,255,255,0.1);
+      animation: toastIn 0.3s cubic-bezier(0.4,0,0.2,1) forwards;
+      max-width: 320px; box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+    @keyframes toastIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    .toast-out { animation: toastOut 0.3s forwards; }
+    @keyframes toastOut { to { transform: translateX(20px); opacity: 0; } }
+    .toast-success { background: rgba(52,211,153,0.15); color: #34d399; border-color: rgba(52,211,153,0.3); }
+    .toast-error { background: rgba(248,113,113,0.15); color: #f87171; border-color: rgba(248,113,113,0.3); }
+    .toast-info { background: rgba(79,110,247,0.15); color: #818cf8; border-color: rgba(79,110,247,0.3); }
+    .toast-warn { background: rgba(251,146,60,0.15); color: #fb923c; border-color: rgba(251,146,60,0.3); }
+
+    /* Modal */
     .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
-      z-index: 1000; display: flex; align-items: center; justify-content: center;
+      position: fixed; inset: 0; background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(8px); z-index: 1000;
+      display: flex; align-items: center; justify-content: center;
+      animation: fadeIn 0.2s;
     }
-    .modal-content {
-      background: var(--glass-bg); backdrop-filter: blur(25px);
-      border: 1px solid var(--glass-border); border-radius: 32px;
-      padding: 2rem; max-width: 420px; width: 90%;
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .modal-box {
+      background: #0f0f18; border: 1px solid var(--glass-border);
+      border-radius: 24px; padding: 2rem; max-width: 380px; width: 90%;
+      animation: scaleIn 0.25s cubic-bezier(0.4,0,0.2,1);
+    }
+    [data-theme="light"] .modal-box { background: #fff; }
+    @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    /* Badge */
+    .badge { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 99px; font-size: 0.7rem; font-weight: 800; }
+    .badge-red { background: var(--red); color: white; }
+    .badge-accent { background: var(--accent); color: white; }
+
+    /* Tags */
+    .tag { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; }
+    .tag-blue { background: rgba(79,110,247,0.15); color: #818cf8; }
+    .tag-green { background: rgba(52,211,153,0.15); color: #34d399; }
+    .tag-orange { background: rgba(251,146,60,0.15); color: #fb923c; }
+    .tag-purple { background: rgba(167,139,250,0.15); color: #a78bfa; }
+
+    /* Spinner */
+    .spinner { width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.2); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner-lg { width: 44px; height: 44px; border-width: 3px; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 99px; }
+
+    /* Section heading */
+    .section-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+
+    /* Member item */
+    .member-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 10px; background: var(--glass); border: 1px solid var(--glass-border); }
+
+    /* File item */
+    .file-item { display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 14px; background: var(--glass); border: 1px solid var(--glass-border); transition: background 0.2s; }
+    .file-item:hover { background: var(--glass-hover); }
+
+    /* Mode tabs */
+    .mode-tabs { display: flex; background: var(--glass); border: 1px solid var(--glass-border); border-radius: 12px; padding: 4px; gap: 4px; }
+    .mode-tab { flex: 1; padding: 0.6rem 1rem; border-radius: 9px; font-weight: 600; font-size: 0.85rem; text-align: center; cursor: pointer; transition: all 0.2s; }
+    .mode-tab.active { background: var(--accent); color: white; box-shadow: 0 4px 12px rgba(79,110,247,0.4); }
+    .mode-tab:not(.active) { color: var(--muted); }
+    .mode-tab:not(.active):hover { color: var(--text); background: var(--glass-hover); }
+
+    /* Receive code input */
+    .code-input {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 4rem; font-weight: 700;
+      text-align: center; letter-spacing: 0.3em;
+    }
+
+    /* Community card */
+    .comm-card { cursor: pointer; border-radius: var(--card-radius); background: var(--glass); border: 1px solid var(--glass-border); padding: 1.5rem; transition: all 0.25s; }
+    .comm-card:hover { border-color: var(--accent3); transform: translateY(-2px); box-shadow: 0 12px 30px rgba(251,146,60,0.15); }
+
+    /* Utility */
+    .relative { position: relative; }
+    .z-above { position: relative; z-index: 1; }
+
+    @media (max-width: 768px) {
+      .hero-title { font-size: 72px; }
+      .hide-mobile { display: none; }
     }
   </style>
 </head>
 <body>
 
+<!-- LOADING -->
 <div id="loading-screen">
-  <div class="text-center">
-    <div class="text-[100px] font-black tracking-[-6px] text-[#ffcc00]">EX</div>
-    <div class="slogan-animated text-3xl mt-2">Just Use It</div>
-    <div class="loader-spin mx-auto mt-8"></div>
+  <div style="text-align:center">
+    <div class="loader-logo">EX</div>
+    <div style="color: var(--muted); font-size:0.8rem; letter-spacing:0.3em; text-transform:uppercase; margin-top:4px;">Just Use It</div>
+    <div class="loader-bar"><div class="loader-fill"></div></div>
   </div>
 </div>
 
-<div id="main-app" style="display: none;">
-  <div class="bg-glow">
-    <div class="glow-orb bg-blue-600/30 top-[-15%] left-[-10%]"></div>
-    <div class="glow-orb bg-purple-600/20 bottom-[-10%] right-[-5%]"></div>
-  </div>
+<!-- GLOW -->
+<div class="glow-canvas">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
 
-  <div id="toast-container" class="fixed top-5 right-5 z-[200] flex flex-col gap-3 pointer-events-none"></div>
+<!-- TOAST -->
+<div id="toast-container"></div>
 
-  <div id="main-content">
-    <nav class="px-6 py-6 flex justify-between items-center max-w-6xl mx-auto">
-      <div class="flex items-center gap-3 cursor-pointer" onclick="showView('landing')">
-        <div class="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-xl"><i data-lucide="zap" class="text-white w-6 h-6"></i></div>
-        <div><span class="text-2xl font-black tracking-tight">EX<span class="text-blue-400">·PORTAL</span></span><span class="block text-[10px] uppercase tracking-[0.3em] opacity-40">Just Use It</span></div>
-      </div>
-      <div class="flex items-center gap-4">
-        <div id="user-display" class="hidden md:flex items-center gap-3 glass-card px-5 py-2.5 cursor-pointer" onclick="showView('profile')"><i data-lucide="user" class="w-4 h-4 text-blue-400"></i><span id="nav-username" class="font-semibold text-sm"></span></div>
-        <button onclick="toggleTheme()" class="w-12 h-12 rounded-2xl glass flex items-center justify-center"><i id="theme-icon" data-lucide="sun" class="w-5 h-5"></i></button>
-      </div>
-    </nav>
+<!-- MAIN APP -->
+<div id="main-app" style="display:none; position:relative; z-index:1;">
 
-    <main class="max-w-6xl mx-auto px-4 pt-8 pb-28">
-      <!-- LANDING -->
-      <div id="view-landing" class="view active">
-        <div class="text-center mb-12">
-          <h2 class="text-6xl md:text-7xl font-black tracking-tight">WELCOME TO <span class="text-blue-500">EX</span></h2>
-          <p class="text-xl mt-3 slogan-animated inline-block px-6 py-2">Just Use It — secure ephemeral sharing</p>
+  <!-- NAV -->
+  <nav>
+    <div style="max-width:1100px; margin:0 auto; display:flex; align-items:center; justify-content:space-between;">
+      <div onclick="showView('landing')" style="cursor:pointer; display:flex; align-items:center; gap:12px;">
+        <div style="width:36px; height:36px; background:linear-gradient(135deg,#4f6ef7,#a78bfa); border-radius:10px; display:flex; align-items:center; justify-content:center;">
+          <i data-lucide="zap" style="width:18px; height:18px; color:white;"></i>
         </div>
-        <div class="grid md:grid-cols-2 gap-7">
-          <div class="glass-card p-10 cursor-pointer" onclick="showView('signup')"><i data-lucide="user-plus" class="w-12 h-12 text-blue-400 mb-5"></i><h3 class="text-4xl font-black">SIGN UP</h3><p class="opacity-50 text-lg">Create identity</p><div class="mt-8 text-blue-400 flex items-center gap-2 font-bold">Get started <i data-lucide="arrow-right" class="w-4 h-4"></i></div></div>
-          <div class="space-y-7">
-            <div class="glass-card p-10 cursor-pointer" onclick="showView('menu')"><i data-lucide="zap" class="w-12 h-12 text-purple-400 mb-5"></i><h3 class="text-3xl font-black">QUICK SEND</h3><p class="opacity-50">No account needed</p></div>
-            <div class="glass-card p-10 cursor-pointer" onclick="showView('community-hub')"><i data-lucide="users" class="w-12 h-12 text-orange-400 mb-5"></i><h3 class="text-3xl font-black">EX COMMUNITY</h3><p class="opacity-50">Private rooms</p></div>
+        <div>
+          <div class="logo-text">EX·PORTAL</div>
+          <div style="font-size:0.6rem; letter-spacing:0.35em; color:var(--muted); text-transform:uppercase; line-height:1;">Just Use It</div>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div id="user-display" style="display:none;" onclick="showView('profile')" class="glass btn btn-ghost btn-sm" style="cursor:pointer;">
+          <i data-lucide="user" style="width:14px;height:14px;color:var(--accent);"></i>
+          <span id="nav-username" style="font-size:0.85rem;"></span>
+        </div>
+        <button onclick="toggleTheme()" class="btn btn-ghost btn-icon">
+          <i id="theme-icon" data-lucide="sun" style="width:16px;height:16px;"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main style="max-width:1100px; margin:0 auto; padding:2rem 1.25rem 6rem;">
+
+    <!-- ═══ LANDING ═══ -->
+    <div id="view-landing" class="view active">
+      <div style="text-align:center; padding:3rem 0 3.5rem;">
+        <div class="hero-title"><span class="gradient-text">WELCOME</span><br>TO EX</div>
+        <p style="color:var(--muted); margin-top:1rem; font-size:1.05rem;">Secure ephemeral file transfer — auto-purge in 1 hour</p>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;">
+        <div class="card" onclick="showView('signup')" style="padding:2.5rem; cursor:pointer;">
+          <div style="width:52px;height:52px;background:rgba(79,110,247,0.15);border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:1.25rem;">
+            <i data-lucide="user-plus" style="width:24px;height:24px;color:var(--accent);"></i>
+          </div>
+          <div style="font-family:'Bebas Neue';font-size:2.2rem;letter-spacing:2px;">SIGN UP</div>
+          <p style="color:var(--muted); margin-top:4px; font-size:0.9rem;">Create your identity</p>
+          <div style="margin-top:1.5rem; display:flex; align-items:center; gap:6px; color:var(--accent); font-weight:700; font-size:0.85rem;">
+            Get started <i data-lucide="arrow-right" style="width:14px;height:14px;"></i>
           </div>
         </div>
-        <div class="mt-10 text-center"><button onclick="showView('login')" class="text-blue-400 font-bold text-lg hover:underline">Already have account? Login →</button></div>
+        <div style="display:flex;flex-direction:column;gap:1.25rem;">
+          <div class="card" onclick="showView('menu')" style="padding:2rem; cursor:pointer; flex:1;">
+            <div style="width:44px;height:44px;background:rgba(167,139,250,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:1rem;">
+              <i data-lucide="zap" style="width:20px;height:20px;color:var(--accent2);"></i>
+            </div>
+            <div style="font-family:'Bebas Neue';font-size:1.8rem;letter-spacing:2px;">QUICK SEND</div>
+            <p style="color:var(--muted); font-size:0.85rem;">No account needed</p>
+          </div>
+          <div class="card" onclick="showView('community-hub')" style="padding:2rem; cursor:pointer; flex:1;">
+            <div style="width:44px;height:44px;background:rgba(251,146,60,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:1rem;">
+              <i data-lucide="users" style="width:20px;height:20px;color:var(--accent3);"></i>
+            </div>
+            <div style="font-family:'Bebas Neue';font-size:1.8rem;letter-spacing:2px;">COMMUNITY</div>
+            <p style="color:var(--muted); font-size:0.85rem;">Private rooms</p>
+          </div>
+        </div>
       </div>
+      <div style="text-align:center; margin-top:2rem;">
+        <button onclick="showView('login')" class="btn btn-ghost">Already have account? Login →</button>
+      </div>
+    </div>
 
-      <!-- SIGNUP -->
-      <div id="view-signup" class="view"><div class="max-w-md mx-auto glass-card p-9 space-y-6"><h2 class="text-3xl font-black">Create account</h2><input id="signup-name" placeholder="Full name" class="input-field"><input id="signup-username" placeholder="username" class="input-field"><input id="signup-password" type="password" placeholder="Password (min 8)" class="input-field"><button onclick="handleSignup()" class="w-full btn-primary py-4 text-lg">SIGN UP</button><button onclick="showView('landing')" class="w-full text-sm opacity-60">Cancel</button></div></div>
-      
-      <!-- LOGIN -->
-      <div id="view-login" class="view"><div class="max-w-md mx-auto glass-card p-9 space-y-6"><h2 class="text-3xl font-black">Portal login</h2><input id="login-username" placeholder="username" class="input-field"><input id="login-password" type="password" placeholder="••••••••" class="input-field"><button onclick="handleLogin()" class="w-full btn-primary py-4 text-lg">ENTER</button><button onclick="showView('landing')" class="w-full text-sm opacity-60">Cancel</button></div></div>
-      
-      <!-- PROFILE -->
-      <div id="view-profile" class="view"><div class="max-w-2xl mx-auto glass-card p-9 space-y-6"><div class="flex gap-4"><button onclick="showView('menu')" class="p-3 glass"><i data-lucide="chevron-left"></i></button><h2 class="text-3xl font-black">Profile</h2></div><div class="flex gap-6"><div class="w-20 h-20 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-3xl flex items-center justify-center"><i data-lucide="user" class="w-10 h-10 text-white"></i></div><div><h3 id="profile-name" class="text-2xl font-black"></h3><p id="profile-username" class="text-blue-400 font-bold"></p></div></div><textarea id="profile-bio" maxlength="101" placeholder="Bio · max 101 letters" class="input-field min-h-[110px]"></textarea><button onclick="updateBio()" class="w-full bg-white/5 py-4 rounded-2xl font-bold">SAVE BIO</button><button onclick="handleLogout()" class="text-red-400 font-medium">Logout</button></div></div>
+    <!-- ═══ SIGNUP ═══ -->
+    <div id="view-signup" class="view">
+      <div style="max-width:420px; margin:0 auto;">
+        <div style="margin-bottom:1.5rem;">
+          <button onclick="showView('landing')" class="btn btn-ghost btn-sm"><i data-lucide="chevron-left" style="width:14px;height:14px;"></i> Back</button>
+        </div>
+        <div class="card-static" style="padding:2.5rem;">
+          <div style="font-family:'Bebas Neue';font-size:2.5rem;letter-spacing:2px;margin-bottom:0.5rem;">CREATE ACCOUNT</div>
+          <p style="color:var(--muted);font-size:0.875rem;margin-bottom:2rem;">Join EX Portal — free forever</p>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <input id="signup-name" placeholder="Full name" class="inp">
+            <input id="signup-username" placeholder="username (lowercase, no spaces)" class="inp" oninput="this.value=this.value.toLowerCase().replace(/\s/g,'')">
+            <input id="signup-password" type="password" placeholder="Password (min 8 chars)" class="inp">
+            <button onclick="handleSignup()" class="btn btn-accent" style="width:100%;margin-top:8px;padding:1rem;">
+              <span id="signup-btn-text">SIGN UP</span>
+              <div id="signup-spinner" class="spinner" style="display:none;"></div>
+            </button>
+            <button onclick="showView('login')" class="btn btn-ghost" style="width:100%;">Already have account? Login</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
-      <!-- MENU -->
-      <div id="view-menu" class="view"><div class="flex gap-4 mb-7"><button onclick="showView('landing')" class="p-3 glass"><i data-lucide="chevron-left"></i></button><h2 class="text-4xl font-black">EX PORTAL</h2></div><div class="text-center mb-10"><h2 class="text-5xl font-black">DROP <span class="text-blue-400">FILES</span></h2><p class="opacity-60 text-lg">Auto-delete 1h</p></div><div class="grid md:grid-cols-2 gap-6"><div class="glass-card p-9 cursor-pointer relative" onclick="showView('inbox')"><i data-lucide="inbox" class="w-12 h-12 text-green-400 mb-5"></i><h3 class="text-3xl font-bold">INBOX</h3><span id="inbox-badge" class="hidden absolute top-6 right-6 bg-red-500 text-white text-xs font-black px-3 py-1.5 rounded-full">0</span></div><div class="glass-card p-9 cursor-pointer" onclick="showView('send')"><i data-lucide="send" class="w-12 h-12 text-blue-400 mb-5"></i><h3 class="text-3xl font-bold">SEND</h3></div><div class="glass-card p-9 cursor-pointer" onclick="showView('receive')"><i data-lucide="download" class="w-12 h-12 text-purple-400 mb-5"></i><h3 class="text-3xl font-bold">RECEIVE</h3></div><div class="glass-card p-9 cursor-pointer" onclick="showView('community-hub')"><i data-lucide="users" class="w-12 h-12 text-orange-400 mb-5"></i><h3 class="text-3xl font-bold">COMMUNITY</h3></div></div></div>
+    <!-- ═══ LOGIN ═══ -->
+    <div id="view-login" class="view">
+      <div style="max-width:420px; margin:0 auto;">
+        <div style="margin-bottom:1.5rem;">
+          <button onclick="showView('landing')" class="btn btn-ghost btn-sm"><i data-lucide="chevron-left" style="width:14px;height:14px;"></i> Back</button>
+        </div>
+        <div class="card-static" style="padding:2.5rem;">
+          <div style="font-family:'Bebas Neue';font-size:2.5rem;letter-spacing:2px;margin-bottom:0.5rem;">PORTAL LOGIN</div>
+          <p style="color:var(--muted);font-size:0.875rem;margin-bottom:2rem;">Enter your credentials</p>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <input id="login-username" placeholder="username" class="inp" oninput="this.value=this.value.toLowerCase()">
+            <input id="login-password" type="password" placeholder="Password" class="inp" onkeypress="if(event.key==='Enter')handleLogin()">
+            <button onclick="handleLogin()" class="btn btn-accent" style="width:100%;margin-top:8px;padding:1rem;">
+              <span id="login-btn-text">ENTER PORTAL</span>
+              <div id="login-spinner" class="spinner" style="display:none;"></div>
+            </button>
+            <button onclick="showView('signup')" class="btn btn-ghost" style="width:100%;">No account? Sign up</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
-      <!-- COMMUNITY HUB -->
-      <div id="view-community-hub" class="view"><div class="flex gap-4 mb-7"><button onclick="showView('menu')" class="p-3 glass"><i data-lucide="chevron-left"></i></button><h2 class="text-4xl font-black">EX COMMUNITY</h2></div><div id="joined-communities-section" class="hidden mb-9"><h3 class="text-xs uppercase tracking-wider mb-3">Your joined rooms</h3><div id="my-communities-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div></div><div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div class="glass-card p-9 cursor-pointer" onclick="showView('create-community')"><i data-lucide="plus-circle" class="w-12 h-12 text-orange-400"></i><h3 class="text-3xl font-bold mt-5">CREATE ROOM</h3><p class="opacity-50 mt-2">Start a new community</p></div><div class="glass-card p-9 cursor-pointer" onclick="showView('join-community')"><i data-lucide="user-plus" class="w-12 h-12 text-blue-400"></i><h3 class="text-3xl font-bold mt-5">JOIN ROOM</h3><p class="opacity-50 mt-2">Enter with secret sentence</p></div></div></div>
-      
-      <!-- CREATE COMMUNITY -->
-      <div id="view-create-community" class="view"><div class="max-w-md mx-auto glass-card p-8"><h2 class="text-3xl font-black mb-5">Start a new room</h2><input id="comm-create-name" placeholder="Room name (unique, no spaces)" class="input-field mb-3"><input id="comm-create-sentence" placeholder="Secret sentence (password)" class="input-field mb-3"><textarea id="comm-create-bio" placeholder="Room description (optional)" class="input-field mb-5"></textarea><button onclick="handleCreateCommunity()" class="w-full bg-orange-600 py-4 rounded-2xl text-white font-black text-lg">✨ CREATE ROOM</button><button onclick="showView('community-hub')" class="w-full text-sm mt-4 opacity-60">Cancel</button></div></div>
-      
-      <!-- JOIN COMMUNITY -->
-      <div id="view-join-community" class="view"><div class="max-w-md mx-auto glass-card p-8"><h2 class="text-3xl font-black mb-5">Join existing room</h2><input id="comm-join-name" placeholder="Room name" class="input-field mb-3"><input id="comm-join-sentence" placeholder="Secret sentence" class="input-field mb-5"><button onclick="handleJoinCommunity()" class="w-full bg-blue-600 py-4 rounded-2xl text-white font-black text-lg">🚪 ENTER ROOM</button><button onclick="showView('community-hub')" class="w-full text-sm mt-4 opacity-60">Cancel</button></div></div>
+    <!-- ═══ PROFILE ═══ -->
+    <div id="view-profile" class="view">
+      <div style="max-width:560px; margin:0 auto;">
+        <div style="margin-bottom:1.5rem; display:flex; align-items:center; gap:12px;">
+          <button onclick="showView('menu')" class="btn btn-ghost btn-icon"><i data-lucide="chevron-left" style="width:16px;height:16px;"></i></button>
+          <div style="font-family:'Bebas Neue';font-size:2rem;letter-spacing:2px;">PROFILE</div>
+        </div>
+        <div class="card-static" style="padding:2rem;">
+          <div style="display:flex; align-items:center; gap:16px; margin-bottom:1.5rem;">
+            <div style="width:72px;height:72px;background:linear-gradient(135deg,#4f6ef7,#a78bfa);border-radius:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <i data-lucide="user" style="width:32px;height:32px;color:white;"></i>
+            </div>
+            <div>
+              <div id="profile-name" style="font-weight:700;font-size:1.3rem;"></div>
+              <div id="profile-username" style="color:var(--accent);font-weight:600;font-family:'JetBrains Mono';font-size:0.9rem;"></div>
+            </div>
+          </div>
+          <div style="margin-bottom:1rem;">
+            <label class="section-label" style="display:block;margin-bottom:6px;">Bio <span style="color:var(--muted);">(max 101 chars)</span></label>
+            <textarea id="profile-bio" placeholder="Tell people about yourself..." class="inp" style="min-height:100px;" maxlength="101"></textarea>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <button onclick="updateBio()" class="btn btn-accent" style="width:100%;">Save Bio</button>
+            <button onclick="handleLogout()" class="btn btn-danger" style="width:100%;">
+              <i data-lucide="log-out" style="width:16px;height:16px;"></i> Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
-      <!-- COMMUNITY ROOM -->
-      <div id="view-community-room" class="view"><div class="flex flex-col lg:flex-row gap-6"><div class="lg:w-1/3 glass-card p-6"><button onclick="showView('community-hub')" class="mb-4 flex items-center gap-2"><i data-lucide="chevron-left"></i> Back</button><h3 id="room-name" class="text-2xl font-black mb-1"></h3><p id="room-bio" class="text-sm opacity-50 mb-4"></p><div class="border-t border-white/10 pt-4"><div class="flex justify-between items-center mb-3"><h4 class="text-xs uppercase tracking-wider">Members</h4><span id="member-count" class="text-xs bg-white/10 px-2 py-1 rounded-full">0</span></div><div id="member-list" class="space-y-2 max-h-[300px] overflow-y-auto"></div></div></div><div class="lg:w-2/3 glass-card p-6"><div class="flex justify-between items-center mb-4"><h3 class="text-xl font-black">📁 Room Files</h3><button onclick="refreshCommunityFiles()" class="p-2 hover:bg-white/5 rounded-lg"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button></div><div id="comm-dropzone" class="dropzone-large flex flex-col items-center justify-center p-8 mb-4"><input type="file" id="comm-file-input" class="hidden"><div id="comm-dropzone-empty" class="text-center"><i data-lucide="cloud-upload" class="w-10 h-10 mx-auto opacity-40 mb-2"></i><p class="font-bold">Drop file to share</p><p class="text-xs opacity-50">Max 3MB</p></div><div id="comm-dropzone-file" class="hidden text-center"><i data-lucide="file-check" class="w-10 h-10 mx-auto text-green-400 mb-2"></i><p id="comm-file-name-display" class="font-bold"></p><p class="text-green-400 text-xs">Ready</p></div></div><div class="flex gap-3 mb-4"><button id="comm-send-btn" class="flex-1 bg-orange-600 py-3 rounded-xl font-black">📤 SEND</button><button onclick="removeCommFile()" class="bg-red-500/20 hover:bg-red-500/40 px-5 rounded-xl">Remove</button></div><div class="p-4 bg-white/5 rounded-xl mb-4"><div class="flex items-center justify-between mb-2"><span class="text-xs font-bold uppercase tracking-wider">Target members</span><button id="btn-toggle-all-targets" class="text-xs text-orange-400 font-bold">Select All</button></div><div id="comm-target-list" class="flex flex-wrap gap-2 max-h-24 overflow-y-auto"></div></div><div id="comm-file-list" class="space-y-3 max-h-[300px] overflow-y-auto"></div></div></div></div>
+    <!-- ═══ MENU ═══ -->
+    <div id="view-menu" class="view">
+      <div style="margin-bottom:2rem;">
+        <div style="font-family:'Bebas Neue';font-size:clamp(48px,8vw,80px);letter-spacing:-1px;line-height:1;">
+          DROP <span class="gradient-text">FILES</span>
+        </div>
+        <p style="color:var(--muted);margin-top:0.5rem;">Auto-purge after 1 hour · Max 3MB</p>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:1.25rem;">
+        <div class="card" onclick="showView('inbox')" style="padding:2rem; cursor:pointer; position:relative;">
+          <div id="inbox-badge" style="display:none; position:absolute;top:1.25rem;right:1.25rem;" class="badge badge-red">0</div>
+          <div style="width:48px;height:48px;background:rgba(52,211,153,0.15);border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:1rem;">
+            <i data-lucide="inbox" style="width:22px;height:22px;color:var(--green);"></i>
+          </div>
+          <div style="font-family:'Bebas Neue';font-size:1.8rem;letter-spacing:2px;">INBOX</div>
+          <p style="color:var(--muted);font-size:0.85rem;margin-top:2px;">Your received files</p>
+        </div>
+        <div class="card" onclick="showView('send')" style="padding:2rem; cursor:pointer;">
+          <div style="width:48px;height:48px;background:rgba(79,110,247,0.15);border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:1rem;">
+            <i data-lucide="send" style="width:22px;height:22px;color:var(--accent);"></i>
+          </div>
+          <div style="font-family:'Bebas Neue';font-size:1.8rem;letter-spacing:2px;">SEND</div>
+          <p style="color:var(--muted);font-size:0.85rem;margin-top:2px;">Send to someone</p>
+        </div>
+        <div class="card" onclick="showView('receive')" style="padding:2rem; cursor:pointer;">
+          <div style="width:48px;height:48px;background:rgba(167,139,250,0.15);border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:1rem;">
+            <i data-lucide="download" style="width:22px;height:22px;color:var(--accent2);"></i>
+          </div>
+          <div style="font-family:'Bebas Neue';font-size:1.8rem;letter-spacing:2px;">RECEIVE</div>
+          <p style="color:var(--muted);font-size:0.85rem;margin-top:2px;">Claim a file</p>
+        </div>
+        <div class="card" onclick="showView('community-hub')" style="padding:2rem; cursor:pointer;">
+          <div style="width:48px;height:48px;background:rgba(251,146,60,0.15);border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:1rem;">
+            <i data-lucide="users" style="width:22px;height:22px;color:var(--accent3);"></i>
+          </div>
+          <div style="font-family:'Bebas Neue';font-size:1.8rem;letter-spacing:2px;">COMMUNITY</div>
+          <p style="color:var(--muted);font-size:0.85rem;margin-top:2px;">Private rooms</p>
+        </div>
+      </div>
+    </div>
 
-      <!-- INBOX -->
-      <div id="view-inbox" class="view"><div class="flex gap-4 mb-7"><button onclick="showView('menu')" class="p-3 glass"><i data-lucide="chevron-left"></i></button><h2 class="text-3xl font-black">INBOX</h2></div><div id="inbox-list" class="space-y-4"></div></div>
-      
-      <!-- SEND -->
-      <div id="view-send" class="view"><div class="flex gap-4 mb-7"><button onclick="showView('menu')" class="p-3 glass"><i data-lucide="chevron-left"></i></button><h2 class="text-3xl font-black">SEND</h2></div><div class="grid lg:grid-cols-2 gap-7"><div class="glass-card p-7"><div class="flex gap-3 mb-5"><button onclick="setTransferMode('private')" id="mode-private" class="bg-blue-600 px-5 py-2 rounded-full text-sm font-bold">Private</button><button onclick="setTransferMode('public')" id="mode-public" class="px-5 py-2 rounded-full text-sm">Public</button></div><input id="send-receiver" placeholder="@username" class="input-field mb-4"><div id="private-fields"><input id="send-password" type="password" placeholder="secret password" class="input-field mb-4"></div><input id="send-nickname" placeholder="Your nickname" class="input-field mb-4"></div><div class="glass-card p-7 flex flex-col"><div id="dropzone" class="dropzone-large flex flex-col items-center justify-center p-10 flex-1"><input type="file" id="file-input" class="hidden"><div id="dropzone-empty" class="text-center"><i data-lucide="cloud-upload" class="w-16 h-16 mx-auto opacity-40 mb-4"></i><p class="text-xl font-bold opacity-60">Drop file here or click</p><p class="text-sm opacity-40 mt-2">Max 3MB · Press Enter to send</p></div><div id="dropzone-file" class="hidden text-center"><i data-lucide="file-check" class="w-16 h-16 mx-auto text-green-400 mb-4"></i><p id="file-name-display" class="text-xl font-bold"></p><p class="text-green-400 text-sm mt-2">✓ Ready to send</p></div></div><textarea id="send-text" placeholder="Or type a message... (Enter to send)" class="input-field mt-5 h-24 resize-none"></textarea><div class="flex gap-4 mt-5"><button onclick="handleSend()" id="send-now-btn" class="flex-1 btn-primary py-5 text-lg">🚀 SEND NOW</button><button onclick="removeFile()" class="bg-red-500/20 hover:bg-red-500/40 px-6 rounded-2xl font-bold">Remove</button></div></div></div></div>
+    <!-- ═══ INBOX ═══ -->
+    <div id="view-inbox" class="view">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:1.5rem;">
+        <button onclick="showView('menu')" class="btn btn-ghost btn-icon"><i data-lucide="chevron-left" style="width:16px;height:16px;"></i></button>
+        <div style="font-family:'Bebas Neue';font-size:2rem;letter-spacing:2px;">INBOX</div>
+        <button onclick="fetchInbox()" class="btn btn-ghost btn-icon btn-sm" style="margin-left:auto;">
+          <i data-lucide="refresh-cw" style="width:15px;height:15px;"></i>
+        </button>
+      </div>
+      <div id="inbox-list"></div>
+    </div>
 
-      <!-- RECEIVE -->
-      <div id="view-receive" class="view"><div class="max-w-xl mx-auto glass-card p-9"><div class="flex gap-4 mb-7"><button onclick="showView('menu')" class="p-3 glass"><i data-lucide="chevron-left"></i></button><h2 class="text-3xl font-black">RECEIVE</h2></div><div class="flex mb-7"><button onclick="setReceiveMode('private')" id="recv-mode-private" class="flex-1 bg-purple-600 py-3 rounded-l-2xl font-bold text-sm">Private</button><button onclick="setReceiveMode('public')" id="recv-mode-public" class="flex-1 py-3 rounded-r-2xl text-sm">Public code</button></div><div id="receive-private-fields"><input id="receive-username" placeholder="@username" class="input-field mb-4"><input id="receive-password" type="password" placeholder="password" class="input-field mb-4"></div><div id="receive-public-fields" class="hidden"><label class="text-xs uppercase tracking-wider block mb-2">Enter 2‑digit code</label><input id="receive-code" type="text" inputmode="numeric" maxlength="2" placeholder="00" class="text-center text-6xl font-black py-6 input-field tracking-widest" autocomplete="off"><div id="code-feedback" class="text-sm mt-2 h-5"></div></div><button onclick="handleReceive()" id="receive-btn" class="w-full bg-purple-600 hover:bg-purple-700 py-5 rounded-2xl font-black text-white text-lg shadow-xl">🔓 DECRYPT & OPEN</button><div id="receive-result" class="hidden mt-8 glass p-6 rounded-3xl"><div class="flex items-center gap-4"><i data-lucide="file-check" class="text-green-400 w-8 h-8"></i><div><h4 id="res-filename" class="font-bold text-lg"></h4><p id="res-sender" class="text-xs text-purple-300"></p></div><div class="ml-auto flex gap-2"><button id="download-btn" class="p-3 bg-blue-600/20 hover:bg-blue-600 rounded-xl transition-all"><i data-lucide="download"></i></button><button id="print-btn" class="p-3 bg-green-600/20 hover:bg-green-600 rounded-xl transition-all"><i data-lucide="printer"></i></button><button id="receive-delete-btn" class="p-3 bg-red-500/20 hover:bg-red-600 rounded-xl transition-all"><i data-lucide="trash-2"></i></button></div></div></div></div></div>
-    </main>
-  </div>
-  <footer class="fixed bottom-5 left-0 right-0 text-center text-[11px] uppercase tracking-[0.4em] font-bold opacity-20">EX · EPHEMERAL · 1H PURGE</footer>
+    <!-- ═══ SEND ═══ -->
+    <div id="view-send" class="view">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:1.5rem;">
+        <button onclick="showView('menu')" class="btn btn-ghost btn-icon"><i data-lucide="chevron-left" style="width:16px;height:16px;"></i></button>
+        <div style="font-family:'Bebas Neue';font-size:2rem;letter-spacing:2px;">SEND FILE</div>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;">
+        <!-- Left panel -->
+        <div class="card-static" style="padding:1.75rem;">
+          <div style="margin-bottom:1.25rem;">
+            <label class="section-label" style="display:block;margin-bottom:8px;">Transfer Mode</label>
+            <div class="mode-tabs">
+              <div class="mode-tab active" id="mode-private" onclick="setTransferMode('private')">🔒 Private</div>
+              <div class="mode-tab" id="mode-public" onclick="setTransferMode('public')">🌐 Public</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <input id="send-receiver" placeholder="@username (receiver)" class="inp">
+            <div id="private-fields">
+              <input id="send-password" type="password" placeholder="Secret password" class="inp">
+            </div>
+            <input id="send-nickname" placeholder="Your nickname (sender)" class="inp">
+          </div>
+          <div id="public-code-display" style="display:none; margin-top:1rem; padding:1rem; background:rgba(79,110,247,0.1); border-radius:12px; border:1px solid rgba(79,110,247,0.3); text-align:center;">
+            <div class="section-label" style="margin-bottom:6px;">Your public code</div>
+            <div id="generated-code" style="font-family:'JetBrains Mono';font-size:3.5rem;font-weight:700;color:var(--accent);letter-spacing:0.2em;line-height:1;"></div>
+            <p style="font-size:0.75rem;color:var(--muted);margin-top:4px;">Share this with receiver</p>
+          </div>
+        </div>
+        <!-- Right panel -->
+        <div class="card-static" style="padding:1.75rem; display:flex; flex-direction:column; gap:1rem;">
+          <div id="send-dropzone" class="dropzone" onclick="document.getElementById('file-input').click()">
+            <input type="file" id="file-input" style="display:none;" onchange="handleFileSelection(this.files[0])">
+            <div id="dropzone-empty">
+              <i data-lucide="cloud-upload" style="width:40px;height:40px;margin:0 auto;opacity:0.4;display:block;"></i>
+              <p style="font-weight:600;margin-top:12px;">Drop file here or click</p>
+              <p style="font-size:0.8rem;color:var(--muted);margin-top:4px;">Max 3MB</p>
+            </div>
+            <div id="dropzone-file" style="display:none;">
+              <i data-lucide="file-check" style="width:40px;height:40px;margin:0 auto;color:var(--green);display:block;"></i>
+              <p id="file-name-display" style="font-weight:700;margin-top:12px;word-break:break-all;"></p>
+              <span class="tag tag-green" style="margin-top:8px;">Ready to send</span>
+            </div>
+          </div>
+          <textarea id="send-text" placeholder="Or type a message..." class="inp" style="height:80px;"></textarea>
+          <div style="display:flex; gap:8px;">
+            <button onclick="handleSend()" id="send-now-btn" class="btn btn-accent" style="flex:1; padding:1rem;">
+              <i data-lucide="send" style="width:16px;height:16px;"></i>
+              <span id="send-btn-text">SEND NOW</span>
+              <div id="send-spinner" class="spinner" style="display:none;"></div>
+            </button>
+            <button onclick="removeFile()" class="btn btn-danger btn-icon"><i data-lucide="x" style="width:16px;height:16px;"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ RECEIVE ═══ -->
+    <div id="view-receive" class="view">
+      <div style="max-width:480px; margin:0 auto;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:1.5rem;">
+          <button onclick="showView('menu')" class="btn btn-ghost btn-icon"><i data-lucide="chevron-left" style="width:16px;height:16px;"></i></button>
+          <div style="font-family:'Bebas Neue';font-size:2rem;letter-spacing:2px;">RECEIVE</div>
+        </div>
+        <div class="card-static" style="padding:2rem;">
+          <div style="margin-bottom:1.5rem;">
+            <div class="mode-tabs">
+              <div class="mode-tab active" id="recv-mode-private" onclick="setReceiveMode('private')">🔒 Private</div>
+              <div class="mode-tab" id="recv-mode-public" onclick="setReceiveMode('public')">📟 Public Code</div>
+            </div>
+          </div>
+          <div id="receive-private-fields" style="display:flex;flex-direction:column;gap:10px;margin-bottom:1rem;">
+            <input id="receive-username" placeholder="@your-username" class="inp">
+            <input id="receive-password" type="password" placeholder="Secret password" class="inp">
+          </div>
+          <div id="receive-public-fields" style="display:none; margin-bottom:1rem;">
+            <label class="section-label" style="display:block;margin-bottom:8px;">Enter 2-digit code</label>
+            <input id="receive-code" type="text" inputmode="numeric" maxlength="2" placeholder="00" class="inp code-input" autocomplete="off">
+            <div id="code-feedback" style="height:20px;margin-top:8px;font-size:0.8rem;color:var(--muted);"></div>
+          </div>
+          <button onclick="handleReceive()" id="receive-btn" class="btn btn-accent2" style="width:100%;padding:1rem;margin-bottom:1rem;">
+            <i data-lucide="unlock" style="width:16px;height:16px;"></i>
+            <span id="receive-btn-text">DECRYPT & OPEN</span>
+            <div id="receive-spinner" class="spinner" style="display:none;"></div>
+          </button>
+          <div id="receive-result" style="display:none;" class="glass" style="padding:1.25rem;border-radius:16px;margin-top:1rem;">
+            <div style="display:flex;align-items:center;gap:12px;padding:1.25rem;">
+              <div style="width:44px;height:44px;background:rgba(52,211,153,0.15);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i data-lucide="file-check" style="width:20px;height:20px;color:var(--green);"></i>
+              </div>
+              <div style="flex:1;min-width:0;">
+                <div id="res-filename" style="font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
+                <div id="res-sender" style="font-size:0.78rem;color:var(--muted);margin-top:2px;"></div>
+              </div>
+              <div style="display:flex;gap:6px;flex-shrink:0;">
+                <button id="download-btn" class="btn btn-ghost btn-icon btn-sm"><i data-lucide="download" style="width:15px;height:15px;"></i></button>
+                <button id="print-btn" class="btn btn-ghost btn-icon btn-sm"><i data-lucide="printer" style="width:15px;height:15px;"></i></button>
+                <button id="receive-delete-btn" class="btn btn-danger btn-icon btn-sm"><i data-lucide="trash-2" style="width:15px;height:15px;"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ COMMUNITY HUB ═══ -->
+    <div id="view-community-hub" class="view">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:1.5rem;">
+        <button onclick="showView('menu')" class="btn btn-ghost btn-icon"><i data-lucide="chevron-left" style="width:16px;height:16px;"></i></button>
+        <div style="font-family:'Bebas Neue';font-size:2rem;letter-spacing:2px;">COMMUNITY</div>
+      </div>
+      <div id="joined-communities-section" style="display:none; margin-bottom:1.75rem;">
+        <div class="section-label" style="margin-bottom:10px;">Your Joined Rooms</div>
+        <div id="my-communities-list" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;">
+        <div class="comm-card" onclick="showView('create-community')">
+          <div style="width:48px;height:48px;background:rgba(251,146,60,0.15);border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:1rem;">
+            <i data-lucide="plus-circle" style="width:22px;height:22px;color:var(--accent3);"></i>
+          </div>
+          <div style="font-family:'Bebas Neue';font-size:1.8rem;letter-spacing:2px;">CREATE ROOM</div>
+          <p style="color:var(--muted);font-size:0.85rem;margin-top:4px;">Start a new community</p>
+        </div>
+        <div class="comm-card" onclick="showView('join-community')">
+          <div style="width:48px;height:48px;background:rgba(79,110,247,0.15);border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:1rem;">
+            <i data-lucide="user-plus" style="width:22px;height:22px;color:var(--accent);"></i>
+          </div>
+          <div style="font-family:'Bebas Neue';font-size:1.8rem;letter-spacing:2px;">JOIN ROOM</div>
+          <p style="color:var(--muted);font-size:0.85rem;margin-top:4px;">Enter with secret phrase</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ CREATE COMMUNITY ═══ -->
+    <div id="view-create-community" class="view">
+      <div style="max-width:440px; margin:0 auto;">
+        <div style="margin-bottom:1.5rem;">
+          <button onclick="showView('community-hub')" class="btn btn-ghost btn-sm"><i data-lucide="chevron-left" style="width:14px;height:14px;"></i> Back</button>
+        </div>
+        <div class="card-static" style="padding:2.5rem;">
+          <div style="font-family:'Bebas Neue';font-size:2rem;letter-spacing:2px;margin-bottom:1.5rem;">CREATE ROOM</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div>
+              <label class="section-label" style="display:block;margin-bottom:6px;">Room Name</label>
+              <input id="comm-create-name" placeholder="my-room (no spaces)" class="inp" oninput="this.value=this.value.toLowerCase().replace(/\s/g,'-')">
+            </div>
+            <div>
+              <label class="section-label" style="display:block;margin-bottom:6px;">Secret Phrase</label>
+              <input id="comm-create-sentence" placeholder="The passphrase to join" class="inp">
+            </div>
+            <div>
+              <label class="section-label" style="display:block;margin-bottom:6px;">Description (optional)</label>
+              <textarea id="comm-create-bio" placeholder="What this room is about..." class="inp" style="height:80px;"></textarea>
+            </div>
+            <button onclick="handleCreateCommunity()" class="btn btn-accent3" style="width:100%;padding:1rem;margin-top:8px;">
+              <span id="create-comm-btn-text">✨ CREATE ROOM</span>
+              <div id="create-comm-spinner" class="spinner" style="display:none;"></div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ JOIN COMMUNITY ═══ -->
+    <div id="view-join-community" class="view">
+      <div style="max-width:440px; margin:0 auto;">
+        <div style="margin-bottom:1.5rem;">
+          <button onclick="showView('community-hub')" class="btn btn-ghost btn-sm"><i data-lucide="chevron-left" style="width:14px;height:14px;"></i> Back</button>
+        </div>
+        <div class="card-static" style="padding:2.5rem;">
+          <div style="font-family:'Bebas Neue';font-size:2rem;letter-spacing:2px;margin-bottom:1.5rem;">JOIN ROOM</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <input id="comm-join-name" placeholder="Room name" class="inp">
+            <input id="comm-join-sentence" placeholder="Secret phrase" class="inp" onkeypress="if(event.key==='Enter')handleJoinCommunity()">
+            <button onclick="handleJoinCommunity()" class="btn btn-accent" style="width:100%;padding:1rem;margin-top:8px;">
+              <span id="join-comm-btn-text">🚪 ENTER ROOM</span>
+              <div id="join-comm-spinner" class="spinner" style="display:none;"></div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ COMMUNITY ROOM ═══ -->
+    <div id="view-community-room" class="view">
+      <div style="display:flex;flex-direction:column;gap:1.25rem;">
+        <!-- Top bar -->
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button onclick="showView('community-hub')" class="btn btn-ghost btn-icon"><i data-lucide="chevron-left" style="width:16px;height:16px;"></i></button>
+          <div>
+            <div id="room-name" style="font-family:'Bebas Neue';font-size:1.8rem;letter-spacing:2px;"></div>
+            <div id="room-bio" style="font-size:0.8rem;color:var(--muted);"></div>
+          </div>
+          <button onclick="refreshCommunityFiles()" class="btn btn-ghost btn-icon btn-sm" style="margin-left:auto;">
+            <i data-lucide="refresh-cw" style="width:15px;height:15px;"></i>
+          </button>
+        </div>
+
+        <div style="display:grid; grid-template-columns:280px 1fr; gap:1.25rem; align-items:start;">
+          <!-- Members panel -->
+          <div class="card-static" style="padding:1.5rem;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+              <span class="section-label">Members</span>
+              <span id="member-count" class="badge badge-accent">0</span>
+            </div>
+            <div id="member-list" style="display:flex;flex-direction:column;gap:6px;max-height:320px;overflow-y:auto;"></div>
+          </div>
+
+          <!-- Files panel -->
+          <div class="card-static" style="padding:1.5rem;">
+            <!-- Drop zone -->
+            <div id="comm-dropzone" class="dropzone" onclick="document.getElementById('comm-file-input').click()" style="margin-bottom:1rem;">
+              <input type="file" id="comm-file-input" style="display:none;" onchange="handleCommFileSelect(this.files[0])">
+              <div id="comm-dropzone-empty" style="text-align:center;">
+                <i data-lucide="cloud-upload" style="width:36px;height:36px;margin:0 auto;opacity:0.4;display:block;"></i>
+                <p style="font-weight:600;margin-top:10px;">Drop file to share</p>
+                <p style="font-size:0.78rem;color:var(--muted);margin-top:3px;">Max 3MB</p>
+              </div>
+              <div id="comm-dropzone-file" style="display:none;text-align:center;">
+                <i data-lucide="file-check" style="width:36px;height:36px;margin:0 auto;color:var(--green);display:block;"></i>
+                <p id="comm-file-name-display" style="font-weight:700;margin-top:10px;word-break:break-all;"></p>
+                <span class="tag tag-green" style="margin-top:8px;">Ready</span>
+              </div>
+            </div>
+
+            <!-- Target members -->
+            <div style="margin-bottom:1rem;padding:12px;background:var(--glass);border:1px solid var(--glass-border);border-radius:14px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                <span class="section-label">Send to</span>
+                <button id="btn-toggle-all-targets" class="btn btn-ghost btn-sm" style="padding:4px 10px;font-size:0.72rem;">Select All</button>
+              </div>
+              <div id="comm-target-list" style="display:flex;flex-wrap:wrap;gap:6px;max-height:80px;overflow-y:auto;"></div>
+            </div>
+
+            <!-- Send button -->
+            <div style="display:flex;gap:8px;margin-bottom:1.25rem;">
+              <button id="comm-send-btn" class="btn btn-accent3" style="flex:1;padding:0.9rem;">
+                <i data-lucide="send" style="width:16px;height:16px;"></i>
+                <span id="comm-send-btn-text">SEND FILE</span>
+                <div id="comm-send-spinner" class="spinner" style="display:none;"></div>
+              </button>
+              <button onclick="removeCommFile()" class="btn btn-danger btn-icon"><i data-lucide="x" style="width:16px;height:16px;"></i></button>
+            </div>
+
+            <!-- File list -->
+            <div class="section-label" style="margin-bottom:10px;">Room Files</div>
+            <div id="comm-file-list" style="display:flex;flex-direction:column;gap:8px;max-height:320px;overflow-y:auto;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer style="text-align:center;padding:1.5rem;font-size:0.7rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--muted);opacity:0.5;">
+    EX · EPHEMERAL · 1H PURGE
+  </footer>
 </div>
 
 <script>
-  (function(){
-    const sb = supabase.createClient('https://ersmbkzwcukkqkyrveqt.supabase.co', 'sb_publishable_2w2WWtOBoKtNArFLZ51B-A_WYLCy0XD');
-    
-    let currentUser = null, selectedFile = null, selectedCommFile = null;
-    let currentTransferMode = 'private', currentReceiveMode = 'private';
-    let currentCommunity = null, myMemberRole = null;
-    
-    const playSound = (type) => {
-      try { 
-        const sounds = { send: 'https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3', receive: 'https://assets.mixkit.co/active_storage/sfx/2001/2001-preview.mp3', success: 'https://assets.mixkit.co/active_storage/sfx/2002/2002-preview.mp3', delete: 'https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3', notification: 'https://assets.mixkit.co/active_storage/sfx/2004/2004-preview.mp3' };
-        new Audio(sounds[type]).play().catch(()=>{});
-      } catch(e) {}
-    };
+(function() {
+  const SUPABASE_URL = 'https://ersmbkzwcukkqkyrveqt.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_2w2WWtOBoKtNArFLZ51B-A_WYLCy0XD';
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const showToast = (msg, type='info') => {
-      const c = document.getElementById('toast-container'), t = document.createElement('div');
-      t.className = `${type==='success'?'bg-green-500':type==='error'?'bg-red-500':'bg-blue-500'} p-5 rounded-2xl text-white font-bold toast shadow-2xl flex items-center gap-2`;
-      t.innerHTML = `<i data-lucide="${type==='success'?'check-circle':'alert-circle'}"></i> ${msg}`; c.appendChild(t); lucide.createIcons(); setTimeout(()=>t.remove(),3000);
-    };
-    
-    const showModal = (title, message, onConfirm, confirmText='Confirm', isDestructive=false) => {
-      const overlay = document.createElement('div'); overlay.className = 'modal-overlay';
-      overlay.innerHTML = `<div class="modal-content"><h3 class="text-2xl font-black mb-3">${title}</h3><p class="opacity-70 mb-6">${message}</p><div class="flex gap-3"><button class="cancel-btn flex-1 py-4 rounded-2xl bg-white/5 font-bold">Cancel</button><button class="confirm-btn flex-1 py-4 rounded-2xl font-bold text-white ${isDestructive ? 'bg-red-600' : 'bg-blue-600'}">${confirmText}</button></div></div>`;
-      document.body.appendChild(overlay);
-      overlay.querySelector('.cancel-btn').onclick = () => overlay.remove();
-      overlay.querySelector('.confirm-btn').onclick = () => { onConfirm(); overlay.remove(); };
-    };
+  let currentUser = null;
+  let selectedFile = null;
+  let selectedCommFile = null;
+  let currentTransferMode = 'private';
+  let currentReceiveMode = 'private';
+  let currentCommunity = null;
+  let myMemberRole = null;
+  let currentReceiveData = null;
+  let inboxSubscription = null;
 
-    const showView = (name) => {
-      document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-      document.getElementById(`view-${name}`).classList.add('active');
-      if(name==='inbox'&&currentUser) fetchInbox();
-      if(name==='community-hub'&&currentUser) fetchMyCommunities();
-      window.scrollTo(0,0); lucide.createIcons();
-    };
+  // ─── UTILS ───────────────────────────────────────────────────────
 
-    window.toggleTheme = () => {
-      const cur = document.documentElement.getAttribute('data-theme'), next = cur==='dark'?'light':'dark';
-      document.documentElement.setAttribute('data-theme', next); localStorage.setItem('ex_theme', next);
-      document.getElementById('theme-icon').setAttribute('data-lucide', next==='dark'?'sun':'moon'); lucide.createIcons();
-    };
-    
-    window.setTransferMode = (m) => { currentTransferMode=m; document.getElementById('mode-private').classList.toggle('bg-blue-600', m==='private'); document.getElementById('mode-public').classList.toggle('bg-blue-600', m==='public'); document.getElementById('private-fields').classList.toggle('hidden', m!=='private'); };
-    window.setReceiveMode = (m) => { currentReceiveMode=m; document.getElementById('recv-mode-private').classList.toggle('bg-purple-600', m==='private'); document.getElementById('recv-mode-public').classList.toggle('bg-purple-600', m==='public'); document.getElementById('receive-private-fields').classList.toggle('hidden', m!=='private'); document.getElementById('receive-public-fields').classList.toggle('hidden', m!=='public'); };
+  const escapeHtml = s => s ? String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) : '';
 
-    // Auth
-    window.handleSignup = async () => {
-      const n = document.getElementById('signup-name').value.trim(), u = document.getElementById('signup-username').value.trim().toLowerCase(), p = document.getElementById('signup-password').value;
-      if(!n||!u||p.length<8) return showToast('All fields required, password min 8','error');
-      const {error} = await sb.from('users').insert([{name:n, username:u, password:p, bio:''}]);
-      if(error) return showToast(error.code==='23505'?'Username taken':error.message,'error');
-      playSound('success'); showToast('Account created!','success'); showView('login');
-    };
-    
-    window.handleLogin = async () => {
-      const u = document.getElementById('login-username').value.trim().toLowerCase(), p = document.getElementById('login-password').value;
-      const {data, error} = await sb.from('users').select('*').eq('username',u).eq('password',p).single();
-      if(error||!data) return showToast('Invalid credentials','error');
-      currentUser = data;
-      document.getElementById('user-display').classList.remove('hidden'); document.getElementById('nav-username').innerText = `@${u}`;
-      document.getElementById('profile-name').innerText=data.name; document.getElementById('profile-username').innerText=`@${u}`; document.getElementById('profile-bio').value=data.bio||'';
-      playSound('success'); showToast(`Welcome ${data.name}`,'success'); showView('menu'); fetchInbox(); subscribeInbox(); fetchMyCommunities();
-    };
-    
-    window.handleLogout = () => { currentUser=null; document.getElementById('user-display').classList.add('hidden'); showView('landing'); };
-    window.updateBio = async () => { const b = document.getElementById('profile-bio').value.slice(0,101); await sb.from('users').update({bio:b}).eq('id',currentUser.id); showToast('Bio updated','success'); };
+  const formatTime = iso => {
+    const d = new Date(iso);
+    const now = new Date();
+    const diff = now - d;
+    if(diff < 60000) return 'just now';
+    if(diff < 3600000) return `${Math.floor(diff/60000)}m ago`;
+    return d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  };
 
-    // Community functions
-    const fetchMyCommunities = async () => {
-      if(!currentUser) return;
-      const {data} = await sb.from('community_members').select('community_id, communities(*)').eq('user_id', currentUser.id);
-      const section = document.getElementById('joined-communities-section'), list = document.getElementById('my-communities-list');
-      if(data?.length) { section.classList.remove('hidden'); list.innerHTML = data.map(i=>`<div onclick="enterCommunityRoom('${i.communities.id}')" class="glass-card p-5 cursor-pointer hover:border-orange-500"><div class="flex items-center gap-3"><i data-lucide="users" class="w-6 h-6 text-orange-400"></i><div><h4 class="font-black">${escapeHtml(i.communities.name)}</h4><p class="text-xs opacity-50">${escapeHtml(i.communities.bio||'')}</p></div></div></div>`).join(''); }
-      else section.classList.add('hidden');
-      lucide.createIcons();
-    };
-    
-    window.handleCreateCommunity = async () => {
-      if(!currentUser) return showToast('Please login first','error');
-      const name = document.getElementById('comm-create-name').value.trim().toLowerCase(), sentence = document.getElementById('comm-create-sentence').value.trim(), bio = document.getElementById('comm-create-bio').value.trim();
-      if(!name||!sentence) return showToast('Room name and secret required','error');
-      if(name.includes(' ')) return showToast('Room name must be one word','error');
-      const {data: comm, error} = await sb.from('communities').insert([{name, secret_sentence: sentence, bio, creator_id: currentUser.id}]).select().single();
-      if(error) return showToast(error.code==='23505'?'Room name taken':error.message,'error');
-      await sb.from('community_members').insert([{community_id: comm.id, user_id: currentUser.id, role: 'admin', permissions: {can_send: true, can_delete: true, can_control: true}}]);
-      playSound('success'); showToast('Room created!','success'); enterCommunityRoom(comm.id);
-    };
-    
-    window.handleJoinCommunity = async () => {
-      if(!currentUser) return showToast('Please login first','error');
-      const name = document.getElementById('comm-join-name').value.trim().toLowerCase(), sentence = document.getElementById('comm-join-sentence').value.trim();
-      if(!name||!sentence) return showToast('Room name and secret required','error');
-      
-      const {data: comm, error} = await sb.from('communities').select('*').eq('name', name).eq('secret_sentence', sentence).single();
-      if(error || !comm) return showToast('Invalid room name or secret sentence','error');
-      
-      const {data: existing} = await sb.from('community_members').select('*').eq('community_id', comm.id).eq('user_id', currentUser.id).single();
-      if(!existing) {
-        await sb.from('community_members').insert([{community_id: comm.id, user_id: currentUser.id, role: 'member', permissions: {can_send: true}}]);
+  const formatSize = bytes => {
+    if(bytes < 1024) return bytes + 'B';
+    if(bytes < 1048576) return (bytes/1024).toFixed(1) + 'KB';
+    return (bytes/1048576).toFixed(1) + 'MB';
+  };
+
+  const setLoading = (btnTextId, spinnerId, btnId, loading) => {
+    const t = document.getElementById(btnTextId);
+    const s = document.getElementById(spinnerId);
+    const b = document.getElementById(btnId);
+    if(t) t.style.display = loading ? 'none' : '';
+    if(s) s.style.display = loading ? 'flex' : 'none';
+    if(b) b.disabled = loading;
+  };
+
+  // ─── TOAST ───────────────────────────────────────────────────────
+
+  const showToast = (msg, type = 'info') => {
+    const c = document.getElementById('toast-container');
+    const t = document.createElement('div');
+    const icons = {success:'check-circle', error:'x-circle', info:'info', warn:'alert-triangle'};
+    t.className = `toast toast-${type}`;
+    t.innerHTML = `<i data-lucide="${icons[type]||'info'}" style="width:16px;height:16px;flex-shrink:0;"></i><span>${escapeHtml(msg)}</span>`;
+    c.appendChild(t);
+    lucide.createIcons({nodes: [t]});
+    setTimeout(() => { t.classList.add('toast-out'); setTimeout(() => t.remove(), 300); }, 3500);
+  };
+
+  // ─── MODAL ───────────────────────────────────────────────────────
+
+  const showModal = (title, msg, onConfirm, confirmText='Confirm', danger=false) => {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.innerHTML = `<div class="modal-box"><div style="font-family:'Bebas Neue';font-size:1.8rem;letter-spacing:2px;margin-bottom:8px;">${escapeHtml(title)}</div><p style="color:var(--muted);margin-bottom:1.5rem;font-size:0.9rem;">${escapeHtml(msg)}</p><div style="display:flex;gap:8px;"><button class="btn btn-ghost cancel-btn" style="flex:1;">Cancel</button><button class="btn confirm-btn ${danger?'btn-danger':'btn-accent'}" style="flex:1;">${escapeHtml(confirmText)}</button></div></div>`;
+    document.body.appendChild(overlay);
+    overlay.querySelector('.cancel-btn').onclick = () => overlay.remove();
+    overlay.querySelector('.confirm-btn').onclick = () => { onConfirm(); overlay.remove(); };
+    overlay.onclick = e => { if(e.target === overlay) overlay.remove(); };
+  };
+
+  // ─── VIEW SYSTEM ─────────────────────────────────────────────────
+
+  window.showView = (name) => {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    const view = document.getElementById(`view-${name}`);
+    if(view) view.classList.add('active');
+    if(name === 'inbox' && currentUser) fetchInbox();
+    if(name === 'community-hub' && currentUser) fetchMyCommunities();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => lucide.createIcons(), 50);
+  };
+
+  // ─── THEME ───────────────────────────────────────────────────────
+
+  window.toggleTheme = () => {
+    const cur = document.documentElement.getAttribute('data-theme');
+    const next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('ex_theme', next);
+    const icon = document.getElementById('theme-icon');
+    icon.setAttribute('data-lucide', next === 'dark' ? 'sun' : 'moon');
+    lucide.createIcons({ nodes: [icon] });
+  };
+
+  // ─── MODE SWITCHES ────────────────────────────────────────────────
+
+  window.setTransferMode = (m) => {
+    currentTransferMode = m;
+    ['private','public'].forEach(x => {
+      document.getElementById(`mode-${x}`).classList.toggle('active', x === m);
+    });
+    document.getElementById('private-fields').style.display = m === 'private' ? '' : 'none';
+    document.getElementById('public-code-display').style.display = m === 'public' ? '' : 'none';
+    if(m === 'public') {
+      const code = String(Math.floor(Math.random() * 90) + 10);
+      document.getElementById('generated-code').innerText = code;
+      document.getElementById('send-receiver').setAttribute('data-public-code', code);
+    }
+  };
+
+  window.setReceiveMode = (m) => {
+    currentReceiveMode = m;
+    document.getElementById('recv-mode-private').classList.toggle('active', m === 'private');
+    document.getElementById('recv-mode-public').classList.toggle('active', m === 'public');
+    document.getElementById('receive-private-fields').style.display = m === 'private' ? '' : 'none';
+    document.getElementById('receive-public-fields').style.display = m === 'public' ? '' : 'none';
+  };
+
+  // ─── AUTH ─────────────────────────────────────────────────────────
+
+  window.handleSignup = async () => {
+    const name = document.getElementById('signup-name').value.trim();
+    const username = document.getElementById('signup-username').value.trim().toLowerCase();
+    const password = document.getElementById('signup-password').value;
+    if(!name || !username || password.length < 8) return showToast('All fields required · password min 8 chars', 'error');
+    if(/\s/.test(username)) return showToast('Username cannot contain spaces', 'error');
+    setLoading('signup-btn-text', 'signup-spinner', 'signup-btn-text', true);
+    const { error } = await sb.from('users').insert([{ name, username, password, bio: '' }]);
+    setLoading('signup-btn-text', 'signup-spinner', 'signup-btn-text', false);
+    if(error) return showToast(error.code === '23505' ? 'Username already taken' : error.message, 'error');
+    showToast('Account created! Please login.', 'success');
+    showView('login');
+  };
+
+  window.handleLogin = async () => {
+    const username = document.getElementById('login-username').value.trim().toLowerCase();
+    const password = document.getElementById('login-password').value;
+    if(!username || !password) return showToast('Fill in all fields', 'error');
+    setLoading('login-btn-text', 'login-spinner', null, true);
+    const { data, error } = await sb.from('users').select('*').eq('username', username).eq('password', password).single();
+    setLoading('login-btn-text', 'login-spinner', null, false);
+    if(error || !data) return showToast('Invalid username or password', 'error');
+    currentUser = data;
+    document.getElementById('user-display').style.display = 'flex';
+    document.getElementById('nav-username').innerText = `@${username}`;
+    document.getElementById('profile-name').innerText = data.name;
+    document.getElementById('profile-username').innerText = `@${username}`;
+    document.getElementById('profile-bio').value = data.bio || '';
+    showToast(`Welcome back, ${data.name}!`, 'success');
+    showView('menu');
+    fetchInbox();
+    subscribeInbox();
+    fetchMyCommunities();
+  };
+
+  window.handleLogout = () => {
+    currentUser = null;
+    if(inboxSubscription) sb.removeChannel(inboxSubscription);
+    document.getElementById('user-display').style.display = 'none';
+    showToast('Logged out', 'info');
+    showView('landing');
+  };
+
+  window.updateBio = async () => {
+    const bio = document.getElementById('profile-bio').value.slice(0, 101);
+    const { error } = await sb.from('users').update({ bio }).eq('id', currentUser.id);
+    if(error) return showToast('Failed to update bio', 'error');
+    currentUser.bio = bio;
+    showToast('Bio updated!', 'success');
+  };
+
+  // ─── FILE SELECTION ───────────────────────────────────────────────
+
+  window.handleFileSelection = (f) => {
+    if(!f) return;
+    if(f.size > 3 * 1024 * 1024) return showToast('File exceeds 3MB limit', 'error');
+    selectedFile = f;
+    document.getElementById('dropzone-empty').style.display = 'none';
+    document.getElementById('dropzone-file').style.display = 'block';
+    document.getElementById('file-name-display').innerText = f.name;
+  };
+
+  window.removeFile = () => {
+    selectedFile = null;
+    document.getElementById('dropzone-empty').style.display = 'block';
+    document.getElementById('dropzone-file').style.display = 'none';
+    document.getElementById('file-input').value = '';
+  };
+
+  // ─── SEND ─────────────────────────────────────────────────────────
+
+  window.handleSend = async () => {
+    const receiver = document.getElementById('send-receiver').value.trim().toLowerCase().replace('@','');
+    const password = document.getElementById('send-password').value;
+    const nickname = document.getElementById('send-nickname').value.trim() || 'Anonymous';
+    const textMsg = document.getElementById('send-text').value.trim();
+    const isPublic = currentTransferMode === 'public';
+
+    if(!receiver) return showToast('Enter receiver username', 'error');
+    if(!selectedFile && !textMsg) return showToast('Add a file or type a message', 'error');
+    if(!isPublic && !password) return showToast('Enter a secret password for private send', 'error');
+
+    setLoading('send-btn-text', 'send-spinner', 'send-now-btn', true);
+
+    try {
+      let filePath = null, fileName = textMsg ? 'Text Message' : selectedFile.name;
+      if(selectedFile) {
+        filePath = `transfers/${Date.now()}_${selectedFile.name}`;
+        const { error: upErr } = await sb.storage.from('transfers').upload(filePath, selectedFile);
+        if(upErr) throw upErr;
       }
-      
-      playSound('success'); showToast(`Joined ${comm.name}!`,'success'); enterCommunityRoom(comm.id);
-    };
-    
-    window.enterCommunityRoom = async (commId) => {
-      const {data: comm} = await sb.from('communities').select('*').eq('id', commId).single();
-      currentCommunity = comm;
-      const {data: myMem} = await sb.from('community_members').select('*').eq('community_id', commId).eq('user_id', currentUser.id).single();
-      myMemberRole = myMem;
-      document.getElementById('room-name').innerText = comm.name; document.getElementById('room-bio').innerText = comm.bio || '';
-      showView('community-room'); fetchCommunityMembers(); fetchCommunityFiles();
-      const dz = document.getElementById('comm-dropzone'); dz.onclick = ()=> document.getElementById('comm-file-input').click();
-      document.getElementById('comm-file-input').onchange = e=> handleCommFileSelect(e.target.files[0]);
-      dz.ondragover = e=> { e.preventDefault(); dz.style.borderColor = '#f97316'; };
-      dz.ondragleave = ()=> dz.style.borderColor = '';
-      dz.ondrop = e=> { e.preventDefault(); dz.style.borderColor = ''; handleCommFileSelect(e.dataTransfer.files[0]); };
-      document.getElementById('comm-send-btn').onclick = handleCommSend;
-    };
-    
-    const fetchCommunityMembers = async () => {
-      const {data} = await sb.from('community_members').select('*, users(name)').eq('community_id', currentCommunity.id);
-      const isAdmin = myMemberRole?.role === 'admin' || myMemberRole?.permissions?.can_control;
-      document.getElementById('member-count').innerText = data?.length||0;
-      document.getElementById('member-list').innerHTML = data?.map(m=>`<div class="flex items-center justify-between p-2 bg-white/5 rounded-lg"><div class="flex items-center gap-2"><i data-lucide="user" class="w-3 h-3"></i><span class="text-sm">${escapeHtml(m.users.name)} ${m.role==='admin'?'👑':''}</span></div>${isAdmin&&m.user_id!==currentUser.id?`<button onclick="toggleUserPermission('${m.id}')" class="text-xs px-2 py-1 bg-white/10 rounded">⚙️</button>`:''}</div>`).join('');
-      
-      const targetList = document.getElementById('comm-target-list');
-      const others = data?.filter(m=>m.user_id!==currentUser.id)||[];
-      targetList.innerHTML = others.length ? others.map(m=>`<label class="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-lg cursor-pointer"><input type="checkbox" name="comm-target" value="${m.user_id}" class="accent-orange-500"><span class="text-xs">${escapeHtml(m.users.name)}</span></label>`).join('') : '<p class="text-xs opacity-40">No other members</p>';
-      document.getElementById('btn-toggle-all-targets').onclick = ()=> document.querySelectorAll('input[name="comm-target"]').forEach(cb=>cb.checked=!cb.checked);
+
+      const publicCode = isPublic ? document.getElementById('generated-code').innerText : null;
+      const { error } = await sb.from('transfers').insert([{
+        sender_nickname: nickname,
+        receiver_username: receiver,
+        file_name: fileName,
+        file_path: filePath,
+        text_content: textMsg || null,
+        password: isPublic ? null : password,
+        is_public: isPublic,
+        public_code: publicCode,
+      }]);
+      if(error) throw error;
+
+      showToast('File sent successfully! 🚀', 'success');
+      removeFile();
+      document.getElementById('send-text').value = '';
+      document.getElementById('send-receiver').value = '';
+      document.getElementById('send-password').value = '';
+    } catch(err) {
+      showToast(err.message || 'Send failed', 'error');
+    }
+    setLoading('send-btn-text', 'send-spinner', 'send-now-btn', false);
+  };
+
+  // ─── RECEIVE ─────────────────────────────────────────────────────
+
+  window.handleReceive = async () => {
+    setLoading('receive-btn-text', 'receive-spinner', 'receive-btn', true);
+    document.getElementById('receive-result').style.display = 'none';
+
+    try {
+      let data = null;
+      if(currentReceiveMode === 'private') {
+        const username = document.getElementById('receive-username').value.trim().toLowerCase().replace('@','');
+        const password = document.getElementById('receive-password').value;
+        if(!username || !password) { showToast('Fill in username and password', 'error'); return; }
+        const cutoff = new Date(Date.now() - 3600000).toISOString();
+        const { data: rows } = await sb.from('transfers').select('*').eq('receiver_username', username).eq('password', password).gte('created_at', cutoff).order('created_at', { ascending: false }).limit(1);
+        data = rows?.[0];
+      } else {
+        const code = document.getElementById('receive-code').value.trim();
+        if(!code || code.length !== 2) { showToast('Enter a valid 2-digit code', 'error'); return; }
+        const cutoff = new Date(Date.now() - 3600000).toISOString();
+        const { data: rows } = await sb.from('transfers').select('*').eq('public_code', code).eq('is_public', true).gte('created_at', cutoff).order('created_at', { ascending: false }).limit(1);
+        data = rows?.[0];
+      }
+
+      if(!data) { showToast('No file found or expired', 'error'); return; }
+      currentReceiveData = data;
+      document.getElementById('res-filename').innerText = data.file_name;
+      document.getElementById('res-sender').innerText = `From: ${data.sender_nickname} · ${formatTime(data.created_at)}`;
+      document.getElementById('receive-result').style.display = 'block';
+
+      const downloadBtn = document.getElementById('download-btn');
+      const printBtn = document.getElementById('print-btn');
+      const deleteBtn = document.getElementById('receive-delete-btn');
+
+      downloadBtn.onclick = async () => {
+        if(data.text_content && !data.file_path) {
+          const blob = new Blob([data.text_content], { type: 'text/plain' });
+          triggerDownload(blob, 'message.txt');
+        } else if(data.file_path) {
+          const { data: blob, error } = await sb.storage.from('transfers').download(data.file_path);
+          if(error) return showToast('Download failed', 'error');
+          triggerDownload(blob, data.file_name);
+        }
+      };
+
+      printBtn.onclick = () => {
+        if(data.text_content) { const w = window.open(); w.document.write(`<pre>${escapeHtml(data.text_content)}</pre>`); w.print(); }
+      };
+
+      deleteBtn.onclick = () => {
+        showModal('Delete File', 'Remove this file permanently?', async () => {
+          if(data.file_path) await sb.storage.from('transfers').remove([data.file_path]);
+          await sb.from('transfers').delete().eq('id', data.id);
+          document.getElementById('receive-result').style.display = 'none';
+          showToast('Deleted', 'success');
+        }, 'Delete', true);
+      };
+
       lucide.createIcons();
-    };
-    
-    window.toggleUserPermission = async (memberId) => { showToast('Admin controls coming soon','info'); };
-    
-    const fetchCommunityFiles = async () => {
-      const {data} = await sb.from('community_files').select('*, users(name)').eq('community_id', currentCommunity.id).order('created_at', {ascending: false});
-      const container = document.getElementById('comm-file-list');
-      container.innerHTML = data?.length ? data.map(f=>`<div class="glass p-3 flex items-center justify-between"><div><p class="font-bold text-sm">${escapeHtml(f.file_name)}</p><p class="text-xs opacity-50">${escapeHtml(f.users.name)}</p></div><button onclick="downloadCommFile('${f.id}')" class="p-2 bg-blue-600/20 rounded-lg"><i data-lucide="download" class="w-4 h-4"></i></button></div>`).join('') : '<p class="text-center py-10 opacity-40">No files yet</p>';
+    } catch(err) {
+      showToast(err.message || 'Error', 'error');
+    }
+    setLoading('receive-btn-text', 'receive-spinner', 'receive-btn', false);
+  };
+
+  const triggerDownload = (blob, name) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = name; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    showToast('Download started!', 'success');
+  };
+
+  // ─── INBOX ────────────────────────────────────────────────────────
+
+  const fetchInbox = async () => {
+    if(!currentUser) return;
+    const cutoff = new Date(Date.now() - 3600000).toISOString();
+    const { data } = await sb.from('transfers').select('*').eq('receiver_username', currentUser.username).gte('created_at', cutoff).order('created_at', { ascending: false });
+    const container = document.getElementById('inbox-list');
+    const badge = document.getElementById('inbox-badge');
+
+    if(!data?.length) {
+      container.innerHTML = `<div style="text-align:center;padding:4rem 0;color:var(--muted);"><i data-lucide="inbox" style="width:48px;height:48px;margin:0 auto 12px;display:block;opacity:0.3;"></i><p>Inbox empty</p><p style="font-size:0.8rem;margin-top:4px;opacity:0.6;">Files auto-delete after 1 hour</p></div>`;
+      badge.style.display = 'none';
       lucide.createIcons();
+      return;
+    }
+
+    badge.style.display = 'flex';
+    badge.innerText = data.length > 99 ? '99+' : data.length;
+    container.innerHTML = data.map(f => `
+      <div class="file-item" style="margin-bottom:8px;">
+        <div style="width:40px;height:40px;background:${f.is_public?'rgba(167,139,250,0.15)':'rgba(79,110,247,0.15)'};border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <i data-lucide="${f.is_public?'globe':'lock'}" style="width:16px;height:16px;color:${f.is_public?'var(--accent2)':'var(--accent)'};"></i>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(f.file_name)}</div>
+          <div style="font-size:0.75rem;color:var(--muted);margin-top:2px;">From: ${escapeHtml(f.sender_nickname)} · ${formatTime(f.created_at)}</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0;">
+          <button onclick="openInboxFile('${f.id}','${f.password||''}',${f.is_public},${f.file_path?`'${f.file_path}'`:'null'},'${escapeHtml(f.file_name)}','${escapeHtml(f.text_content||'')}')" class="btn btn-ghost btn-icon btn-sm">
+            <i data-lucide="${f.is_public?'download':'eye'}" style="width:14px;height:14px;"></i>
+          </button>
+          <button onclick="deleteInboxFile('${f.id}','${f.file_path||''}')" class="btn btn-danger btn-icon btn-sm">
+            <i data-lucide="trash-2" style="width:14px;height:14px;"></i>
+          </button>
+        </div>
+      </div>
+    `).join('');
+    lucide.createIcons();
+  };
+
+  window.openInboxFile = async (id, pass, isPublic, filePath, fileName, textContent) => {
+    const doDownload = async () => {
+      if(textContent) {
+        const blob = new Blob([textContent], { type: 'text/plain' });
+        triggerDownload(blob, 'message.txt');
+      } else if(filePath && filePath !== 'null') {
+        const { data: blob, error } = await sb.storage.from('transfers').download(filePath);
+        if(error) return showToast('Download failed', 'error');
+        triggerDownload(blob, fileName);
+      }
     };
-    
-    const handleCommFileSelect = (f) => { if(!f) return; if(f.size>3e6) return showToast('Max 3MB','error'); selectedCommFile=f; document.getElementById('comm-dropzone-empty').classList.add('hidden'); document.getElementById('comm-dropzone-file').classList.remove('hidden'); document.getElementById('comm-file-name-display').innerText=f.name; };
-    window.removeCommFile = ()=> { selectedCommFile=null; document.getElementById('comm-dropzone-empty').classList.remove('hidden'); document.getElementById('comm-dropzone-file').classList.add('hidden'); };
-    
-    const handleCommSend = async () => {
-      if(!selectedCommFile) return showToast('Select a file','error');
-      const targets = Array.from(document.querySelectorAll('input[name="comm-target"]:checked')).map(cb=>cb.value);
-      const btn = document.getElementById('comm-send-btn'); btn.disabled=true; btn.innerHTML='<div class="loader-spin"></div>';
+    if(isPublic || !pass) { doDownload(); return; }
+    const pw = prompt('Enter password to decrypt:');
+    if(pw === pass) doDownload(); else showToast('Wrong password', 'error');
+  };
+
+  window.deleteInboxFile = async (id, path) => {
+    showModal('Delete File', 'Remove this file from your inbox?', async () => {
+      if(path && path !== 'null') await sb.storage.from('transfers').remove([path]);
+      await sb.from('transfers').delete().eq('id', id);
+      showToast('Deleted', 'success');
+      fetchInbox();
+    }, 'Delete', true);
+  };
+
+  const subscribeInbox = () => {
+    if(!currentUser) return;
+    inboxSubscription = sb.channel(`inbox-${currentUser.username}`)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'transfers', filter: `receiver_username=eq.${currentUser.username}` }, () => {
+        fetchInbox();
+        showToast('📬 New file received!', 'success');
+      }).subscribe();
+  };
+
+  // ─── COMMUNITY ────────────────────────────────────────────────────
+
+  const fetchMyCommunities = async () => {
+    if(!currentUser) return;
+    const { data } = await sb.from('community_members').select('community_id, communities(*)').eq('user_id', currentUser.id);
+    const section = document.getElementById('joined-communities-section');
+    const list = document.getElementById('my-communities-list');
+    if(!data?.length) { section.style.display = 'none'; return; }
+    section.style.display = 'block';
+    list.innerHTML = data.map(i => `
+      <div onclick="enterCommunityRoom('${i.communities.id}')" class="comm-card">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:36px;height:36px;background:rgba(251,146,60,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i data-lucide="hash" style="width:16px;height:16px;color:var(--accent3);"></i>
+          </div>
+          <div>
+            <div style="font-weight:700;">${escapeHtml(i.communities.name)}</div>
+            <div style="font-size:0.75rem;color:var(--muted);">${escapeHtml(i.communities.bio || 'No description')}</div>
+          </div>
+        </div>
+      </div>
+    `).join('');
+    lucide.createIcons();
+  };
+
+  window.handleCreateCommunity = async () => {
+    if(!currentUser) return showToast('Please login first', 'error');
+    const name = document.getElementById('comm-create-name').value.trim().toLowerCase();
+    const sentence = document.getElementById('comm-create-sentence').value.trim();
+    const bio = document.getElementById('comm-create-bio').value.trim();
+    if(!name || !sentence) return showToast('Room name and secret phrase required', 'error');
+    if(/\s/.test(name)) return showToast('Room name cannot contain spaces', 'error');
+    setLoading('create-comm-btn-text', 'create-comm-spinner', null, true);
+    const { data: comm, error } = await sb.from('communities').insert([{ name, secret_sentence: sentence, bio, creator_id: currentUser.id }]).select().single();
+    setLoading('create-comm-btn-text', 'create-comm-spinner', null, false);
+    if(error) return showToast(error.code === '23505' ? 'Room name already taken' : error.message, 'error');
+    await sb.from('community_members').insert([{ community_id: comm.id, user_id: currentUser.id, role: 'admin', permissions: { can_send: true, can_delete: true, can_control: true } }]);
+    showToast(`Room "${name}" created!`, 'success');
+    enterCommunityRoom(comm.id);
+  };
+
+  window.handleJoinCommunity = async () => {
+    if(!currentUser) return showToast('Please login first', 'error');
+    const name = document.getElementById('comm-join-name').value.trim().toLowerCase();
+    const sentence = document.getElementById('comm-join-sentence').value.trim();
+    if(!name || !sentence) return showToast('Room name and secret phrase required', 'error');
+    setLoading('join-comm-btn-text', 'join-comm-spinner', null, true);
+    const { data: comm } = await sb.from('communities').select('*').eq('name', name).eq('secret_sentence', sentence).single();
+    setLoading('join-comm-btn-text', 'join-comm-spinner', null, false);
+    if(!comm) return showToast('Invalid room name or secret phrase', 'error');
+    const { data: existing } = await sb.from('community_members').select('*').eq('community_id', comm.id).eq('user_id', currentUser.id).single();
+    if(!existing) await sb.from('community_members').insert([{ community_id: comm.id, user_id: currentUser.id, role: 'member', permissions: { can_send: true } }]);
+    showToast(`Joined #${comm.name}!`, 'success');
+    enterCommunityRoom(comm.id);
+  };
+
+  window.enterCommunityRoom = async (commId) => {
+    const { data: comm } = await sb.from('communities').select('*').eq('id', commId).single();
+    if(!comm) return showToast('Room not found', 'error');
+    currentCommunity = comm;
+    if(currentUser) {
+      const { data: mem } = await sb.from('community_members').select('*').eq('community_id', commId).eq('user_id', currentUser.id).single();
+      myMemberRole = mem;
+    }
+    document.getElementById('room-name').innerText = `#${comm.name}`;
+    document.getElementById('room-bio').innerText = comm.bio || '';
+    showView('community-room');
+    fetchCommunityMembers();
+    fetchCommunityFiles();
+    // Setup drag/drop for comm dropzone
+    const dz = document.getElementById('comm-dropzone');
+    dz.ondragover = e => { e.preventDefault(); dz.classList.add('drag-over'); };
+    dz.ondragleave = () => dz.classList.remove('drag-over');
+    dz.ondrop = e => { e.preventDefault(); dz.classList.remove('drag-over'); handleCommFileSelect(e.dataTransfer.files[0]); };
+    // Setup main dropzone drag/drop too
+    const sdz = document.getElementById('send-dropzone');
+    if(sdz) {
+      sdz.ondragover = e => { e.preventDefault(); sdz.classList.add('drag-over'); };
+      sdz.ondragleave = () => sdz.classList.remove('drag-over');
+      sdz.ondrop = e => { e.preventDefault(); sdz.classList.remove('drag-over'); handleFileSelection(e.dataTransfer.files[0]); };
+    }
+    document.getElementById('comm-send-btn').onclick = handleCommSend;
+  };
+
+  const fetchCommunityMembers = async () => {
+    if(!currentCommunity) return;
+    const { data } = await sb.from('community_members').select('*, users(name, username)').eq('community_id', currentCommunity.id);
+    if(!data) return;
+    document.getElementById('member-count').innerText = data.length;
+    document.getElementById('member-list').innerHTML = data.map(m => `
+      <div class="member-item">
+        <div style="width:28px;height:28px;background:rgba(79,110,247,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <i data-lucide="user" style="width:12px;height:12px;color:var(--accent);"></i>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:0.83rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(m.users.name)}</div>
+          <div style="font-size:0.7rem;color:var(--muted);">@${escapeHtml(m.users.username)}</div>
+        </div>
+        ${m.role === 'admin' ? '<span class="tag tag-orange" style="font-size:0.65rem;">admin</span>' : ''}
+      </div>
+    `).join('');
+
+    // Target list
+    const others = data.filter(m => m.user_id !== currentUser?.id);
+    const targetList = document.getElementById('comm-target-list');
+    targetList.innerHTML = others.length
+      ? others.map(m => `<label style="display:flex;align-items:center;gap:6px;padding:5px 10px;background:var(--glass);border:1px solid var(--glass-border);border-radius:8px;cursor:pointer;font-size:0.8rem;font-weight:600;"><input type="checkbox" name="comm-target" value="${m.user_id}" style="accent-color:var(--accent3);">${escapeHtml(m.users.name)}</label>`).join('')
+      : '<p style="font-size:0.78rem;color:var(--muted);">No other members yet</p>';
+
+    document.getElementById('btn-toggle-all-targets').onclick = () => {
+      const cbs = document.querySelectorAll('input[name="comm-target"]');
+      const allChecked = [...cbs].every(cb => cb.checked);
+      cbs.forEach(cb => cb.checked = !allChecked);
+    };
+    lucide.createIcons();
+  };
+
+  const fetchCommunityFiles = async () => {
+    if(!currentCommunity) return;
+    const { data } = await sb.from('community_files').select('*, users(name)').eq('community_id', currentCommunity.id).order('created_at', { ascending: false });
+    const container = document.getElementById('comm-file-list');
+    if(!data?.length) {
+      container.innerHTML = `<div style="text-align:center;padding:2rem;color:var(--muted);font-size:0.875rem;">No files yet</div>`;
+      return;
+    }
+    container.innerHTML = data.map(f => `
+      <div class="file-item">
+        <div style="width:36px;height:36px;background:rgba(251,146,60,0.12);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <i data-lucide="file" style="width:15px;height:15px;color:var(--accent3);"></i>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:0.875rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(f.file_name)}</div>
+          <div style="font-size:0.72rem;color:var(--muted);">by ${escapeHtml(f.users.name)} · ${formatTime(f.created_at)}</div>
+        </div>
+        <button onclick="downloadCommFile('${f.id}')" class="btn btn-ghost btn-icon btn-sm">
+          <i data-lucide="download" style="width:14px;height:14px;"></i>
+        </button>
+        ${(myMemberRole?.role === 'admin' || myMemberRole?.permissions?.can_delete) ? `<button onclick="deleteCommFile('${f.id}','${f.file_path}')" class="btn btn-danger btn-icon btn-sm"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>` : ''}
+      </div>
+    `).join('');
+    lucide.createIcons();
+  };
+
+  window.handleCommFileSelect = (f) => {
+    if(!f) return;
+    if(f.size > 3 * 1024 * 1024) return showToast('File exceeds 3MB limit', 'error');
+    selectedCommFile = f;
+    document.getElementById('comm-dropzone-empty').style.display = 'none';
+    document.getElementById('comm-dropzone-file').style.display = 'block';
+    document.getElementById('comm-file-name-display').innerText = f.name;
+  };
+
+  window.removeCommFile = () => {
+    selectedCommFile = null;
+    document.getElementById('comm-dropzone-empty').style.display = 'block';
+    document.getElementById('comm-dropzone-file').style.display = 'none';
+    document.getElementById('comm-file-input').value = '';
+  };
+
+  const handleCommSend = async () => {
+    if(!selectedCommFile) return showToast('Select a file first', 'error');
+    if(!currentUser) return showToast('Please login', 'error');
+    const targets = [...document.querySelectorAll('input[name="comm-target"]:checked')].map(cb => cb.value);
+    const btn = document.getElementById('comm-send-btn');
+    btn.disabled = true;
+    document.getElementById('comm-send-btn-text').style.display = 'none';
+    document.getElementById('comm-send-spinner').style.display = 'flex';
+
+    try {
       const path = `community/${currentCommunity.id}/${Date.now()}_${selectedCommFile.name}`;
-      await sb.storage.from('transfers').upload(path, selectedCommFile);
-      await sb.from('community_files').insert([{community_id:currentCommunity.id, sender_id:currentUser.id, receiver_ids: targets.length?targets:null, file_name:selectedCommFile.name, file_path:path}]);
-      playSound('send'); showToast('Sent!','success'); removeCommFile(); fetchCommunityFiles(); btn.disabled=false; btn.innerHTML='📤 SEND';
-    };
-    
-    window.downloadCommFile = async (id) => {
-      const {data} = await sb.from('community_files').select('*').eq('id',id).single();
-      const blob = await sb.storage.from('transfers').download(data.file_path);
-      const url=URL.createObjectURL(blob.data); const a=document.createElement('a'); a.href=url; a.download=data.file_name; a.click(); playSound('receive');
-    };
-    
-    window.refreshCommunityFiles = ()=> fetchCommunityFiles();
+      const { error: upErr } = await sb.storage.from('transfers').upload(path, selectedCommFile);
+      if(upErr) throw upErr;
+      await sb.from('community_files').insert([{ community_id: currentCommunity.id, sender_id: currentUser.id, receiver_ids: targets.length ? targets : null, file_name: selectedCommFile.name, file_path: path }]);
+      showToast('File sent to room! 🎉', 'success');
+      removeCommFile();
+      fetchCommunityFiles();
+    } catch(err) {
+      showToast(err.message || 'Send failed', 'error');
+    }
+    btn.disabled = false;
+    document.getElementById('comm-send-btn-text').style.display = '';
+    document.getElementById('comm-send-spinner').style.display = 'none';
+  };
 
-    // Inbox
-    const fetchInbox = async () => {
-      if(!currentUser) return;
-      const {data} = await sb.from('transfers').select('*').eq('receiver_username', currentUser.username).gte('created_at', new Date(Date.now()-3600000).toISOString()).order('created_at', {ascending: false});
-      const c = document.getElementById('inbox-list'), badge = document.getElementById('inbox-badge');
-      if(!data?.length) { c.innerHTML='<div class="text-center py-20 opacity-30">📭 Inbox empty</div>'; badge.classList.add('hidden'); return; }
-      badge.classList.remove('hidden'); badge.innerText = data.length>99?'99+':data.length;
-      c.innerHTML = data.map(i=>`<div class="glass-card p-5 flex items-center gap-4"><i data-lucide="${i.is_public?'globe':'lock'}"></i><div class="flex-1"><h4 class="font-bold">${escapeHtml(i.file_name)}</h4></div><button onclick="openInboxFile('${i.id}','${i.password||''}',${i.is_public})" class="p-3 bg-blue-600/20 rounded-xl"><i data-lucide="${i.is_public?'download':'eye'}"></i></button><button onclick="deleteInboxFile('${i.id}','${i.file_path}')" class="p-3 bg-red-500/20 rounded-xl"><i data-lucide="trash-2"></i></button></div>`).join('');
-      lucide.createIcons();
-    };
-    
-    window.openInboxFile = async (id, pass, isPublic) => {
-      const {data} = await sb.from('transfers').select('*').eq('id',id).single();
-      const download = async ()=> { const blob=await sb.storage.from('transfers').download(data.file_path); const url=URL.createObjectURL(blob.data); const a=document.createElement('a'); a.href=url; a.download=data.file_name; a.click(); playSound('receive'); };
-      if(isPublic||!data.password) return download();
-      const pw = prompt('Enter password'); if(pw===pass) download(); else showToast('Wrong password','error');
-    };
-    
-    window.deleteInboxFile = async (id, path) => { await sb.storage.from('transfers').remove([path]); await sb.from('transfers').delete().eq('id',id); fetchInbox(); playSound('delete'); };
-    const subscribeInbox = ()=> { if(currentUser) sb.channel('inbox').on('postgres_changes',{event:'INSERT',schema:'public',table:'transfers',filter:`receiver_username=eq.${currentUser.username}`},()=>{ fetchInbox(); playSound('notification'); showToast('📬 New file!','success'); }).subscribe(); };
+  window.downloadCommFile = async (id) => {
+    const { data } = await sb.from('community_files').select('*').eq('id', id).single();
+    if(!data) return showToast('File not found', 'error');
+    const { data: blob, error } = await sb.storage.from('transfers').download(data.file_path);
+    if(error) return showToast('Download failed', 'error');
+    triggerDownload(blob, data.file_name);
+  };
 
-    // Send/Receive
-    window.handleFileSelection = (f)=> { if(f.size>3e6) return showToast('Max 3MB','error'); selectedFile=f; document.getElementById('dropzone-empty').classList.add('hidden'); document.getElementById('dropzone-file').classList.remove('hidden'); document.getElementById('file-name-display').innerText=f.name; };
-    window.removeFile = ()=> { selectedFile=null; document.getElementById('dropzone-empty').classList.remove('hidden'); document.getElementById('dropzone-file').classList.add('hidden'); };
-    window.handleSend = async ()=> {
-      const rec = document.getElementById('send-receiver').value.trim().toLowerCase(), pass = document.getElementById('send-password').value, nick = document.getElementById('send-nickname').value.trim(), text = document.getElementById('send-text').value;
-      if(!rec||!nick) return showToast('Receiver and nickname required','error');
-      let file = selectedFile; if(text&&!file) file = new File([text],'message.txt',{type:'text/plain'});
-      if(!file) return showToast('Select file or type message','error');
-      const btn = document.getElementById('send-now-btn'); btn.disabled=true; btn.innerHTML='<div class="loader-spin"></div>';
-      const path = `${rec}/${Date.now()}_${file.name}`; await sb.storage.from('transfers').upload(path, file);
-      await sb.from('transfers').insert([{receiver_username:rec, password:currentTransferMode==='private'?pass:null, is_public:currentTransferMode==='public', sender_nickname:nick, file_name:file.name, file_path:path}]);
-      playSound('send'); showToast('Sent!','success'); showView('menu'); btn.disabled=false; btn.innerHTML='🚀 SEND NOW';
-    };
-    window.handleReceive = async ()=> {
-      let q = sb.from('transfers').select('*');
-      if(currentReceiveMode==='private'){ const u=document.getElementById('receive-username').value.trim().toLowerCase(), p=document.getElementById('receive-password').value; if(!u||!p) return showToast('Fill fields','error'); q=q.eq('receiver_username',u).eq('password',p); }
-      else { const c=document.getElementById('receive-code').value.trim(); if(c.length!==2) return showToast('Enter 2-digit code','error'); q=q.eq('public_code',c).eq('is_public',true); }
-      const {data} = await q.order('created_at',{ascending:false}).limit(1); if(!data?.length) return showToast('No file found','error');
-      const t=data[0]; document.getElementById('receive-result').classList.remove('hidden'); document.getElementById('res-filename').innerText=t.file_name;
-      document.getElementById('download-btn').onclick = async ()=>{ const blob=await sb.storage.from('transfers').download(t.file_path); const url=URL.createObjectURL(blob.data); const a=document.createElement('a'); a.href=url; a.download=t.file_name; a.click(); playSound('receive'); };
-    };
-    
-    const escapeHtml = s=> s?String(s).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])):'';
+  window.deleteCommFile = async (id, path) => {
+    showModal('Delete File', 'Remove this file from the room?', async () => {
+      if(path) await sb.storage.from('transfers').remove([path]);
+      await sb.from('community_files').delete().eq('id', id);
+      showToast('File deleted', 'success');
+      fetchCommunityFiles();
+    }, 'Delete', true);
+  };
 
-    window.onload = ()=>{
-      setTimeout(()=>{ document.getElementById('loading-screen').style.opacity='0'; setTimeout(()=>{ document.getElementById('loading-screen').style.display='none'; document.getElementById('main-app').style.display='block'; lucide.createIcons(); },600); },2000);
-      const theme = localStorage.getItem('ex_theme')||'dark'; document.documentElement.setAttribute('data-theme',theme); document.getElementById('theme-icon').setAttribute('data-lucide', theme==='dark'?'sun':'moon');
-      const dz = document.getElementById('dropzone'); dz.onclick = ()=> document.getElementById('file-input').click(); document.getElementById('file-input').onchange = e=> handleFileSelection(e.target.files[0]);
-      showView('landing');
-    };
-    
-    window.showView = showView;
-  })();
+  window.refreshCommunityFiles = () => { fetchCommunityFiles(); fetchCommunityMembers(); };
+
+  // ─── DRAG & DROP SETUP ────────────────────────────────────────────
+
+  const setupDragDrop = () => {
+    const sdz = document.getElementById('send-dropzone');
+    if(sdz) {
+      sdz.ondragover = e => { e.preventDefault(); sdz.classList.add('drag-over'); };
+      sdz.ondragleave = () => sdz.classList.remove('drag-over');
+      sdz.ondrop = e => { e.preventDefault(); sdz.classList.remove('drag-over'); handleFileSelection(e.dataTransfer.files[0]); };
+    }
+  };
+
+  // ─── KEYBOARD SHORTCUTS ───────────────────────────────────────────
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Enter' && document.getElementById('view-send').classList.contains('active') && !e.shiftKey) {
+      const activeEl = document.activeElement;
+      if(activeEl.id !== 'send-text') handleSend();
+    }
+  });
+
+  // ─── BOOT ─────────────────────────────────────────────────────────
+
+  window.onload = () => {
+    // Apply saved theme
+    const theme = localStorage.getItem('ex_theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+    document.getElementById('theme-icon').setAttribute('data-lucide', theme === 'dark' ? 'sun' : 'moon');
+
+    // Loading screen fade
+    setTimeout(() => {
+      const ls = document.getElementById('loading-screen');
+      ls.style.opacity = '0';
+      ls.style.transition = 'opacity 0.5s';
+      setTimeout(() => {
+        ls.style.display = 'none';
+        document.getElementById('main-app').style.display = 'block';
+        lucide.createIcons();
+        showView('landing');
+        setupDragDrop();
+      }, 500);
+    }, 2200);
+  };
+
+  // Expose needed globals
+  window.handleSignup = handleSignup;
+  window.handleLogin = handleLogin;
+  window.handleLogout = handleLogout;
+  window.updateBio = updateBio;
+  window.handleSend = handleSend;
+  window.handleReceive = handleReceive;
+  window.handleFileSelection = handleFileSelection;
+  window.removeFile = removeFile;
+  window.fetchInbox = fetchInbox;
+  window.openInboxFile = openInboxFile;
+  window.deleteInboxFile = deleteInboxFile;
+  window.handleCreateCommunity = handleCreateCommunity;
+  window.handleJoinCommunity = handleJoinCommunity;
+  window.enterCommunityRoom = enterCommunityRoom;
+  window.handleCommFileSelect = handleCommFileSelect;
+  window.removeCommFile = removeCommFile;
+  window.downloadCommFile = downloadCommFile;
+  window.deleteCommFile = deleteCommFile;
+  window.refreshCommunityFiles = refreshCommunityFiles;
+  window.toggleTheme = toggleTheme;
+  window.setTransferMode = setTransferMode;
+  window.setReceiveMode = setReceiveMode;
+  window.showView = showView;
+})();
 </script>
 </body>
 </html>
