@@ -184,29 +184,33 @@
   // INBOX
   async function fetchInbox(){ 
     if(!currentUser) return; 
-    let cutoff = new Date(Date.now() - (3600000 + 300000)).toISOString(); 
     let myUsername = currentUser.username.toLowerCase().trim().replace('@', '');
+    
+    // Fetching all files for this user without the 1-hour limit for now to test
     let {data, error} = await sb.from('transfers')
       .select('*')
-      .eq('receiver_username', myUsername)
-      .gte('created_at', cutoff)
+      .ilike('receiver_username', myUsername)
       .order('created_at', {ascending: false}); 
     
-    let container=document.getElementById('inbox-list'); 
-    let badge=document.getElementById('inbox-badge'); 
+    let container = document.getElementById('inbox-list'); 
+    let badge = document.getElementById('inbox-badge'); 
     
-    if(error) return showToast('Error fetching inbox', 'error');
+    if(error) return showToast('Error: ' + error.message, 'error');
 
     if(!data?.length){ 
-      container.innerHTML='<div class="text-center py-10 text-gray-400">Empty inbox<br><span class="text-[10px]">Files expire after 1 hour</span></div>'; 
+      container.innerHTML = `
+        <div class="text-center py-10 text-gray-400">
+          <p>Empty inbox</p>
+          <p class="text-[10px] mt-2">Logged in as: @${myUsername}</p>
+        </div>`; 
       badge.classList.add('hidden'); 
       return; 
     } 
     badge.classList.remove('hidden'); 
-    badge.innerText=data.length; 
-    container.innerHTML=data.map(f=>`
+    badge.innerText = data.length; 
+    container.innerHTML = data.map(f => `
       <div class="file-item p-3 rounded-xl flex gap-3 items-center">
-        <i data-lucide="${f.is_public?'globe':'lock'}" class="w-5 h-5 text-indigo-400"></i>
+        <i data-lucide="${f.is_public ? 'globe' : 'lock'}" class="w-5 h-5 text-indigo-400"></i>
         <div class="flex-1">
           <div class="font-semibold truncate max-w-[150px]">${escapeHtml(f.file_name)}</div>
           <div class="text-xs text-gray-400">From: ${escapeHtml(f.sender_nickname)}</div>
