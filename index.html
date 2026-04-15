@@ -100,10 +100,10 @@
     <div id="view-inbox" class="view"><div class="flex gap-3 items-center mb-4"><button onclick="showView('menu')" class="btn btn-ghost btn-icon"><i data-lucide="chevron-left"></i></button><h2 class="text-3xl font-bebas">INBOX</h2><button onclick="fetchInbox()" class="btn btn-ghost btn-icon ml-auto"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button></div><div id="inbox-list" class="space-y-2"></div></div>
 
     <!-- SEND -->
-    <div id="view-send" class="view"><div class="flex gap-3 mb-4"><button onclick="showView('menu')" class="btn btn-ghost btn-icon"><i data-lucide="chevron-left"></i></button><h2 class="text-3xl font-bebas">SEND FILE</h2></div><div class="grid md:grid-cols-2 gap-5"><div class="card p-5"><div class="mb-3"><div class="mode-tabs flex rounded-xl p-1 gap-1"><div class="mode-tab flex-1 text-center py-2 rounded-lg cursor-pointer font-bold" data-mode="private" onclick="setTransferMode('private')">🔒 Private</div><div class="mode-tab flex-1 text-center py-2 rounded-lg cursor-pointer" data-mode="public" onclick="setTransferMode('public')">🌐 Public Code</div></div></div><input id="send-receiver" placeholder="@username (receiver)" class="inp mb-2"><div id="private-fields"><input id="send-password" type="password" placeholder="Secret password" class="inp mb-2"></div><input id="send-nickname" placeholder="Your nickname" class="inp"><div id="public-code-display" class="hidden mt-4 p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-center"><div class="text-xs uppercase">Public code</div><div id="generated-code" class="text-4xl font-mono font-bold tracking-widest text-indigo-400"></div></div></div><div class="card p-5"><div id="send-dropzone" class="dropzone" onclick="document.getElementById('file-input').click()"><input type="file" id="file-input" class="hidden" onchange="handleFileSelection(this.files[0])"><div id="dropzone-empty"><i data-lucide="cloud-upload" class="w-10 h-10 mx-auto opacity-50"></i><p class="font-semibold mt-2">Click or drop file</p><p class="text-xs text-gray-400">Max 3MB</p></div><div id="dropzone-file" class="hidden"><i data-lucide="file-check" class="w-8 h-8 text-green-400 mx-auto"></i><p id="file-name-display" class="font-bold mt-1 break-all"></p></div></div><div class="flex gap-2 mt-3"><button id="send-now-btn" onclick="handleSend()" class="btn btn-accent flex-1 py-3"><span id="send-btn-text">SEND NOW</span><div id="send-spinner" class="spinner hidden"></div></button><button onclick="removeFile()" class="btn btn-danger btn-icon"><i data-lucide="x"></i></button></div></div></div></div>
+    <div id="view-send" class="view"><div class="flex gap-3 mb-4"><button onclick="showView('menu')" class="btn btn-ghost btn-icon"><i data-lucide="chevron-left"></i></button><h2 class="text-3xl font-bebas">SEND FILE</h2></div><div class="grid md:grid-cols-2 gap-5"><div class="card p-5"><div class="mb-3"><div class="mode-tabs flex rounded-xl p-1 gap-1"><div class="mode-tab flex-1 text-center py-2 rounded-lg cursor-pointer font-bold" data-mode="private" onclick="setTransferMode('private')">🔒 Private</div><div class="mode-tab flex-1 text-center py-2 rounded-lg cursor-pointer" data-mode="public" onclick="setTransferMode('public')">🌐 Public Code</div></div></div><input id="send-receiver" placeholder="@username (receiver)" class="inp mb-2"><div id="private-fields"><input id="send-password" type="password" placeholder="Secret password" class="inp mb-2"></div><input id="send-nickname" placeholder="Your nickname" class="inp"><div id="public-code-display" class="hidden mt-4 p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-center"><div class="text-xs uppercase">Unique Public code</div><div id="generated-code" class="text-4xl font-mono font-bold tracking-widest text-indigo-400">--</div><p class="text-[10px] text-gray-500 mt-1">Code will be generated on send</p></div></div><div class="card p-5"><div id="send-dropzone" class="dropzone" onclick="document.getElementById('file-input').click()"><input type="file" id="file-input" class="hidden" onchange="handleFileSelection(this.files[0])"><div id="dropzone-empty"><i data-lucide="cloud-upload" class="w-10 h-10 mx-auto opacity-50"></i><p class="font-semibold mt-2">Click or drop file</p><p class="text-xs text-gray-400">Max 3MB</p></div><div id="dropzone-file" class="hidden"><i data-lucide="file-check" class="w-8 h-8 text-green-400 mx-auto"></i><p id="file-name-display" class="font-bold mt-1 break-all"></p></div></div><div class="mt-3"><textarea id="send-text" placeholder="Type a message to send as .txt file..." class="inp h-24"></textarea></div><div class="flex gap-2 mt-3"><button id="send-now-btn" onclick="handleSend()" class="btn btn-accent flex-1 py-3"><span id="send-btn-text">SEND NOW</span><div id="send-spinner" class="spinner hidden"></div></button><button onclick="removeFile()" class="btn btn-danger btn-icon"><i data-lucide="x"></i></button></div></div></div></div>
 
     <!-- RECEIVE -->
-    <div id="view-receive" class="view"><div class="max-w-md mx-auto"><div class="flex gap-3 mb-4"><button onclick="showView('menu')" class="btn btn-ghost btn-icon"><i data-lucide="chevron-left"></i></button><h2 class="text-3xl font-bebas">RECEIVE</h2></div><div class="card p-6"><div class="mode-tabs flex mb-4"><div class="mode-tab flex-1 text-center py-2" data-recv="private" onclick="setReceiveMode('private')">🔒 Private</div><div class="mode-tab flex-1 text-center py-2" data-recv="public" onclick="setReceiveMode('public')">📟 Code</div></div><div id="receive-private-fields"><input id="receive-username" placeholder="@your-username" class="inp mb-2"><input id="receive-password" type="password" placeholder="Secret password" class="inp"></div><div id="receive-public-fields" class="hidden"><input id="receive-code" maxlength="2" placeholder="00" class="inp code-input text-center"></div><button onclick="handleReceive()" class="btn btn-accent2 w-full py-3 mt-3"><span id="receive-btn-text">DECRYPT & OPEN</span><div id="receive-spinner" class="spinner hidden"></div></button><div id="receive-result" class="hidden mt-4 p-3 glass rounded-xl"><div class="flex gap-3 items-center"><i data-lucide="file-text" class="w-8 h-8 text-green-400"></i><div class="flex-1"><div id="res-filename" class="font-bold"></div><div id="res-sender" class="text-xs text-gray-400"></div></div><div class="flex gap-1"><button id="download-btn" class="btn btn-ghost btn-icon"><i data-lucide="download" class="w-4 h-4"></i></button><button id="delete-receive-btn" class="btn btn-danger btn-icon"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></div></div></div></div></div>
+    <div id="view-receive" class="view"><div class="max-w-md mx-auto"><div class="flex gap-3 mb-4"><button onclick="showView('menu')" class="btn btn-ghost btn-icon"><i data-lucide="chevron-left"></i></button><h2 class="text-3xl font-bebas">RECEIVE</h2></div><div class="card p-6"><div class="mode-tabs flex mb-4"><div class="mode-tab flex-1 text-center py-2" data-recv="private" onclick="setReceiveMode('private')">🔒 Private</div><div class="mode-tab flex-1 text-center py-2" data-recv="public" onclick="setReceiveMode('public')">📟 Code</div></div><div id="receive-private-fields"><input id="receive-username" placeholder="@your-username" class="inp mb-2"><input id="receive-password" type="password" placeholder="Secret password" class="inp"></div><div id="receive-public-fields" class="hidden"><input id="receive-code" maxlength="2" placeholder="00" class="inp code-input text-center"></div><button onclick="handleReceive()" class="btn btn-accent2 w-full py-3 mt-3"><span id="receive-btn-text">DECRYPT & OPEN</span><div id="receive-spinner" class="spinner hidden"></div></button><div id="receive-result" class="hidden mt-4 p-3 glass rounded-xl"><div class="flex gap-3 items-center"><i data-lucide="file-text" class="w-8 h-8 text-green-400"></i><div class="flex-1"><div id="res-filename" class="font-bold"></div><div id="res-sender" class="text-xs text-gray-400"></div></div><div class="flex flex-wrap gap-1 mt-2 w-full"><button id="download-btn" class="btn btn-ghost btn-icon"><i data-lucide="download" class="w-4 h-4"></i></button><button id="print-btn" class="btn btn-print btn-icon"><i data-lucide="printer" class="w-4 h-4"></i></button><button id="delete-receive-btn" class="btn btn-danger btn-icon"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></div></div></div></div></div>
 
     <!-- COMMUNITY HUB -->
     <div id="view-community-hub" class="view"><div class="flex gap-3 items-center mb-4"><button onclick="showView('menu')" class="btn btn-ghost btn-icon"><i data-lucide="chevron-left"></i></button><h2 class="text-3xl font-bebas">COMMUNITY</h2></div><div id="joined-communities-section" class="hidden mb-5"><div class="text-xs uppercase mb-2">Your Rooms</div><div id="my-communities-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div></div><div class="grid grid-cols-2 gap-4"><div class="comm-card p-6 cursor-pointer" onclick="showView('create-community')"><i data-lucide="plus-circle" class="w-7 h-7 text-orange-400 mb-2"></i><div class="text-2xl font-bebas">CREATE ROOM</div></div><div class="comm-card p-6 cursor-pointer" onclick="showView('join-community')"><i data-lucide="user-plus" class="w-7 h-7 text-indigo-400 mb-2"></i><div class="text-2xl font-bebas">JOIN ROOM</div></div></div></div>
@@ -131,9 +131,46 @@
   window.setReceiveMode=(m)=>{ currentReceiveMode=m; document.querySelectorAll('[data-recv]').forEach(el=>el.classList.remove('bg-white/10')); document.querySelector(`[data-recv="${m}"]`).classList.add('bg-white/10'); document.getElementById('receive-private-fields').style.display=m==='private'?'':'none'; document.getElementById('receive-public-fields').style.display=m==='public'?'':'none'; };
   
   // AUTH
+  function playSound(type) {
+    const snd = document.getElementById(type === 'success' ? 'snd-success' : 'snd-pop');
+    if (snd) { snd.currentTime = 0; snd.play().catch(() => {}); }
+  }
+
+  // Session Persistence
+  async function initAuth() {
+    const savedUser = localStorage.getItem('ex_user');
+    if (savedUser) {
+      try {
+        const user = JSON.parse(savedUser);
+        let { data, error } = await sb.from('users').select('*').eq('id', user.id).single();
+        if (data && !error) {
+          currentUser = data;
+          document.getElementById('user-display').classList.remove('hidden');
+          document.getElementById('nav-username').innerText = `@${data.username}`;
+          document.getElementById('profile-name').innerText = data.name;
+          document.getElementById('profile-username').innerText = `@${data.username}`;
+          document.getElementById('profile-bio').value = data.bio || '';
+          fetchInbox();
+        }
+      } catch (e) { localStorage.removeItem('ex_user'); }
+    }
+  }
+
+  // Unique 2-Digit Code Generator
+  async function generateUniqueCode() {
+    const cutoff = new Date(Date.now() - 3600000).toISOString();
+    let { data } = await sb.from('transfers').select('public_code').gte('created_at', cutoff).eq('is_public', true);
+    let usedCodes = new Set(data?.map(t => t.public_code) || []);
+    for (let i = 0; i < 100; i++) {
+      let code = String(i).padStart(2, '0');
+      if (!usedCodes.has(code)) return code;
+    }
+    return String(Math.floor(Math.random() * 90) + 10);
+  }
+
   window.handleSignup=async()=>{ let name=document.getElementById('signup-name').value.trim(), username=document.getElementById('signup-username').value.trim().toLowerCase(), pwd=document.getElementById('signup-password').value; if(!name||!username||pwd.length<8) return showToast('Invalid fields (pwd min 8)','error'); setLoading('signup-btn-text','signup-spinner',null,true); let {error}=await sb.from('users').insert([{name,username,password:pwd,bio:''}]); setLoading('signup-btn-text','signup-spinner',null,false); if(error) return showToast(error.message,'error'); showToast('Account created! Login','success'); showView('login'); };
-  window.handleLogin=async()=>{ let username=document.getElementById('login-username').value.trim().toLowerCase(), pwd=document.getElementById('login-password').value; if(!username||!pwd) return showToast('Fill fields','error'); setLoading('login-btn-text','login-spinner',null,true); let {data,error}=await sb.from('users').select('*').eq('username',username).eq('password',pwd).single(); setLoading('login-btn-text','login-spinner',null,false); if(error||!data) return showToast('Invalid credentials','error'); currentUser=data; document.getElementById('user-display').classList.remove('hidden'); document.getElementById('nav-username').innerText=`@${username}`; document.getElementById('profile-name').innerText=data.name; document.getElementById('profile-username').innerText=`@${username}`; document.getElementById('profile-bio').value=data.bio||''; showToast(`Welcome ${data.name}`,'success'); showView('menu'); fetchInbox(); fetchMyCommunities(); };
-  window.handleLogout=()=>{ currentUser=null; document.getElementById('user-display').classList.add('hidden'); showToast('Logged out','info'); showView('landing'); };
+  window.handleLogin=async()=>{ let username=document.getElementById('login-username').value.trim().toLowerCase(), pwd=document.getElementById('login-password').value; if(!username||!pwd) return showToast('Fill fields','error'); setLoading('login-btn-text','login-spinner',null,true); let {data,error}=await sb.from('users').select('*').eq('username',username).eq('password',pwd).single(); setLoading('login-btn-text','login-spinner',null,false); if(error||!data) return showToast('Invalid credentials','error'); currentUser=data; localStorage.setItem('ex_user', JSON.stringify(data)); playSound('success'); document.getElementById('user-display').classList.remove('hidden'); document.getElementById('nav-username').innerText=`@${username}`; document.getElementById('profile-name').innerText=data.name; document.getElementById('profile-username').innerText=`@${username}`; document.getElementById('profile-bio').value=data.bio||''; showToast(`Welcome ${data.name}`,'success'); showView('menu'); fetchInbox(); fetchMyCommunities(); };
+  window.handleLogout=()=>{ localStorage.removeItem('ex_user'); currentUser=null; document.getElementById('user-display').classList.add('hidden'); showToast('Logged out','info'); showView('landing'); };
   window.updateBio=async()=>{ if(!currentUser)return; let bio=document.getElementById('profile-bio').value.slice(0,101); await sb.from('users').update({bio}).eq('id',currentUser.id); currentUser.bio=bio; showToast('Bio saved','success'); };
   
   // FILE SEND/RECEIVE
@@ -144,41 +181,55 @@
     let receiver = receiverInput.toLowerCase().replace('@', ''); 
     let password=document.getElementById('send-password').value; 
     let nickname=document.getElementById('send-nickname').value.trim()||'Anonymous'; 
+    let textMsg=document.getElementById('send-text').value.trim();
     let isPublic=currentTransferMode==='public'; 
     if(!receiver) return showToast('Receiver required','error'); 
-    if(!selectedFile) return showToast('File required','error'); 
+    if(!selectedFile && !textMsg) return showToast('File or message required','error'); 
     if(!isPublic && !password) return showToast('Password for private','error'); 
     setLoading('send-btn-text','send-spinner','send-now-btn',true); 
     try{ 
       let filePath=null; 
-      if(selectedFile){ 
-        filePath=`transfers/${Date.now()}_${selectedFile.name}`; 
-        let {error:upErr}=await sb.storage.from('transfers').upload(filePath,selectedFile); 
+      let fileName = selectedFile ? selectedFile.name : `message_${Date.now()}.txt`;
+      let fileToUpload = selectedFile;
+      if (!selectedFile && textMsg) {
+        const blob = new Blob([textMsg], { type: 'text/plain' });
+        fileToUpload = new File([blob], fileName, { type: 'text/plain' });
+      }
+      if(fileToUpload){ 
+        filePath=`transfers/${Date.now()}_${fileName}`; 
+        let {error:upErr}=await sb.storage.from('transfers').upload(filePath,fileToUpload); 
         if(upErr) throw upErr; 
       } 
-      let publicCode=isPublic?document.getElementById('generated-code').innerText:null; 
+      let publicCode=isPublic?await generateUniqueCode():null; 
+      if(isPublic) document.getElementById('generated-code').innerText=publicCode;
       let {error}=await sb.from('transfers').insert([{ 
         sender_nickname:nickname, 
         receiver_username:receiver, 
-        file_name:selectedFile.name, 
+        file_name:fileName, 
         file_path:filePath, 
         password:isPublic?null:password, 
         is_public:isPublic, 
         public_code:publicCode 
       }]); 
       if(error) throw error; 
-      showToast(`Sent successfully to @${receiver}`,'success'); 
-      removeFile(); 
-      document.getElementById('send-receiver').value=''; 
-      document.getElementById('send-password').value=''; 
-      showView('menu'); 
+      playSound('success');
+      showToast(isPublic ? `Sent! Code: ${publicCode}` : `Sent successfully to @${receiver}`,'success'); 
+      if(!isPublic) {
+        removeFile(); 
+        document.getElementById('send-text').value='';
+        document.getElementById('send-receiver').value=''; 
+        document.getElementById('send-password').value=''; 
+        showView('menu'); 
+      } else {
+        document.getElementById('public-code-display').classList.remove('hidden');
+      }
     }catch(e){ 
       showToast(e.message,'error'); 
     } 
     setLoading('send-btn-text','send-spinner','send-now-btn',false); 
   };
   
-  window.handleReceive=async()=>{ setLoading('receive-btn-text','receive-spinner','receive-btn',true); let resultDiv=document.getElementById('receive-result'); resultDiv.classList.add('hidden'); try{ let transfer=null; let cutoff=new Date(Date.now()-3600000).toISOString(); if(currentReceiveMode==='private'){ let user=document.getElementById('receive-username').value.trim().toLowerCase().replace('@',''); let pass=document.getElementById('receive-password').value; if(!user||!pass) throw new Error('Username/password'); let {data}=await sb.from('transfers').select('*').eq('receiver_username',user).eq('password',pass).gte('created_at',cutoff).order('created_at',{ascending:false}).limit(1); transfer=data?.[0]; } else { let code=document.getElementById('receive-code').value.trim(); if(!code||code.length!==2) throw new Error('Valid 2-digit code'); let {data}=await sb.from('transfers').select('*').eq('public_code',code).eq('is_public',true).gte('created_at',cutoff).order('created_at',{ascending:false}).limit(1); transfer=data?.[0]; } if(!transfer) throw new Error('No file found or expired'); document.getElementById('res-filename').innerText=transfer.file_name; document.getElementById('res-sender').innerText=`From: ${transfer.sender_nickname} · ${new Date(transfer.created_at).toLocaleTimeString()}`; resultDiv.classList.remove('hidden'); let dlBtn=document.getElementById('download-btn'),delBtn=document.getElementById('delete-receive-btn'); dlBtn.onclick=async()=>{ if(transfer.file_path){ let {data:blob,error}=await sb.storage.from('transfers').download(transfer.file_path); if(error) throw error; triggerDownload(blob,transfer.file_name); } }; delBtn.onclick=async()=>{ if(transfer.file_path) await sb.storage.from('transfers').remove([transfer.file_path]); await sb.from('transfers').delete().eq('id',transfer.id); resultDiv.classList.add('hidden'); showToast('Deleted','success'); }; }catch(e){ showToast(e.message,'error'); } setLoading('receive-btn-text','receive-spinner','receive-btn',false); };
+  window.handleReceive=async()=>{ setLoading('receive-btn-text','receive-spinner','receive-btn',true); let resultDiv=document.getElementById('receive-result'); resultDiv.classList.add('hidden'); try{ let transfer=null; let cutoff=new Date(Date.now()-3600000).toISOString(); if(currentReceiveMode==='private'){ let user=document.getElementById('receive-username').value.trim().toLowerCase().replace('@',''); let pass=document.getElementById('receive-password').value; if(!user||!pass) throw new Error('Username/password'); let {data}=await sb.from('transfers').select('*').eq('receiver_username',user).eq('password',pass).gte('created_at',cutoff).order('created_at',{ascending:false}).limit(1); transfer=data?.[0]; } else { let code=document.getElementById('receive-code').value.trim(); if(!code||code.length!==2) throw new Error('Valid 2-digit code'); let {data}=await sb.from('transfers').select('*').eq('public_code',code).eq('is_public',true).gte('created_at',cutoff).order('created_at',{ascending:false}).limit(1); transfer=data?.[0]; } if(!transfer) throw new Error('No file found or expired'); playSound('pop'); document.getElementById('res-filename').innerText=transfer.file_name; document.getElementById('res-sender').innerText=`From: ${transfer.sender_nickname} · ${new Date(transfer.created_at).toLocaleTimeString()}`; resultDiv.classList.remove('hidden'); let dlBtn=document.getElementById('download-btn'),delBtn=document.getElementById('delete-receive-btn'),prBtn=document.getElementById('print-btn'); dlBtn.onclick=async()=>{ if(transfer.file_path){ let {data:blob,error}=await sb.storage.from('transfers').download(transfer.file_path); if(error) throw error; triggerDownload(blob,transfer.file_name); } }; prBtn.onclick=async()=>{ if(transfer.file_path){ let {data:blob}=await sb.storage.from('transfers').download(transfer.file_path); let url=URL.createObjectURL(blob); let win=window.open(url); win.onload=()=>{ win.print(); }; } }; delBtn.onclick=async()=>{ if(transfer.file_path) await sb.storage.from('transfers').remove([transfer.file_path]); await sb.from('transfers').delete().eq('id',transfer.id); resultDiv.classList.add('hidden'); showToast('Deleted','success'); }; }catch(e){ showToast(e.message,'error'); } setLoading('receive-btn-text','receive-spinner','receive-btn',false); };
   function triggerDownload(blob,name){ let a=document.createElement('a'); let url=URL.createObjectURL(blob); a.href=url; a.download=name; a.click(); URL.revokeObjectURL(url); showToast('Download started','success'); }
   
   // INBOX
@@ -242,7 +293,9 @@
   window.refreshCommunityRoom=refreshCommunityRoom;
   
   // INIT
-  let savedTheme=localStorage.getItem('ex_theme')||'dark'; document.documentElement.setAttribute('data-theme',savedTheme); document.getElementById('theme-icon')?.setAttribute('data-lucide',savedTheme==='dark'?'moon':'sun'); setTimeout(()=>{ let ls=document.getElementById('loading-screen'); ls.style.opacity='0'; setTimeout(()=>{ ls.style.display='none'; document.getElementById('main-app').style.display='block'; lucide.createIcons(); showView('landing'); },500); },1800);
+  let savedTheme=localStorage.getItem('ex_theme')||'dark'; document.documentElement.setAttribute('data-theme',savedTheme); document.getElementById('theme-icon')?.setAttribute('data-lucide',savedTheme==='dark'?'moon':'sun'); 
+  window.addEventListener('DOMContentLoaded', initAuth);
+  setTimeout(()=>{ let ls=document.getElementById('loading-screen'); ls.style.opacity='0'; setTimeout(()=>{ ls.style.display='none'; document.getElementById('main-app').style.display='block'; lucide.createIcons(); showView('landing'); },500); },1800);
 </script>
 </body>
 </html>
