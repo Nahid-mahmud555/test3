@@ -15,13 +15,14 @@
     * { box-sizing: border-box; }
     :root {
       --bg: #0a0a0f; --text: #ffffff; --text-muted: #8a8a9e;
-      --glass-bg: rgba(20, 20, 30, 0.6); --glass-border: rgba(255, 255, 255, 0.08);
-      --accent: #3b82f6; --accent-soft: #2563eb; --input-bg: rgba(10, 10, 18, 0.7);
+      --glass-bg: rgba(20, 20, 30, 0.7); --glass-border: rgba(255, 255, 255, 0.08);
+      --accent: #3b82f6; --accent-soft: #2563eb; --input-bg: rgba(10, 10, 18, 0.8);
       --glow-1: rgba(59, 130, 246, 0.2); --shadow-lg: 0 25px 40px -15px rgba(0, 0, 0, 0.6);
+      --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
     }
     [data-theme="light"] {
       --bg: #f5f7fa; --text: #0b0b12; --text-muted: #4b5563;
-      --glass-bg: rgba(255, 255, 255, 0.75); --glass-border: rgba(0, 0, 0, 0.08);
+      --glass-bg: rgba(255, 255, 255, 0.8); --glass-border: rgba(0, 0, 0, 0.08);
       --accent: #2563eb; --accent-soft: #1d4ed8; --input-bg: #ffffff;
       --glow-1: rgba(37, 99, 235, 0.1); --shadow-lg: 0 20px 35px -8px rgba(0, 0, 0, 0.1);
     }
@@ -61,7 +62,7 @@
       background: var(--accent); color: white; font-weight: 700; border-radius: 40px;
       padding: 1rem 2rem; transition: 0.2s; box-shadow: 0 10px 20px -5px var(--glow-1);
     }
-    .btn-primary:hover { background: var(--accent-soft); transform: scale(1.02); box-shadow: 0 15px 25px -5px var(--accent); }
+    .btn-primary:hover { background: var(--accent-soft); transform: scale(1.02); }
     
     .view { display: none; opacity: 0; animation: viewFade 0.3s forwards; }
     .view.active { display: block; }
@@ -81,7 +82,7 @@
     .loader-spin { width: 50px; height: 50px; border: 3px solid rgba(255,255,255,0.1); border-top-color: #3b82f6; border-radius: 50%; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     
-    .toast { animation: slideToast 0.2s; backdrop-filter: blur(20px); }
+    .toast { animation: slideToast 0.3s; backdrop-filter: blur(20px); }
     @keyframes slideToast { from { transform: translateX(30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     
     .dropzone-large {
@@ -93,14 +94,29 @@
       border-color: var(--accent); background: rgba(59, 130, 246, 0.08);
       transform: scale(1.01); box-shadow: 0 0 40px var(--glow-1);
     }
+    
+    /* Professional modal */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+      z-index: 1000; display: flex; align-items: center; justify-content: center;
+      animation: fadeIn 0.2s;
+    }
+    .modal-content {
+      background: var(--glass-bg); backdrop-filter: blur(25px);
+      border: 1px solid var(--glass-border); border-radius: 32px;
+      padding: 2rem; max-width: 420px; width: 90%;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+    }
   </style>
 </head>
 <body>
 
-<!-- SOUND EFFECTS (cute) -->
+<!-- SOUND EFFECTS -->
 <audio id="sound-send" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3" preload="auto"></audio>
 <audio id="sound-receive" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" preload="auto"></audio>
 <audio id="sound-success" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3" preload="auto"></audio>
+<audio id="sound-delete" src="https://assets.mixkit.co/active_storage/sfx/2570/2570-preview.mp3" preload="auto"></audio>
+<audio id="sound-notification" src="https://assets.mixkit.co/active_storage/sfx/1995/1995-preview.mp3" preload="auto"></audio>
 
 <div id="loading-screen" class="loading-screen">
   <div class="text-center">
@@ -159,12 +175,11 @@
       <div id="view-community-hub" class="view"><div class="flex gap-4 mb-7"><button onclick="showView('menu')" class="p-3 glass"><i data-lucide="chevron-left"></i></button><h2 class="text-4xl font-black">EX COMMUNITY</h2></div><div id="joined-communities-section" class="hidden mb-9"><h3 class="text-xs uppercase tracking-wider mb-3">Your groups</h3><div id="my-communities-list" class="grid grid-cols-2 gap-4"></div></div><div class="grid grid-cols-2 gap-6"><div class="glass-card p-9 cursor-pointer" onclick="showView('create-community')"><i data-lucide="plus-circle" class="w-12 h-12 text-orange-400"></i><h3 class="text-3xl font-bold mt-5">CREATE</h3></div><div class="glass-card p-9 cursor-pointer" onclick="showView('join-community')"><i data-lucide="user-plus" class="w-12 h-12 text-blue-400"></i><h3 class="text-3xl font-bold mt-5">JOIN</h3></div></div></div>
       <div id="view-create-community" class="view"><div class="max-w-md mx-auto glass-card p-8"><h2 class="text-3xl font-black mb-5">Start room</h2><input id="comm-create-name" placeholder="room_name" class="input-field mb-3"><input id="comm-create-sentence" placeholder="secret sentence" class="input-field mb-3"><textarea id="comm-create-bio" placeholder="bio" class="input-field mb-5"></textarea><button onclick="handleCreateCommunity()" class="w-full bg-orange-600 py-4 rounded-2xl text-white font-black text-lg">CREATE ROOM</button><button onclick="showView('community-hub')" class="w-full text-sm mt-4 opacity-60">Cancel</button></div></div>
       <div id="view-join-community" class="view"><div class="max-w-md mx-auto glass-card p-8"><h2 class="text-3xl font-black mb-5">Join room</h2><input id="comm-join-name" placeholder="room name" class="input-field mb-3"><input id="comm-join-sentence" placeholder="secret sentence" class="input-field mb-5"><button onclick="handleJoinCommunity()" class="w-full bg-blue-600 py-4 rounded-2xl text-white font-black text-lg">ENTER ROOM</button><button onclick="showView('community-hub')" class="w-full text-sm mt-4 opacity-60">Cancel</button></div></div>
-      <div id="view-community-room" class="view"><div class="flex flex-col lg:flex-row gap-7"><div class="lg:w-1/3 glass-card p-7"><button onclick="showView('community-hub')" class="mb-5"><i data-lucide="chevron-left"></i> back</button><h3 id="room-name" class="text-3xl font-black"></h3><p id="room-bio" class="text-sm opacity-50"></p><div class="mt-5"><h4 class="text-xs uppercase tracking-wider">Members</h4><div id="member-list" class="space-y-2 mt-2"></div></div></div><div class="lg:w-2/3 glass-card p-7"><h3 class="text-2xl font-black mb-5">FILES</h3><div id="comm-dropzone" class="border-2 border-dashed border-white/20 p-8 rounded-3xl text-center cursor-pointer hover:border-blue-400/60 transition"><input type="file" id="comm-file-input" class="hidden"><div id="comm-dropzone-empty"><i data-lucide="upload-cloud" class="w-10 h-10 mx-auto opacity-60"></i><p class="mt-2">Drop file (max 3MB)</p></div><div id="comm-dropzone-file" class="hidden"><p id="comm-file-name-display" class="font-bold"></p><span class="text-green-400">ready</span></div></div><div class="flex gap-4 mt-5"><button id="comm-send-btn" class="flex-1 bg-orange-600 py-4 rounded-2xl font-black">SEND</button><button onclick="removeCommFile()" class="bg-red-500/20 hover:bg-red-500/40 px-6 rounded-2xl">Remove</button></div><div id="comm-file-list" class="mt-7 space-y-4"></div></div></div></div>
-
-      <!-- INBOX -->
+      
+      <!-- INBOX (PROFESSIONAL WITH DELETE) -->
       <div id="view-inbox" class="view"><div class="flex gap-4 mb-7"><button onclick="showView('menu')" class="p-3 glass"><i data-lucide="chevron-left"></i></button><h2 class="text-3xl font-black">INBOX</h2></div><div id="inbox-list" class="space-y-4"></div></div>
       
-      <!-- SEND (BIGGER, BETTER) -->
+      <!-- SEND -->
       <div id="view-send" class="view"><div class="flex gap-4 mb-7"><button onclick="showView('menu')" class="p-3 glass"><i data-lucide="chevron-left"></i></button><h2 class="text-3xl font-black">SEND</h2></div><div class="grid lg:grid-cols-2 gap-7"><div class="glass-card p-7"><div class="flex gap-3 mb-5"><button onclick="setTransferMode('private')" id="mode-private" class="bg-blue-600 px-5 py-2 rounded-full text-sm font-bold">Private</button><button onclick="setTransferMode('public')" id="mode-public" class="px-5 py-2 rounded-full text-sm">Public</button></div><input id="send-receiver" placeholder="@username" class="input-field mb-4"><div id="private-fields"><input id="send-password" type="password" placeholder="secret password" class="input-field mb-4"></div><input id="send-nickname" placeholder="Your nickname" class="input-field mb-4"><input id="send-desc" placeholder="description (optional)" class="input-field"></div><div class="glass-card p-7 flex flex-col"><div id="dropzone" class="dropzone-large flex flex-col items-center justify-center p-10 flex-1"><input type="file" id="file-input" class="hidden"><div id="dropzone-empty" class="text-center"><i data-lucide="cloud-upload" class="w-16 h-16 mx-auto opacity-40 mb-4"></i><p class="text-xl font-bold opacity-60">Drop file here or click</p><p class="text-sm opacity-40 mt-2">Max 3MB · Press Enter to send</p></div><div id="dropzone-file" class="hidden text-center"><i data-lucide="file-check" class="w-16 h-16 mx-auto text-green-400 mb-4"></i><p id="file-name-display" class="text-xl font-bold"></p><p class="text-green-400 text-sm mt-2">✓ Ready to send</p></div></div><textarea id="send-text" placeholder="Or type a message... (Enter to send)" class="input-field mt-5 h-24 resize-none"></textarea><div class="flex gap-4 mt-5"><button onclick="handleSend()" id="send-now-btn" class="flex-1 btn-primary py-5 text-lg">🚀 SEND NOW</button><button onclick="removeFile()" class="bg-red-500/20 hover:bg-red-500/40 px-6 rounded-2xl font-bold">Remove</button></div></div></div></div>
 
       <!-- RECEIVE -->
@@ -177,28 +192,31 @@
 <script>
   (function(){
     const sb = supabase.createClient('https://ersmbkzwcukkqkyrveqt.supabase.co', 'sb_publishable_2w2WWtOBoKtNArFLZ51B-A_WYLCy0XD');
-    let currentUser = null, selectedFile = null, selectedCommFile = null, currentTransferMode = 'private', currentReceiveMode = 'private', currentCommunity = null;
+    let currentUser = null, selectedFile = null, currentTransferMode = 'private', currentReceiveMode = 'private';
     
-    // Sound effects
     const playSound = (type) => {
-      try {
-        const sound = document.getElementById(`sound-${type}`);
-        if(sound) { sound.currentTime = 0; sound.volume = 0.3; sound.play().catch(()=>{}); }
-      } catch(e) {}
+      try { const s = document.getElementById(`sound-${type}`); if(s) { s.currentTime = 0; s.volume = 0.25; s.play().catch(()=>{}); } } catch(e) {}
     };
 
     const showToast = (msg, type='info') => {
       const c = document.getElementById('toast-container'); const t = document.createElement('div');
       t.className = `${type==='success'?'bg-green-500':type==='error'?'bg-red-500':'bg-blue-500'} p-5 rounded-2xl text-white font-bold toast shadow-2xl`;
-      t.innerHTML = `<i data-lucide="${type==='success'?'check-circle':'alert-circle'}"></i> ${msg}`; c.appendChild(t); lucide.createIcons(); setTimeout(()=>t.remove(),2800);
+      t.innerHTML = `<i data-lucide="${type==='success'?'check-circle':'alert-circle'}"></i> ${msg}`; c.appendChild(t); lucide.createIcons(); setTimeout(()=>t.remove(),3000);
     };
-    const escapeHtml = s => s ? s.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])) : '';
+    
+    // Professional modal
+    const showModal = (title, message, onConfirm, confirmText='Confirm', isDestructive=false) => {
+      const overlay = document.createElement('div'); overlay.className = 'modal-overlay';
+      overlay.innerHTML = `<div class="modal-content"><h3 class="text-2xl font-black mb-3">${title}</h3><p class="opacity-70 mb-6">${message}</p><div class="flex gap-3"><button class="cancel-btn flex-1 py-4 rounded-2xl bg-white/5 font-bold">Cancel</button><button class="confirm-btn flex-1 py-4 rounded-2xl font-bold text-white ${isDestructive ? 'bg-red-600' : 'bg-blue-600'}">${confirmText}</button></div></div>`;
+      document.body.appendChild(overlay);
+      overlay.querySelector('.cancel-btn').onclick = () => overlay.remove();
+      overlay.querySelector('.confirm-btn').onclick = () => { onConfirm(); overlay.remove(); };
+    };
 
     const showView = (name) => {
       document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
       document.getElementById(`view-${name}`).classList.add('active');
       if(name==='inbox'&&currentUser) fetchInbox();
-      if(name==='community-hub'&&currentUser) fetchMyCommunities();
       window.scrollTo(0,0); lucide.createIcons();
     };
 
@@ -207,16 +225,17 @@
       document.documentElement.setAttribute('data-theme', next); localStorage.setItem('ex_theme', next);
       document.getElementById('theme-icon').setAttribute('data-lucide', next==='dark'?'sun':'moon'); lucide.createIcons();
     };
+    
     window.setTransferMode = (m) => { currentTransferMode=m; document.getElementById('mode-private').classList.toggle('bg-blue-600',m==='private'); document.getElementById('mode-public').classList.toggle('bg-blue-600',m==='public'); document.getElementById('private-fields').classList.toggle('hidden',m!=='private'); };
     window.setReceiveMode = (m) => { currentReceiveMode=m; document.getElementById('recv-mode-private').classList.toggle('bg-purple-600',m==='private'); document.getElementById('recv-mode-public').classList.toggle('bg-purple-600',m==='public'); document.getElementById('receive-private-fields').classList.toggle('hidden',m!=='private'); document.getElementById('receive-public-fields').classList.toggle('hidden',m!=='public'); };
 
     // AUTH
     window.handleSignup = async () => {
       const n = document.getElementById('signup-name').value.trim(), u = document.getElementById('signup-username').value.trim().toLowerCase(), p = document.getElementById('signup-password').value;
-      if(!n||!u||p.length<8) return showToast('Name, username, password (min 8) required','error');
+      if(!n||!u||p.length<8) return showToast('All fields required, password min 8','error');
       const {error} = await sb.from('users').insert([{name:n,username:u,password:p,bio:''}]);
       if(error) return showToast(error.code==='23505'?'Username taken':error.message,'error');
-      playSound('success'); showToast('Account created! Please login','success'); showView('login');
+      playSound('success'); showToast('Account created!','success'); showView('login');
     };
     window.handleLogin = async () => {
       const u = document.getElementById('login-username').value.trim().toLowerCase(), p = document.getElementById('login-password').value;
@@ -225,95 +244,92 @@
       currentUser=data;
       document.getElementById('user-display').classList.remove('hidden'); document.getElementById('nav-username').innerText = `@${u}`;
       document.getElementById('profile-name').innerText=data.name; document.getElementById('profile-username').innerText=`@${u}`; document.getElementById('profile-bio').value=data.bio||'';
-      playSound('success'); showToast(`Welcome ${data.name}`,'success'); showView('menu'); fetchInbox(); subscribeInbox(); fetchMyCommunities();
+      playSound('success'); showToast(`Welcome ${data.name}`,'success'); showView('menu'); fetchInbox(); subscribeInbox();
     };
-    window.handleLogout = async () => { currentUser=null; document.getElementById('user-display').classList.add('hidden'); showView('landing'); showToast('Logged out','info'); };
-    window.updateBio = async () => { const b = document.getElementById('profile-bio').value.slice(0,101); await sb.from('users').update({bio:b}).eq('id',currentUser.id); currentUser.bio=b; showToast('Bio updated','success'); };
+    window.handleLogout = () => { currentUser=null; document.getElementById('user-display').classList.add('hidden'); showView('landing'); };
+    window.updateBio = async () => { const b = document.getElementById('profile-bio').value.slice(0,101); await sb.from('users').update({bio:b}).eq('id',currentUser.id); showToast('Bio updated','success'); };
 
-    const fetchInbox = async () => { if(!currentUser) return; const {data} = await sb.from('transfers').select('*').eq('receiver_username',currentUser.username).gte('created_at',new Date(Date.now()-3600000).toISOString()).order('created_at',{ascending:false}); const c=document.getElementById('inbox-list'); if(!data?.length) { c.innerHTML='<div class="text-center py-20 opacity-30">Inbox empty</div>'; return; } c.innerHTML = data.map(i=>`<div class="glass-card p-5 flex items-center gap-4"><i data-lucide="${i.is_public?'globe':'lock'}"></i><div class="flex-1"><h4 class="font-bold">${escapeHtml(i.file_name)}</h4></div><button onclick="downloadInbox('${i.id}','${i.password||''}',${i.is_public})" class="p-3 bg-blue-600/20 rounded-xl"><i data-lucide="unlock"></i></button></div>`).join(''); lucide.createIcons(); };
-    window.downloadInbox = async (id,pass,isPublic) => { const {data} = await sb.from('transfers').select('*').eq('id',id).single(); const download = async () => { const blob = await sb.storage.from('transfers').download(data.file_path); const url=URL.createObjectURL(blob.data); const a=document.createElement('a'); a.href=url; a.download=data.file_name; a.click(); playSound('receive'); }; if(isPublic||!data.password) download(); else { const pw=prompt('Password'); if(pw===pass) download(); else showToast('Wrong','error'); } };
-    const subscribeInbox = () => { if(!currentUser) return; sb.channel('inbox').on('postgres_changes',{event:'INSERT',schema:'public',table:'transfers',filter:`receiver_username=eq.${currentUser.username}`},()=>{ fetchInbox(); playSound('receive'); showToast('New file!','success'); }).subscribe(); };
-
-    // COMMUNITY
-    const fetchMyCommunities = async () => { const {data} = await sb.from('community_members').select('community_id, communities(*)').eq('user_id',currentUser.id); const sec=document.getElementById('joined-communities-section'); if(data?.length) { sec.classList.remove('hidden'); document.getElementById('my-communities-list').innerHTML = data.map(i=>`<div onclick="enterCommunityRoom('${i.communities.id}')" class="glass-card p-5 cursor-pointer font-bold">${escapeHtml(i.communities.name)}</div>`).join(''); } else sec.classList.add('hidden'); };
-    window.handleCreateCommunity = async () => { const n=document.getElementById('comm-create-name').value.trim().toLowerCase(), s=document.getElementById('comm-create-sentence').value.trim(), b=document.getElementById('comm-create-bio').value.trim(); if(!n||!s) return showToast('Fill fields','error'); const {data:comm,error} = await sb.from('communities').insert([{name:n,secret_sentence:s,bio:b,creator_id:currentUser.id}]).select().single(); if(error) return showToast('Name taken','error'); await sb.from('community_members').insert([{community_id:comm.id,user_id:currentUser.id,role:'admin',permissions:{can_send:true}}]); showToast('Created','success'); enterCommunityRoom(comm.id); };
-    window.handleJoinCommunity = async () => { const n=document.getElementById('comm-join-name').value.trim().toLowerCase(), s=document.getElementById('comm-join-sentence').value.trim(); const {data:comm} = await sb.from('communities').select('*').eq('name',n).eq('secret_sentence',s).single(); if(!comm) return showToast('Invalid','error'); await sb.from('community_members').upsert([{community_id:comm.id,user_id:currentUser.id,role:'member'}]); enterCommunityRoom(comm.id); };
-    window.enterCommunityRoom = async (id) => { currentCommunity = (await sb.from('communities').select('*').eq('id',id).single()).data; document.getElementById('room-name').innerText=currentCommunity.name; document.getElementById('room-bio').innerText=currentCommunity.bio||''; showView('community-room'); fetchCommunityFiles(); };
-
-    // SEND (FIXED)
-    window.handleFileSelection = (f) => { if(f.size>3e6) return showToast('Max 3MB','error'); selectedFile=f; document.getElementById('dropzone-empty').classList.add('hidden'); document.getElementById('dropzone-file').classList.remove('hidden'); document.getElementById('file-name-display').innerText=f.name; playSound('send'); };
-    window.removeFile = () => { selectedFile=null; document.getElementById('dropzone-empty').classList.remove('hidden'); document.getElementById('dropzone-file').classList.add('hidden'); document.getElementById('file-input').value = ''; };
+    // INBOX with delete
+    const fetchInbox = async () => {
+      if(!currentUser) return;
+      const {data} = await sb.from('transfers').select('*').eq('receiver_username',currentUser.username).gte('created_at',new Date(Date.now()-3600000).toISOString()).order('created_at',{ascending:false});
+      const c=document.getElementById('inbox-list'); const badge = document.getElementById('inbox-badge');
+      if(!data?.length) { c.innerHTML='<div class="text-center py-20 opacity-30">📭 Inbox empty</div>'; badge.classList.add('hidden'); return; }
+      badge.classList.remove('hidden'); badge.innerText = data.length > 99 ? '99+' : data.length;
+      c.innerHTML = data.map(i=>`<div class="glass-card p-5 flex items-center gap-4"><i data-lucide="${i.is_public?'globe':'lock'}" class="w-6 h-6"></i><div class="flex-1"><h4 class="font-bold">${escapeHtml(i.file_name)}</h4><p class="text-xs opacity-50">${i.sender_nickname||'anonymous'} · ${new Date(i.created_at).toLocaleTimeString()}</p></div><button onclick="openInboxFile('${i.id}','${i.password||''}',${i.is_public})" class="p-3 bg-blue-600/20 rounded-xl"><i data-lucide="eye"></i></button><button onclick="deleteInboxFile('${i.id}','${i.file_path}')" class="p-3 bg-red-500/20 rounded-xl"><i data-lucide="trash-2"></i></button></div>`).join('');
+      lucide.createIcons();
+    };
     
+    window.openInboxFile = (id, pass, isPublic) => {
+      showModal('Unlock File', 'Enter password to access', async () => {
+        const pw = document.querySelector('.modal-content input')?.value;
+        if(isPublic || pw === pass) {
+          const {data} = await sb.from('transfers').select('*').eq('id',id).single();
+          const blob = await sb.storage.from('transfers').download(data.file_path);
+          const url=URL.createObjectURL(blob.data); const a=document.createElement('a'); a.href=url; a.download=data.file_name; a.click();
+          playSound('receive'); showToast('Downloaded!','success');
+        } else showToast('Wrong password','error');
+      }, 'Download');
+      const modal = document.querySelector('.modal-content');
+      const input = document.createElement('input'); input.type='password'; input.placeholder='Enter password'; input.className='input-field mb-4';
+      modal.insertBefore(input, modal.querySelector('.flex'));
+    };
+    
+    window.deleteInboxFile = (id, path) => {
+      showModal('Delete File', 'This action cannot be undone.', async () => {
+        await sb.storage.from('transfers').remove([path]);
+        await sb.from('transfers').delete().eq('id',id);
+        playSound('delete'); fetchInbox(); showToast('File deleted','success');
+      }, 'Delete', true);
+    };
+    
+    const subscribeInbox = () => {
+      if(!currentUser) return;
+      sb.channel('inbox').on('postgres_changes',{event:'INSERT',schema:'public',table:'transfers',filter:`receiver_username=eq.${currentUser.username}`},()=>{
+        fetchInbox(); playSound('notification');
+        showToast('📬 New file received!','success');
+        if(Notification.permission==='granted') new Notification('EX · New file',{body:'Someone sent you a file',icon:'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\'%3E%3Cpath fill=\'%233b82f6\' d=\'M12 2L2 7v10l10 5 10-5V7l-10-5z\'/%3E%3C/svg%3E'});
+      }).subscribe();
+      if('Notification' in window) Notification.requestPermission();
+    };
+
+    // SEND
+    window.handleFileSelection = (f) => { if(f.size>3e6) return showToast('Max 3MB','error'); selectedFile=f; document.getElementById('dropzone-empty').classList.add('hidden'); document.getElementById('dropzone-file').classList.remove('hidden'); document.getElementById('file-name-display').innerText=f.name; };
+    window.removeFile = () => { selectedFile=null; document.getElementById('dropzone-empty').classList.remove('hidden'); document.getElementById('dropzone-file').classList.add('hidden'); };
     window.handleSend = async () => {
-      const receiver = document.getElementById('send-receiver').value.trim().toLowerCase();
-      const password = document.getElementById('send-password').value;
-      const nickname = document.getElementById('send-nickname').value.trim();
+      const rec = document.getElementById('send-receiver').value.trim().toLowerCase();
+      const pass = document.getElementById('send-password').value;
+      const nick = document.getElementById('send-nickname').value.trim();
       const desc = document.getElementById('send-desc').value;
       const text = document.getElementById('send-text').value;
-      
-      if(!receiver || !nickname) return showToast('Receiver and nickname required','error');
-      if(currentTransferMode === 'private' && !password) return showToast('Password required for private mode','error');
-      
-      let file = selectedFile;
-      if(text && !file) file = new File([text], 'message.txt', {type: 'text/plain'});
-      if(!file) return showToast('Select a file or type a message','error');
-      
-      const btn = document.getElementById('send-now-btn');
-      btn.disabled = true; btn.innerHTML = '<div class="loader-spin"></div> SENDING';
-      
-      try {
-        const filePath = `${receiver}/${Date.now()}_${file.name}`;
-        const { error: uploadError } = await sb.storage.from('transfers').upload(filePath, file);
-        if(uploadError) throw uploadError;
-        
-        const transferData = {
-          receiver_username: receiver,
-          sender_nickname: nickname,
-          description: desc || null,
-          file_name: file.name,
-          file_path: filePath,
-          is_public: currentTransferMode === 'public',
-          created_at: new Date().toISOString()
-        };
-        if(currentTransferMode === 'private') transferData.password = password;
-        
-        const { error: insertError } = await sb.from('transfers').insert([transferData]);
-        if(insertError) throw insertError;
-        
-        playSound('success'); showToast('File sent successfully! 🚀','success');
-        showView('menu');
-        document.getElementById('send-receiver').value = '';
-        document.getElementById('send-password').value = '';
-        document.getElementById('send-nickname').value = '';
-        document.getElementById('send-desc').value = '';
-        document.getElementById('send-text').value = '';
-        removeFile();
-      } catch(e) {
-        showToast(e.message || 'Send failed','error');
-      } finally {
-        btn.disabled = false; btn.innerHTML = '🚀 SEND NOW';
-      }
+      if(!rec||!nick) return showToast('Receiver and nickname required','error');
+      let file = selectedFile; if(text&&!file) file = new File([text],'message.txt',{type:'text/plain'});
+      if(!file) return showToast('Select file or type message','error');
+      const btn = document.getElementById('send-now-btn'); btn.disabled=true; btn.innerHTML='<div class="loader-spin"></div>';
+      const path = `${rec}/${Date.now()}_${file.name}`; await sb.storage.from('transfers').upload(path, file);
+      await sb.from('transfers').insert([{receiver_username:rec,password:currentTransferMode==='private'?pass:null,is_public:currentTransferMode==='public',sender_nickname:nick,description:desc,file_name:file.name,file_path:path,created_at:new Date().toISOString()}]);
+      playSound('send'); showToast('🚀 Sent!','success'); showView('menu'); btn.disabled=false; btn.innerHTML='🚀 SEND NOW';
     };
 
     // RECEIVE
-    const codeInput = document.getElementById('receive-code'), fb = document.getElementById('code-feedback');
-    codeInput?.addEventListener('input', async (e) => { const v=e.target.value.replace(/\D/g,''); e.target.value=v; if(v.length===2) { fb.innerHTML='<span class="text-blue-400">searching...</span>'; const {data}=await sb.from('transfers').select('id').eq('public_code',v).eq('is_public',true).limit(1); fb.innerHTML=data?.length?'<span class="text-green-400">✓ file found</span>':'<span class="text-red-400">✗ no file</span>'; } else fb.innerHTML=''; });
     window.handleReceive = async () => {
       let q = sb.from('transfers').select('*');
       if(currentReceiveMode==='private'){ const u=document.getElementById('receive-username').value.trim().toLowerCase(), p=document.getElementById('receive-password').value; if(!u||!p) return showToast('Fill fields','error'); q=q.eq('receiver_username',u).eq('password',p); }
       else { const c=document.getElementById('receive-code').value.trim(); if(c.length!==2) return showToast('Enter 2-digit code','error'); q=q.eq('public_code',c).eq('is_public',true); }
       const {data} = await q.order('created_at',{ascending:false}).limit(1); if(!data?.length) return showToast('No file found','error');
-      const t=data[0]; document.getElementById('receive-result').classList.remove('hidden'); document.getElementById('res-filename').innerText=t.file_name; document.getElementById('res-sender').innerText=`from ${t.sender_nickname||'anonymous'}`;
+      const t=data[0]; document.getElementById('receive-result').classList.remove('hidden'); document.getElementById('res-filename').innerText=t.file_name;
       document.getElementById('download-btn').onclick = async ()=>{ const blob=await sb.storage.from('transfers').download(t.file_path); const url=URL.createObjectURL(blob.data); const a=document.createElement('a'); a.href=url; a.download=t.file_name; a.click(); playSound('receive'); };
+      document.getElementById('receive-delete-btn').onclick = ()=> showModal('Delete File','Remove this file?', async ()=>{ await sb.storage.from('transfers').remove([t.file_path]); await sb.from('transfers').delete().eq('id',t.id); document.getElementById('receive-result').classList.add('hidden'); playSound('delete'); }, 'Delete', true);
     };
 
-    // Drag & Drop + Enter key
+    const escapeHtml = s => s ? s.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])) : '';
     const dropzone = document.getElementById('dropzone');
     ['dragenter','dragover','dragleave','drop'].forEach(e=>dropzone.addEventListener(e, (ev)=>ev.preventDefault()));
     dropzone.addEventListener('dragover', ()=> dropzone.classList.add('drag-over'));
     dropzone.addEventListener('dragleave', ()=> dropzone.classList.remove('drag-over'));
     dropzone.addEventListener('drop', (e)=> { dropzone.classList.remove('drag-over'); const f=e.dataTransfer.files[0]; if(f) handleFileSelection(f); });
     document.getElementById('send-text').addEventListener('keydown', (e)=> { if(e.key==='Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } });
+    document.getElementById('receive-code')?.addEventListener('input', async (e)=> { const v=e.target.value.replace(/\D/g,''); e.target.value=v; if(v.length===2) { const fb=document.getElementById('code-feedback'); fb.innerHTML='<span class="text-blue-400">searching...</span>'; const {data}=await sb.from('transfers').select('id').eq('public_code',v).eq('is_public',true).limit(1); fb.innerHTML=data?.length?'<span class="text-green-400">✓ file found</span>':'<span class="text-red-400">✗ no file</span>'; } });
 
     window.onload = () => {
       setTimeout(()=>{ document.getElementById('loading-screen').style.opacity='0'; setTimeout(()=>{ document.getElementById('loading-screen').style.display='none'; document.getElementById('main-app').style.display='block'; lucide.createIcons(); },600); },2000);
