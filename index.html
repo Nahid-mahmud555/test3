@@ -105,6 +105,11 @@
     <!-- Updated RECEIVE View -->
     <div id="view-receive" class="view"><div class="max-w-md mx-auto"><div class="flex gap-3 mb-4"><button onclick="showView('menu')" class="btn btn-ghost btn-icon"><i data-lucide="chevron-left"></i></button><h2 class="text-3xl font-bebas">RECEIVE</h2></div><div class="card p-6"><div class="mode-tabs flex mb-4 p-1 bg-white/5 rounded-xl gap-1"><div class="mode-tab flex-1 text-center py-2 rounded-lg cursor-pointer" data-recv="private" onclick="setReceiveMode('private')">🔒 Private</div><div class="mode-tab flex-1 text-center py-2 rounded-lg cursor-pointer" data-recv="public" onclick="setReceiveMode('public')">📟 Code</div></div><div id="receive-private-fields" class="space-y-2"><input id="receive-username" placeholder="@your-username" class="inp"><input id="receive-password" type="password" placeholder="Secret password" class="inp"></div><div id="receive-public-fields" class="hidden"><input id="receive-code" maxlength="2" placeholder="00" class="inp text-center text-4xl font-mono py-4 tracking-widest"></div><button onclick="handleReceive()" class="btn btn-accent2 w-full py-3 mt-3"><span id="receive-btn-text">DECRYPT & OPEN</span><div id="receive-spinner" class="spinner hidden"></div></button><div id="receive-result" class="hidden mt-4 p-3 glass rounded-xl"><div class="flex gap-3 items-center"><i data-lucide="file-text" class="w-8 h-8 text-green-400"></i><div class="flex-1"><div id="res-filename" class="font-bold truncate"></div><div id="res-sender" class="text-xs text-gray-400"></div></div><div class="flex flex-wrap gap-1 mt-2 w-full"><button id="download-btn" class="btn btn-ghost btn-icon"><i data-lucide="download" class="w-4 h-4"></i></button><button id="print-btn" class="btn btn-print btn-icon"><i data-lucide="printer" class="w-4 h-4"></i></button><button id="delete-receive-btn" class="btn btn-danger btn-icon"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></div></div></div></div></div>
 
+    <!-- COMMUNITY HUB -->
+    <div id="view-community-hub" class="view"><div class="flex gap-3 items-center mb-4"><button onclick="showView('menu')" class="btn btn-ghost btn-icon"><i data-lucide="chevron-left"></i></button><h2 class="text-3xl font-bebas">COMMUNITY</h2></div><div id="joined-communities-section" class="hidden mb-5"><div class="text-xs uppercase mb-2">Your Rooms</div><div id="my-communities-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div></div><div class="grid grid-cols-2 gap-4"><div class="comm-card p-6 cursor-pointer" onclick="showView('create-community')"><i data-lucide="plus-circle" class="w-7 h-7 text-orange-400 mb-2"></i><div class="text-2xl font-bebas">CREATE ROOM</div></div><div class="comm-card p-6 cursor-pointer" onclick="showView('join-community')"><i data-lucide="user-plus" class="w-7 h-7 text-indigo-400 mb-2"></i><div class="text-2xl font-bebas">JOIN ROOM</div></div></div></div>
+    <div id="view-create-community" class="view"><div class="max-w-md mx-auto"><button onclick="showView('community-hub')" class="btn btn-ghost btn-sm mb-3">← Back</button><div class="card p-6"><h3 class="text-2xl font-bebas">CREATE ROOM</h3><div class="space-y-3 mt-3"><input id="comm-create-name" placeholder="room-name (no spaces)" class="inp"><input id="comm-create-sentence" placeholder="Secret phrase" class="inp"><textarea id="comm-create-bio" placeholder="Description" class="inp h-24"></textarea><button onclick="handleCreateCommunity()" class="btn btn-accent3 w-full"><span id="create-comm-btn-text">CREATE</span><div id="create-comm-spinner" class="spinner hidden"></div></button></div></div></div></div>
+    <div id="view-join-community" class="view"><div class="max-w-md mx-auto"><button onclick="showView('community-hub')" class="btn btn-ghost btn-sm mb-3">← Back</button><div class="card p-6"><h3 class="text-2xl font-bebas">JOIN ROOM</h3><div class="space-y-3 mt-3"><input id="comm-join-name" placeholder="Room name" class="inp"><input id="comm-join-sentence" placeholder="Secret phrase" class="inp" onkeypress="if(event.key==='Enter')handleJoinCommunity()"><button onclick="handleJoinCommunity()" class="btn btn-accent w-full"><span id="join-comm-btn-text">ENTER</span><div id="join-comm-spinner" class="spinner hidden"></div></button></div></div></div></div>
+
     <!-- Updated COMMUNITY ROOM VIEW -->
     <div id="view-community-room" class="view"><div class="flex gap-3 items-center flex-wrap mb-4"><button onclick="showView('community-hub')" class="btn btn-ghost btn-icon"><i data-lucide="chevron-left"></i></button><div><div id="room-name" class="text-3xl font-bebas"></div><div id="room-bio" class="text-xs text-gray-400"></div></div><button onclick="refreshCommunityRoom()" class="btn btn-ghost btn-icon ml-auto"><i data-lucide="refresh-cw" class="w-4 h-4"></i></button></div><div class="grid md:grid-cols-[240px,1fr] gap-5"><div class="card p-4"><div class="flex justify-between items-center mb-3"><span class="text-xs uppercase">Members</span><span id="member-count" class="badge-red rounded-full px-2 text-xs">0</span></div><div id="member-list" class="space-y-2 max-h-80 overflow-y-auto"></div></div><div class="card p-4"><div id="comm-dropzone" class="dropzone p-4 mb-3" onclick="document.getElementById('comm-file-input').click()"><input type="file" id="comm-file-input" class="hidden" onchange="handleCommFileSelect(this.files[0])"><div id="comm-dropzone-empty"><i data-lucide="cloud-upload" class="w-8 h-8 mx-auto opacity-50"></i><p class="text-sm">Share file to room</p></div><div id="comm-dropzone-file" class="hidden"><i data-lucide="file-check" class="w-6 h-6 text-green-400 mx-auto"></i><p id="comm-file-name-display" class="text-sm font-bold"></p></div></div><textarea id="comm-send-text" placeholder="Type a message to share as .txt..." class="inp h-20 mb-3"></textarea><div class="mb-3"><div class="text-xs uppercase mb-2">Send to (select members)</div><div id="comm-target-list" class="flex flex-wrap gap-2"></div></div><div class="flex gap-2"><button id="comm-send-btn" onclick="handleCommSend()" class="btn btn-accent3 flex-1"><span id="comm-send-btn-text">SEND TO ROOM</span><div id="comm-send-spinner" class="spinner hidden"></div></button><button onclick="removeCommFile()" class="btn btn-danger btn-icon"><i data-lucide="x"></i></button></div><div class="mt-5"><div class="text-xs uppercase mb-2">Room Files</div><div id="comm-file-list" class="space-y-2 max-h-72 overflow-y-auto"></div></div></div></div></div>
   </main>
@@ -123,15 +128,38 @@
   window.showView = (name)=>{ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); let v=document.getElementById(`view-${name}`); if(v) v.classList.add('active'); if(name==='inbox' && currentUser) fetchInbox(); if(name==='community-hub' && currentUser) fetchMyCommunities(); lucide.createIcons(); };
   window.toggleTheme = ()=>{ let cur=document.documentElement.getAttribute('data-theme'); let nxt=cur==='dark'?'light':'dark'; document.documentElement.setAttribute('data-theme',nxt); localStorage.setItem('ex_theme',nxt); document.getElementById('theme-icon')?.setAttribute('data-lucide',nxt==='dark'?'moon':'sun'); lucide.createIcons(); };
   window.setTransferMode=(m)=>{ currentTransferMode=m; document.querySelectorAll('[data-mode]').forEach(el=>el.classList.remove('font-bold','bg-white/10')); let activeTab=document.querySelector(`[data-mode="${m}"]`); activeTab.classList.add('font-bold','bg-white/10'); document.getElementById('private-fields').style.display=m==='private'?'':'none'; document.getElementById('public-code-display').style.display=m==='public'?'':'none'; if(m==='public'){ let code=String(Math.floor(Math.random()*90)+10); document.getElementById('generated-code').innerText=code; } };
-  window.setReceiveMode=(m)=>{ currentReceiveMode=m; document.querySelectorAll('[data-recv]').forEach(el=>el.classList.remove('bg-white/10')); document.querySelector(`[data-recv="${m}"]`).classList.add('bg-white/10'); document.getElementById('receive-private-fields').style.display=m==='private'?'':'none'; document.getElementById('receive-public-fields').style.display=m==='public'?'':'none'; };
+  window.setReceiveMode=(m)=>{ 
+    currentReceiveMode=m; 
+    document.querySelectorAll('[data-recv]').forEach(el=>el.classList.remove('bg-white/10','font-bold')); 
+    document.querySelector(`[data-recv="${m}"]`).classList.add('bg-white/10','font-bold'); 
+    document.getElementById('receive-private-fields').classList.toggle('hidden', m==='public');
+    document.getElementById('receive-public-fields').classList.toggle('hidden', m==='private');
+  };
   
   // AUTH
   function playSound(type) {
     const snd = document.getElementById(type === 'success' ? 'snd-success' : 'snd-pop');
-    if (snd) { snd.currentTime = 0; snd.play().catch(() => {}); }
+    if (snd) { 
+      snd.pause();
+      snd.currentTime = 0; 
+      snd.play().catch(e => console.log('Sound error:', e)); 
+    }
   }
 
-  // Session Persistence
+  // Single Session Enforcement
+  async function checkSession() {
+    if (!currentUser) return;
+    const localSid = localStorage.getItem('ex_sid');
+    let { data, error } = await sb.from('users').select('bio').eq('id', currentUser.id).single();
+    if (data && data.bio && data.bio.includes('SID:')) {
+      const dbSid = data.bio.split('SID:')[1].split(' ')[0];
+      if (dbSid !== localSid) {
+        handleLogout();
+        showToast('Logged out: Session active elsewhere', 'error');
+      }
+    }
+  }
+
   async function initAuth() {
     const savedUser = localStorage.getItem('ex_user');
     if (savedUser) {
@@ -144,29 +172,77 @@
           document.getElementById('nav-username').innerText = `@${data.username}`;
           document.getElementById('profile-name').innerText = data.name;
           document.getElementById('profile-username').innerText = `@${data.username}`;
-          document.getElementById('profile-bio').value = data.bio || '';
+          document.getElementById('profile-bio').value = data.bio ? data.bio.split('SID:')[0].trim() : '';
+          setupRealtime();
           fetchInbox();
+          checkSession();
         }
       } catch (e) { localStorage.removeItem('ex_user'); }
     }
   }
 
-  // Unique 2-Digit Code Generator
-  async function generateUniqueCode() {
-    const cutoff = new Date(Date.now() - 3600000).toISOString();
-    let { data } = await sb.from('transfers').select('public_code').gte('created_at', cutoff).eq('is_public', true);
-    let usedCodes = new Set(data?.map(t => t.public_code) || []);
-    for (let i = 0; i < 100; i++) {
-      let code = String(i).padStart(2, '0');
-      if (!usedCodes.has(code)) return code;
-    }
-    return String(Math.floor(Math.random() * 90) + 10);
+  function setupRealtime() {
+    if (!currentUser) return;
+    sb.channel('inbox-watch')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'transfers', filter: `receiver_username=eq.${currentUser.username}` }, (payload) => {
+        playSound('pop');
+        showToast('New file received!', 'success');
+        fetchInbox();
+      })
+      .subscribe();
   }
 
   window.handleSignup=async()=>{ let name=document.getElementById('signup-name').value.trim(), username=document.getElementById('signup-username').value.trim().toLowerCase(), pwd=document.getElementById('signup-password').value; if(!name||!username||pwd.length<8) return showToast('Invalid fields (pwd min 8)','error'); setLoading('signup-btn-text','signup-spinner',null,true); let {error}=await sb.from('users').insert([{name,username,password:pwd,bio:''}]); setLoading('signup-btn-text','signup-spinner',null,false); if(error) return showToast(error.message,'error'); showToast('Account created! Login','success'); showView('login'); };
-  window.handleLogin=async()=>{ let username=document.getElementById('login-username').value.trim().toLowerCase(), pwd=document.getElementById('login-password').value; if(!username||!pwd) return showToast('Fill fields','error'); setLoading('login-btn-text','login-spinner',null,true); let {data,error}=await sb.from('users').select('*').eq('username',username).eq('password',pwd).single(); setLoading('login-btn-text','login-spinner',null,false); if(error||!data) return showToast('Invalid credentials','error'); currentUser=data; localStorage.setItem('ex_user', JSON.stringify(data)); playSound('success'); document.getElementById('user-display').classList.remove('hidden'); document.getElementById('nav-username').innerText=`@${username}`; document.getElementById('profile-name').innerText=data.name; document.getElementById('profile-username').innerText=`@${username}`; document.getElementById('profile-bio').value=data.bio||''; showToast(`Welcome ${data.name}`,'success'); showView('menu'); fetchInbox(); fetchMyCommunities(); };
-  window.handleLogout=()=>{ localStorage.removeItem('ex_user'); currentUser=null; document.getElementById('user-display').classList.add('hidden'); showToast('Logged out','info'); showView('landing'); };
-  window.updateBio=async()=>{ if(!currentUser)return; let bio=document.getElementById('profile-bio').value.slice(0,101); await sb.from('users').update({bio}).eq('id',currentUser.id); currentUser.bio=bio; showToast('Bio saved','success'); };
+  window.handleLogin=async()=>{ 
+    let username=document.getElementById('login-username').value.trim().toLowerCase(), pwd=document.getElementById('login-password').value; 
+    if(!username||!pwd) return showToast('Fill fields','error'); 
+    setLoading('login-btn-text','login-spinner',null,true); 
+    let {data,error}=await sb.from('users').select('*').eq('username',username).eq('password',pwd).single(); 
+    if(error||!data) {
+      setLoading('login-btn-text','login-spinner',null,false);
+      return showToast('Invalid credentials','error');
+    }
+    
+    // Create new session ID
+    const sid = Math.random().toString(36).substring(2, 15);
+    const newBio = (data.bio ? data.bio.split('SID:')[0].trim() : '') + ` SID:${sid}`;
+    await sb.from('users').update({ bio: newBio }).eq('id', data.id);
+    
+    currentUser=data; 
+    localStorage.setItem('ex_user', JSON.stringify(data)); 
+    localStorage.setItem('ex_sid', sid);
+    playSound('success'); 
+    document.getElementById('user-display').classList.remove('hidden'); 
+    document.getElementById('nav-username').innerText=`@${username}`; 
+    document.getElementById('profile-name').innerText=data.name; 
+    document.getElementById('profile-username').innerText=`@${username}`; 
+    document.getElementById('profile-bio').value=data.bio ? data.bio.split('SID:')[0].trim() : ''; 
+    showToast(`Welcome ${data.name}`,'success'); 
+    showView('menu'); 
+    setupRealtime();
+    fetchInbox(); 
+    fetchMyCommunities(); 
+    setLoading('login-btn-text','login-spinner',null,false);
+  };
+
+  window.handleLogout=()=>{ 
+    localStorage.removeItem('ex_user'); 
+    localStorage.removeItem('ex_sid');
+    currentUser = null; 
+    document.getElementById('user-display').classList.add('hidden'); 
+    showToast('Logged out','info'); 
+    showView('landing'); 
+  };
+
+  window.updateBio=async()=>{ 
+    if(!currentUser)return; 
+    const sid = localStorage.getItem('ex_sid');
+    let bioText = document.getElementById('profile-bio').value.slice(0, 80); 
+    const finalBio = bioText + (sid ? ` SID:${sid}` : '');
+    await sb.from('users').update({ bio: finalBio }).eq('id', currentUser.id); 
+    currentUser.bio = finalBio; 
+    showToast('Bio saved','success'); 
+  };
   
   // FILE SEND/RECEIVE
   window.handleFileSelection=(f)=>{ if(!f) return; if(f.size>3*1024*1024) return showToast('Max 3MB','error'); selectedFile=f; document.getElementById('dropzone-empty').classList.add('hidden'); document.getElementById('dropzone-file').classList.remove('hidden'); document.getElementById('file-name-display').innerText=f.name; };
@@ -283,7 +359,32 @@
   async function refreshCommunityRoom(){ if(!currentCommunity) return; let {data:members}=await sb.from('community_members').select('*, users(name,username)').eq('community_id',currentCommunity.id); document.getElementById('member-count').innerText=members?.length||0; document.getElementById('member-list').innerHTML=members?.map(m=>`<div class="member-item p-2 rounded-lg flex gap-2 items-center"><i data-lucide="user" class="w-3 h-3"></i><span class="text-sm truncate">${escapeHtml(m.users.name)}</span>${m.role==='admin'?'<span class="tag text-orange-400">admin</span>':''}</div>`).join('')||''; let targetDiv=document.getElementById('comm-target-list'); let others=members?.filter(m=>m.user_id!==currentUser?.id)||[]; targetDiv.innerHTML=others.map(m=>`<label class="flex items-center gap-1 text-sm bg-white/5 px-2 py-1 rounded cursor-pointer"><input type="checkbox" class="comm-target-cb" value="${m.user_id}">${escapeHtml(m.users.name)}</label>`).join('')||'<span class="text-xs text-gray-400">No other members</span>'; let {data:files}=await sb.from('community_files').select('*, users(name)').eq('community_id',currentCommunity.id).order('created_at',{ascending:false}); document.getElementById('comm-file-list').innerHTML=files?.map(f=>`<div class="file-item p-2 flex justify-between items-center"><div class="truncate flex-1 mr-2"><div class="text-sm font-medium truncate">${escapeHtml(f.file_name)}</div><div class="text-xs text-gray-400">by ${escapeHtml(f.users.name)}</div></div><button onclick="downloadCommFile('${f.id}')" class="btn btn-ghost !p-2"><i data-lucide="download" class="w-3 h-3"></i></button></div>`).join('')||'<div class="text-center text-gray-400 text-sm py-4">No files yet</div>'; lucide.createIcons(); }
   window.handleCommFileSelect=(f)=>{ if(!f)return; if(f.size>3*1024*1024) return showToast('Max 3MB','error'); selectedCommFile=f; document.getElementById('comm-dropzone-empty').classList.add('hidden'); document.getElementById('comm-dropzone-file').classList.remove('hidden'); document.getElementById('comm-file-name-display').innerText=f.name; };
   window.removeCommFile=()=>{ selectedCommFile=null; document.getElementById('comm-dropzone-empty').classList.remove('hidden'); document.getElementById('comm-dropzone-file').classList.add('hidden'); document.getElementById('comm-file-input').value=''; };
-  window.handleCommSend=async()=>{ if(!selectedCommFile) return showToast('Select file','error'); let targets=[...document.querySelectorAll('.comm-target-cb:checked')].map(cb=>cb.value); setLoading('comm-send-btn-text','comm-send-spinner','comm-send-btn',true); try{ let path=`community/${currentCommunity.id}/${Date.now()}_${selectedCommFile.name}`; let {error:upErr}=await sb.storage.from('transfers').upload(path,selectedCommFile); if(upErr) throw upErr; await sb.from('community_files').insert([{community_id:currentCommunity.id, sender_id:currentUser.id, receiver_ids:targets.length?targets:null, file_name:selectedCommFile.name, file_path:path}]); showToast('File shared','success'); removeCommFile(); refreshCommunityRoom(); }catch(e){ showToast(e.message,'error'); } setLoading('comm-send-btn-text','comm-send-spinner','comm-send-btn',false); };
+  window.handleCommSend=async()=>{ 
+    let textMsg = document.getElementById('comm-send-text').value.trim();
+    if(!selectedCommFile && !textMsg) return showToast('Select file or type message','error'); 
+    let targets=[...document.querySelectorAll('.comm-target-cb:checked')].map(cb=>cb.value); 
+    setLoading('comm-send-btn-text','comm-send-spinner','comm-send-btn',true); 
+    try{ 
+      let fileName = selectedCommFile ? selectedCommFile.name : `room_msg_${Date.now()}.txt`;
+      let fileToUpload = selectedCommFile;
+      if (!selectedCommFile && textMsg) {
+        const blob = new Blob([textMsg], { type: 'text/plain' });
+        fileToUpload = new File([blob], fileName, { type: 'text/plain' });
+      }
+      let path=`community/${currentCommunity.id}/${Date.now()}_${fileName}`; 
+      let {error:upErr}=await sb.storage.from('transfers').upload(path,fileToUpload); 
+      if(upErr) throw upErr; 
+      await sb.from('community_files').insert([{community_id:currentCommunity.id, sender_id:currentUser.id, receiver_ids:targets.length?targets:null, file_name:fileName, file_path:path}]); 
+      playSound('success');
+      showToast('Shared to room','success'); 
+      removeCommFile(); 
+      document.getElementById('comm-send-text').value = '';
+      refreshCommunityRoom(); 
+    }catch(e){ 
+      showToast(e.message,'error'); 
+    } 
+    setLoading('comm-send-btn-text','comm-send-spinner','comm-send-btn',false); 
+  };
   window.downloadCommFile=async(id)=>{ let {data}=await sb.from('community_files').select('*').eq('id',id).single(); if(data?.file_path){ let {data:blob}=await sb.storage.from('transfers').download(data.file_path); triggerDownload(blob,data.file_name); } };
   window.refreshCommunityRoom=refreshCommunityRoom;
   
