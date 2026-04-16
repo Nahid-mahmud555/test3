@@ -221,8 +221,15 @@
     const snd = document.getElementById(type === 'success' ? 'snd-success' : 'snd-pop');
     if (snd) { 
       snd.volume = 0.5;
-      snd.currentTime = 0; 
-      snd.play().catch(e => console.log('Sound error:', e)); 
+      // Firefox/Chrome Autoplay fix: ensure audio is loaded and played
+      const playPromise = snd.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          console.log('Playback prevented. User must interact first.');
+          // Fallback: try to play on next click if blocked
+          document.addEventListener('click', () => snd.play(), { once: true });
+        });
+      }
     }
   }
 
@@ -573,6 +580,7 @@
   async function fetchMyCommunities(){ if(!currentUser) return; let {data}=await sb.from('community_members').select('community_id, communities(*)').eq('user_id',currentUser.id); let sec=document.getElementById('joined-communities-section'); let listDiv=document.getElementById('my-communities-list'); if(!data?.length){ sec.classList.add('hidden'); return; } sec.classList.remove('hidden'); listDiv.innerHTML=data.map(i=>`<div onclick="enterCommunityRoom('${i.communities.id}')" class="comm-card p-4 cursor-pointer"><div class="font-bold">#${escapeHtml(i.communities.name)}</div><div class="text-xs text-gray-400 truncate">${escapeHtml(i.communities.bio||'No description')}</div></div>`).join(''); lucide.createIcons(); }
   window.handleCreateCommunity=async()=>{ if(!currentUser) return showToast('Login first','error'); let name=document.getElementById('comm-create-name').value.trim().toLowerCase().replace(/\s/g,'-'); let sentence=document.getElementById('comm-create-sentence').value.trim(); let bio=document.getElementById('comm-create-bio').value.trim(); if(!name||!sentence) return showToast('Room name & phrase','error'); setLoading('create-comm-btn-text','create-comm-spinner',null,true); let {data:comm,error}=await sb.from('communities').insert([{name,secret_sentence:sentence,bio,creator_id:currentUser.id}]).select().single(); setLoading('create-comm-btn-text','create-comm-spinner',null,false); if(error) return showToast(error.message,'error'); await sb.from('community_members').insert([{community_id:comm.id,user_id:currentUser.id,role:'admin',permissions:{can_send:true,can_delete:true}}]); showToast(`Room ${name} created`,'success'); enterCommunityRoom(comm.id); };
   window.handleJoinCommunity=async()=>{ if(!currentUser) return showToast('Login','error'); let name=document.getElementById('comm-join-name').value.trim().toLowerCase(); let sentence=document.getElementById('comm-join-sentence').value.trim(); if(!name||!sentence) return; setLoading('join-comm-btn-text','join-comm-spinner',null,true); let {data:comm}=await sb.from('communities').select('*').eq('name',name).eq('secret_sentence',sentence).single(); setLoading('join-comm-btn-text','join-comm-spinner',null,false); if(!comm) return showToast('Invalid credentials','error'); let existing=await sb.from('community_members').select('*').eq('community_id',comm.id).eq('user_id',currentUser.id).single(); if(!existing.data) await sb.from('community_members').insert([{community_id:comm.id,user_id:currentUser.id,role:'member',permissions:{can_send:true}}]); showToast(`Joined #${comm.name}`,'success'); enterCommunityRoom(comm.id); };
+  let communityChannel = null;
   window.enterCommunityRoom=async(commId)=>{ 
     let {data:comm}=await sb.from('communities').select('*').eq('id',commId).single(); 
     if(!comm) return; 
@@ -584,6 +592,20 @@
     document.getElementById('room-name').innerText=`#${comm.name}`; 
     document.getElementById('room-bio').innerText=comm.bio||''; 
     
+    // Real-time for Community
+    if (communityChannel) communityChannel.unsubscribe();
+    communityChannel = sb.channel(`room-${commId}`)
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'community_files', 
+        filter: `community_id=eq.${commId}` 
+      }, () => {
+        playSound('pop');
+        refreshCommunityRoom();
+      })
+      .subscribe();
+
     // Show/Hide Delete Room button for creator/admin
     const isCreator = comm.creator_id === currentUser.id;
     const roomHeader = document.querySelector('#view-community-room .flex.gap-3.items-center');
