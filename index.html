@@ -59,6 +59,8 @@
 <body>
 
 <div id="toast-container" class="toast-container"></div>
+<audio id="snd-pop" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" preload="auto"></audio>
+<audio id="snd-success" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3" preload="auto"></audio>
 <div id="loading-screen" style="position:fixed; inset:0; background:#030305; z-index:9999; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:1rem;">
   <div style="font-family:'Bebas Neue'; font-size:100px; background:linear-gradient(135deg,#4f6ef7,#a78bfa); -webkit-background-clip:text; color:transparent;">EX</div>
   <div class="loader-bar w-40 h-0.5 bg-white/20 rounded-full overflow-hidden"><div class="loader-fill w-0 h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-[1800ms]"></div></div>
@@ -136,6 +138,18 @@
     document.getElementById('receive-public-fields').classList.toggle('hidden', m==='private');
   };
   
+  // Unique 2-Digit Code Generator
+  async function generateUniqueCode() {
+    const cutoff = new Date(Date.now() - 3600000).toISOString();
+    let { data } = await sb.from('transfers').select('public_code').gte('created_at', cutoff).eq('is_public', true);
+    let usedCodes = new Set(data?.map(t => t.public_code) || []);
+    for (let i = 0; i < 100; i++) {
+      let code = String(i).padStart(2, '0');
+      if (!usedCodes.has(code)) return code;
+    }
+    return String(Math.floor(Math.random() * 90) + 10);
+  }
+
   // AUTH
   function playSound(type) {
     const snd = document.getElementById(type === 'success' ? 'snd-success' : 'snd-pop');
@@ -146,9 +160,18 @@
     }
   }
 
-  // Single Session Enforcement
+  // Auto Logout & Session Enforcement
+  function checkAutoLogout() {
+    const loginTime = localStorage.getItem('ex_login_time');
+    if (loginTime && Date.now() - parseInt(loginTime) > 3600000) { // 1 hour
+      handleLogout();
+      showToast('Session expired (1h)', 'info');
+    }
+  }
+
   async function checkSession() {
     if (!currentUser) return;
+    checkAutoLogout();
     const localSid = localStorage.getItem('ex_sid');
     let { data, error } = await sb.from('users').select('bio').eq('id', currentUser.id).single();
     if (data && data.bio && data.bio.includes('SID:')) {
@@ -176,6 +199,7 @@
           setupRealtime();
           fetchInbox();
           checkSession();
+          setInterval(checkSession, 60000); // Check every minute
         }
       } catch (e) { localStorage.removeItem('ex_user'); }
     }
@@ -211,6 +235,7 @@
     currentUser=data; 
     localStorage.setItem('ex_user', JSON.stringify(data)); 
     localStorage.setItem('ex_sid', sid);
+    localStorage.setItem('ex_login_time', Date.now().toString());
     playSound('success'); 
     document.getElementById('user-display').classList.remove('hidden'); 
     document.getElementById('nav-username').innerText=`@${username}`; 
@@ -228,6 +253,7 @@
   window.handleLogout=()=>{ 
     localStorage.removeItem('ex_user'); 
     localStorage.removeItem('ex_sid');
+    localStorage.removeItem('ex_login_time');
     currentUser = null; 
     document.getElementById('user-display').classList.add('hidden'); 
     showToast('Logged out','info'); 
@@ -355,11 +381,47 @@
   async function fetchMyCommunities(){ if(!currentUser) return; let {data}=await sb.from('community_members').select('community_id, communities(*)').eq('user_id',currentUser.id); let sec=document.getElementById('joined-communities-section'); let listDiv=document.getElementById('my-communities-list'); if(!data?.length){ sec.classList.add('hidden'); return; } sec.classList.remove('hidden'); listDiv.innerHTML=data.map(i=>`<div onclick="enterCommunityRoom('${i.communities.id}')" class="comm-card p-4 cursor-pointer"><div class="font-bold">#${escapeHtml(i.communities.name)}</div><div class="text-xs text-gray-400 truncate">${escapeHtml(i.communities.bio||'No description')}</div></div>`).join(''); lucide.createIcons(); }
   window.handleCreateCommunity=async()=>{ if(!currentUser) return showToast('Login first','error'); let name=document.getElementById('comm-create-name').value.trim().toLowerCase().replace(/\s/g,'-'); let sentence=document.getElementById('comm-create-sentence').value.trim(); let bio=document.getElementById('comm-create-bio').value.trim(); if(!name||!sentence) return showToast('Room name & phrase','error'); setLoading('create-comm-btn-text','create-comm-spinner',null,true); let {data:comm,error}=await sb.from('communities').insert([{name,secret_sentence:sentence,bio,creator_id:currentUser.id}]).select().single(); setLoading('create-comm-btn-text','create-comm-spinner',null,false); if(error) return showToast(error.message,'error'); await sb.from('community_members').insert([{community_id:comm.id,user_id:currentUser.id,role:'admin',permissions:{can_send:true,can_delete:true}}]); showToast(`Room ${name} created`,'success'); enterCommunityRoom(comm.id); };
   window.handleJoinCommunity=async()=>{ if(!currentUser) return showToast('Login','error'); let name=document.getElementById('comm-join-name').value.trim().toLowerCase(); let sentence=document.getElementById('comm-join-sentence').value.trim(); if(!name||!sentence) return; setLoading('join-comm-btn-text','join-comm-spinner',null,true); let {data:comm}=await sb.from('communities').select('*').eq('name',name).eq('secret_sentence',sentence).single(); setLoading('join-comm-btn-text','join-comm-spinner',null,false); if(!comm) return showToast('Invalid credentials','error'); let existing=await sb.from('community_members').select('*').eq('community_id',comm.id).eq('user_id',currentUser.id).single(); if(!existing.data) await sb.from('community_members').insert([{community_id:comm.id,user_id:currentUser.id,role:'member',permissions:{can_send:true}}]); showToast(`Joined #${comm.name}`,'success'); enterCommunityRoom(comm.id); };
-  window.enterCommunityRoom=async(commId)=>{ let {data:comm}=await sb.from('communities').select('*').eq('id',commId).single(); if(!comm) return; currentCommunity=comm; document.getElementById('room-name').innerText=`#${comm.name}`; document.getElementById('room-bio').innerText=comm.bio||''; showView('community-room'); refreshCommunityRoom(); };
-  async function refreshCommunityRoom(){ if(!currentCommunity) return; let {data:members}=await sb.from('community_members').select('*, users(name,username)').eq('community_id',currentCommunity.id); document.getElementById('member-count').innerText=members?.length||0; document.getElementById('member-list').innerHTML=members?.map(m=>`<div class="member-item p-2 rounded-lg flex gap-2 items-center"><i data-lucide="user" class="w-3 h-3"></i><span class="text-sm truncate">${escapeHtml(m.users.name)}</span>${m.role==='admin'?'<span class="tag text-orange-400">admin</span>':''}</div>`).join('')||''; let targetDiv=document.getElementById('comm-target-list'); let others=members?.filter(m=>m.user_id!==currentUser?.id)||[]; targetDiv.innerHTML=others.map(m=>`<label class="flex items-center gap-1 text-sm bg-white/5 px-2 py-1 rounded cursor-pointer"><input type="checkbox" class="comm-target-cb" value="${m.user_id}">${escapeHtml(m.users.name)}</label>`).join('')||'<span class="text-xs text-gray-400">No other members</span>'; let {data:files}=await sb.from('community_files').select('*, users(name)').eq('community_id',currentCommunity.id).order('created_at',{ascending:false}); document.getElementById('comm-file-list').innerHTML=files?.map(f=>`<div class="file-item p-2 flex justify-between items-center"><div class="truncate flex-1 mr-2"><div class="text-sm font-medium truncate">${escapeHtml(f.file_name)}</div><div class="text-xs text-gray-400">by ${escapeHtml(f.users.name)}</div></div><button onclick="downloadCommFile('${f.id}')" class="btn btn-ghost !p-2"><i data-lucide="download" class="w-3 h-3"></i></button></div>`).join('')||'<div class="text-center text-gray-400 text-sm py-4">No files yet</div>'; lucide.createIcons(); }
+  window.enterCommunityRoom=async(commId)=>{ 
+    let {data:comm}=await sb.from('communities').select('*').eq('id',commId).single(); 
+    if(!comm) return; 
+    currentCommunity=comm; 
+    let {data:member}=await sb.from('community_members').select('*').eq('community_id',commId).eq('user_id',currentUser.id).single();
+    myMemberRole = member?.role || 'member';
+    myMemberPermissions = member?.permissions || {};
+    document.getElementById('room-name').innerText=`#${comm.name}`; 
+    document.getElementById('room-bio').innerText=comm.bio||''; 
+    showView('community-room'); 
+    refreshCommunityRoom(); 
+  };
+  async function refreshCommunityRoom(){ 
+    if(!currentCommunity) return; 
+    let {data:members}=await sb.from('community_members').select('*, users(name,username)').eq('community_id',currentCommunity.id); 
+    document.getElementById('member-count').innerText=members?.length||0; 
+    document.getElementById('member-list').innerHTML=members?.map(m=>`<div class="member-item p-2 rounded-lg flex gap-2 items-center"><i data-lucide="user" class="w-3 h-3"></i><span class="text-sm truncate">${escapeHtml(m.users.name)}</span>${m.role==='admin'?'<span class="tag text-orange-400">admin</span>':''}</div>`).join('')||''; 
+    let targetDiv=document.getElementById('comm-target-list'); 
+    let others=members?.filter(m=>m.user_id!==currentUser?.id)||[]; 
+    targetDiv.innerHTML=others.map(m=>`<label class="flex items-center gap-1 text-sm bg-white/5 px-2 py-1 rounded cursor-pointer"><input type="checkbox" class="comm-target-cb" value="${m.user_id}">${escapeHtml(m.users.name)}</label>`).join('')||'<span class="text-xs text-gray-400">No other members</span>'; 
+    
+    // 24 Hour Purge Filter
+    let cutoff = new Date(Date.now() - 86400000).toISOString();
+    let {data:files}=await sb.from('community_files').select('*, users(name)').eq('community_id',currentCommunity.id).gte('created_at', cutoff).order('created_at',{ascending:false}); 
+    document.getElementById('comm-file-list').innerHTML=files?.map(f=>`
+      <div class="file-item p-2 flex justify-between items-center">
+        <div class="truncate flex-1 mr-2">
+          <div class="text-sm font-medium truncate">${escapeHtml(f.file_name)}</div>
+          <div class="text-xs text-gray-400">by ${escapeHtml(f.users.name)}</div>
+        </div>
+        <div class="flex gap-1">
+          <button onclick="downloadCommFile('${f.id}')" class="btn btn-ghost !p-2"><i data-lucide="download" class="w-3 h-3"></i></button>
+          ${(myMemberRole==='admin' || myMemberPermissions.can_delete || f.sender_id===currentUser.id) ? `<button onclick="deleteCommFile('${f.id}','${f.file_path}')" class="btn btn-danger !p-2"><i data-lucide="trash-2" class="w-3 h-3"></i></button>` : ''}
+        </div>
+      </div>`).join('')||'<div class="text-center text-gray-400 text-sm py-4">No files yet</div>'; 
+    lucide.createIcons(); 
+  }
   window.handleCommFileSelect=(f)=>{ if(!f)return; if(f.size>3*1024*1024) return showToast('Max 3MB','error'); selectedCommFile=f; document.getElementById('comm-dropzone-empty').classList.add('hidden'); document.getElementById('comm-dropzone-file').classList.remove('hidden'); document.getElementById('comm-file-name-display').innerText=f.name; };
   window.removeCommFile=()=>{ selectedCommFile=null; document.getElementById('comm-dropzone-empty').classList.remove('hidden'); document.getElementById('comm-dropzone-file').classList.add('hidden'); document.getElementById('comm-file-input').value=''; };
   window.handleCommSend=async()=>{ 
+    if(myMemberRole !== 'admin' && !myMemberPermissions.can_send) return showToast('No permission to send','error');
     let textMsg = document.getElementById('comm-send-text').value.trim();
     if(!selectedCommFile && !textMsg) return showToast('Select file or type message','error'); 
     let targets=[...document.querySelectorAll('.comm-target-cb:checked')].map(cb=>cb.value); 
@@ -386,6 +448,14 @@
     setLoading('comm-send-btn-text','comm-send-spinner','comm-send-btn',false); 
   };
   window.downloadCommFile=async(id)=>{ let {data}=await sb.from('community_files').select('*').eq('id',id).single(); if(data?.file_path){ let {data:blob}=await sb.storage.from('transfers').download(data.file_path); triggerDownload(blob,data.file_name); } };
+  window.deleteCommFile=async(id,path)=>{
+    if(confirm('Delete this file?')){
+      if(path) await sb.storage.from('transfers').remove([path]);
+      await sb.from('community_files').delete().eq('id',id);
+      refreshCommunityRoom();
+      showToast('Deleted','success');
+    }
+  };
   window.refreshCommunityRoom=refreshCommunityRoom;
   
   // INIT
